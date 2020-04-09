@@ -8,14 +8,20 @@ import io.jsonwebtoken.SignatureAlgorithm;
 public class Constantes {
 
     // API Rest
-    public final static String RUTA_RELATIVA_MANEJADORES = "controlador/rest/manejadores";
-    public final static String PAQUETE_MANEJADORES = "controlador.rest.manejadores";
+    public final static String RUTA_RELATIVA_MANEJADORES = "controlador/rest/handlers";
+    public final static String PAQUETE_MANEJADORES = "controlador.rest.handlers";
 
     public final static String RESPUESTA_KEY_MSG = "msg";
     public final static String RESPUESTA_KEY_TOKEN = "token";
 
     // Server
     public final static String NOMBRE_APP = "RSAnalytics";
+    public final static String EMAIL_REGEX = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
+    public final static String NOMBRE_REGEX = "^(?:[A-Za-zÑñÁáÉéÍíÓóÚú])+(?:\\s(?:[A-Za-zÑñÁáÉéÍíÓóÚú])+)*";
+    public final static int LONGITUD_MINIMA_CONTRASENIAS = 8;
+    public final static String CONTRASENIA_REGEX = "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\\$%\\^&\\*])";
+    public final static String TELEFONO_REGEX = "^[0-9]{9}";
+
     public final static boolean HAY_SUFICIENTES_HILOS = Runtime.getRuntime().availableProcessors() >= 4;
     public static int HILOS_PARA_ACEPTADOR;
     public static int HILOS_PARA_SCRAPER;
@@ -50,5 +56,5 @@ public class Constantes {
     public final static String JWT_KEY_SUJETO = "sub";
     public final static String JWT_KEY_ADMIN = "admin";
 
-    public final static int TIEMPO_EXPIRACION_TOKEN_ACCESO = 240; // Minutos
+    public final static int TIEMPO_EXPIRACION_TOKEN_ACCESO = 180; // Minutos
 }

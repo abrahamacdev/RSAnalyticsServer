@@ -1,12 +1,17 @@
 package utilidades;
 
-import at.favre.lib.crypto.bcrypt.BCrypt;
-import at.favre.lib.crypto.bcrypt.LongPasswordStrategies;
+import com.sun.xml.fastinfoset.util.CharArray;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
+import org.tinylog.Logger;
 
-import java.security.SecureRandom;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.Charset;
+import java.util.Arrays;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static utilidades.Constantes.*;
 
@@ -57,5 +62,57 @@ public class Utils {
         }
 
         return null;
+    }
+
+    public static boolean correoValido(String correo){
+        Pattern pattern = Pattern.compile(EMAIL_REGEX);
+        Matcher matcher = pattern.matcher(correo);
+
+        return matcher.find();
+    }
+
+    public static boolean nombreValido(String nombre){
+
+        Pattern pattern = Pattern.compile(NOMBRE_REGEX);
+        Matcher matcher = pattern.matcher(nombre);
+
+        return matcher.find();
+    }
+
+    public static boolean contraseniaValida(byte[] contrasenia){
+
+        char[] tempContrasenia = new char[contrasenia.length];
+
+        for (int i=0; i<contrasenia.length; i++){
+            tempContrasenia[i] = (char) contrasenia[i];
+        }
+
+        boolean longitudNecesaria = tempContrasenia.length >= LONGITUD_MINIMA_CONTRASENIAS;
+
+        // Si tiene la longitud necesaria...
+        if (longitudNecesaria){
+
+            Pattern pattern = Pattern.compile(CONTRASENIA_REGEX);
+            Matcher matcher = pattern.matcher(CharBuffer.wrap(tempContrasenia));
+
+            return matcher.find();
+        }
+        return false;
+    }
+
+    public static boolean contraseniaValida(String contrasenia){
+
+        Pattern pattern = Pattern.compile(CONTRASENIA_REGEX);
+        Matcher matcher = pattern.matcher(contrasenia);
+
+        return matcher.find();
+    }
+
+    public static boolean telefonoValido(String telefono){
+
+        Pattern pattern = Pattern.compile(TELEFONO_REGEX);
+        Matcher matcher = pattern.matcher(telefono);
+
+        return matcher.find();
     }
 }

@@ -108,6 +108,6 @@ public class TokensManejador {
         long duracion = Constantes.TIEMPO_EXPIRACION_TOKEN_ACCESO *  60 * 1000; // min -> seg -> ms
         long expiration = actual + duracion;
 
-        return new Par<Long, Long>(actual, duracion);
+        return new Par<Long, Long>(actual, expiration);
     }
 }

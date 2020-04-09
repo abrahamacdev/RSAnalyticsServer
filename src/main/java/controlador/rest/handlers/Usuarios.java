@@ -1,4 +1,4 @@
-package controlador.rest.manejadores;
+package controlador.rest.handlers;
 
 import controlador.managers.ControladorUsuario;
 import controlador.seguridad.Securata;
@@ -9,9 +9,11 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.tinylog.Logger;
+import sun.nio.ch.Util;
 import utilidades.HTTPCodes;
 import utilidades.Constantes;
 import utilidades.Par;
+import utilidades.Utils;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -107,6 +109,18 @@ public class Usuarios {
                         return;
                     }
 
+                    // COmprobamos que todos los campos sean validos
+                    Par<Boolean, String> camposValidados = camposRegistroValidos(usuarioTemp);
+
+                    // Alguno de los campos no es valido
+                    if (!camposValidados.getPrimero()){
+                        ctx.status(HTTPCodes._400.getCodigo());
+                        respuesta.put(Constantes.RESPUESTA_KEY_MSG, camposValidados.getSegundo());
+                        ctx.json(respuesta);
+                        return;
+                    }
+
+                    // Comprobamos que no exista un usuario con el mismo correo
                     ControladorUsuario controladorUsuario = new ControladorUsuario();
 
                     Par<Integer, Usuario> resultado = controladorUsuario.buscarUsuarioPorCorreo(usuarioTemp.getCorreo());
@@ -177,6 +191,53 @@ public class Usuarios {
         boolean contieneContrasenia = usuario.getSegundoApellido() != null;
 
         return contieneNombre && contienePrimerAp && contieneSegundoAp && contieneTelefono && contieneCorreo && contieneContrasenia;
+    }
+
+    /**
+     * Comprobamos que todos los campos necesarios para el registro sean validos
+     * @param usuario
+     * @return
+     */
+    private Par<Boolean, String> camposRegistroValidos(Usuario usuario){
+
+        Par<Boolean, String> par = new Par<>(true, null);
+
+        // NOmbre no valido
+        if (!Utils.nombreValido(usuario.getNombre())){
+            par = new Par<>(false, "Nombre no valido");
+            return par;
+        }
+
+        // Primer apellido no valido
+        if (!Utils.nombreValido(usuario.getPrimerApellido())){
+            par = new Par<>(false, "Primer apellido no valido");
+            return par;
+        }
+
+        // Segundo apellido no valido
+        if (!Utils.nombreValido(usuario.getSegundoApellido())){
+            par = new Par<>(false, "Segundo apellido no valido");
+            return par;
+        }
+
+        // Telefono no valido
+        if (!Utils.telefonoValido(usuario.getTelefono())){
+            par = new Par<>(false, "Telefono no valido");
+            return par;
+        }
+
+        // Correo no valido
+        if (!Utils.correoValido(usuario.getCorreo())){
+            par = new Par<>(false, "Correo no valido");
+            return par;
+        }
+
+        // Contrasenia no valida
+        if (!Utils.contraseniaValida(usuario.getContrasenia())){
+            par = new Par<>(false, "Contrasenia no valida");
+        }
+
+        return par;
     }
     // --------------------
 
