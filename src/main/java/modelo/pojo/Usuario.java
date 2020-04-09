@@ -48,8 +48,6 @@ public class Usuario {
         String telefono = null;
         byte[] contrasenia = null;
 
-        Logger.info(jsonObject.toJSONString());
-
         if (jsonObject.containsKey("correo")){
             correo = (String) jsonObject.get("correo");
         }
@@ -79,7 +77,8 @@ public class Usuario {
 
     @Override
     public String toString() {
-        return nombre + " - " + primerApellido + " - " + segundoApellido + " - " + telefono + " - " + correo;
+        return nombre + " - " + primerApellido + " - " + segundoApellido + " - " + telefono + " - " + correo +
+                ". Tiene contrasenia? - " + (contrasenia != null) + " - " + (rol == null ? "" : rol);
     }
 
 

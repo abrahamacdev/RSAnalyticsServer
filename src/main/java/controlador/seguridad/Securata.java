@@ -1,12 +1,14 @@
 package controlador.seguridad;
 
-import controlador.managers.UsuarioManager;
+import controlador.managers.ControladorUsuario;
 import io.javalin.http.Context;
 import modelo.pojo.Usuario;
 import org.json.simple.JSONObject;
+import org.tinylog.Logger;
 import utilidades.Constantes;
 import utilidades.HTTPCodes;
 import utilidades.Par;
+import utilidades.SecurityUtils;
 
 /**
  * El securata se encargara de proporcionar los tokens a los usuarios
@@ -21,7 +23,9 @@ public class Securata {
 
     private boolean activo = true;
 
-    private UsuarioManager usuarioManager;
+    private ControladorUsuario controladorUsuario;
+    private SecurityUtils securityUtils;
+    private TokensManejador tokensManejador;
 
     public Securata(Context ctx, JSONObject peticion){
         this(ctx, peticion, Usuario.fromJson(peticion), null);
@@ -32,11 +36,13 @@ public class Securata {
     }
 
     public Securata(Context ctx, JSONObject peticion, Usuario usuarioTemp, Usuario usuarioReal){
-        this.usuarioManager = new UsuarioManager();
+        this.controladorUsuario = new ControladorUsuario();
         this.ctx = ctx;
         this.peticion = peticion;
         this.usuarioTemp = usuarioTemp;
         this.usuarioReal = usuarioReal;
+        this.securityUtils = new SecurityUtils();
+        this.tokensManejador = new TokensManejador();
         init();
     }
 
@@ -44,41 +50,68 @@ public class Securata {
 
         // Si no tenemos los datos del usuario en la base de datos, no hay login poosible
         if (usuarioReal == null){
-            Par<Usuario, Exception> parUsuarioExcepcion = usuarioManager.buscarUsuarioPorCorreo(usuarioTemp.getCorreo());
+            Par<Integer, Usuario> resultado = controladorUsuario.buscarUsuarioPorCorreo(usuarioTemp.getCorreo());
+            int estado = resultado.getPrimero();
 
             JSONObject respuesta = new JSONObject();
 
-            // No eexiste usuario enn la base de datos con eese correo
-            if (parUsuarioExcepcion.getPrimero() == null && parUsuarioExcepcion.getSegundo() == null){
-                ctx.status(HTTPCodes._400.getCodigo());
-                respuesta.put(Constantes.RESPUESTA_MSG_KEY, "Compruebe que los datos introducidos son correctos");
+            // Ocurrio un error en el servidor
+            if (estado == 1){
+                ctx.status(HTTPCodes._500.getCodigo());
+                respuesta.put(Constantes.RESPUESTA_KEY_MSG, "Ocurrio un error en el servidor");
                 ctx.json(respuesta);
                 activo = false;
                 return;
             }
 
-            // Ocurrio un error en el servidor
-            else if (parUsuarioExcepcion.getSegundo() != null){
-                ctx.status(HTTPCodes._500.getCodigo());
-                respuesta.put(Constantes.RESPUESTA_MSG_KEY, "Ocurrio un error en el servidor");
+            // No existe usuario en la base de datos con ese correo
+            else if (estado == 2){
+                ctx.status(HTTPCodes._401.getCodigo());
+                respuesta.put(Constantes.RESPUESTA_KEY_MSG, "Compruebe que los datos introducidos son correctos");
                 ctx.json(respuesta);
                 activo = false;
                 return;
             }
 
             // El usuario existe en la base de datos
-            usuarioReal = parUsuarioExcepcion.getPrimero();
+            usuarioReal = resultado.getSegundo();
         }
 
     }
 
-    public Securata loguea(){
+    public void loguea(){
 
         // Solo si el securata esta activo realizara la accion
         if (activo){
 
-        }
+            JSONObject respuesta = new JSONObject();
 
-        return this;
+            boolean contraseniasCoinciden = securityUtils.verificarContrasenia(usuarioTemp.getContrasenia(), usuarioReal.getContrasenia());
+
+            // Comprobamos que las contraseñas coincidan
+            if (!contraseniasCoinciden){
+                ctx.status(HTTPCodes._401.getCodigo());
+                respuesta.put(Constantes.RESPUESTA_KEY_MSG, "Compruebe que los datos introducidos son correctos");
+                ctx.json(respuesta);
+                activo = false;
+                return;
+            }
+
+            // Creamos el token del usuario
+            String tokenUsuario = tokensManejador.crearTokenParaUsuario(usuarioReal);
+
+            // Ocurrio un erorr al crear el token
+            if (tokenUsuario == null){
+                ctx.status(HTTPCodes._500.getCodigo());
+                respuesta.put(Constantes.RESPUESTA_KEY_MSG, "Compruebe que los datos introducidos son correctos");
+                ctx.json(respuesta);
+                activo = false;
+                return;
+            }
+
+            ctx.status(HTTPCodes._200.getCodigo());
+            respuesta.put(Constantes.RESPUESTA_KEY_TOKEN, tokenUsuario);
+            ctx.json(respuesta);
+        }
     }
 }

@@ -17,4 +17,11 @@ public class Par<T,E> {
     public E getSegundo() {
         return segundo;
     }
+
+    @Override
+    public String toString() {
+        String msgPrimero = this.primero == null ? "" : this.primero.toString();
+        String msgSegundo = this.segundo == null ? "" : this.segundo.toString();
+        return "Primero: " + msgPrimero + " -- Segundo: " + msgSegundo;
+    }
 }

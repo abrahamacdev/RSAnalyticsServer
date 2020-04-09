@@ -21,6 +21,17 @@ CREATE TABLE IF NOT EXISTS rol(
     CONSTRAINT rol_nom_uk UNIQUE (nombre)
 );
 
+CREATE TABLE IF NOT EXISTS tokenAcceso(
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    id_publico CHAR(36),
+    id_usuario INT,
+    CONSTRAINT tkAc_idPub_uk UNIQUE tokenAcceso(id_publico)
+);
+
+# Usuario
 ALTER TABLE usuario ADD CONSTRAINT us_rol_fk FOREIGN KEY (id_rol) REFERENCES rol(id);
+
+# TokenAcceso
+ALTER TABLE tokenAcceso ADD CONSTRAINT tkAc_idUs_fk FOREIGN KEY (id_usuario) REFERENCES usuario(id);
 
 INSERT INTO rol (nombre) VALUES ('Administrador'), ('Usuario Normal');

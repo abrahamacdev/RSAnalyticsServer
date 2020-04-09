@@ -1,12 +1,10 @@
 package controlador.rest.manejadores;
 
-import controlador.managers.UsuarioManager;
+import controlador.managers.ControladorUsuario;
 import controlador.seguridad.Securata;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 import modelo.pojo.Usuario;
-import org.hibernate.Session;
-import org.hibernate.Transaction;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -15,7 +13,6 @@ import utilidades.HTTPCodes;
 import utilidades.Constantes;
 import utilidades.Par;
 
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Function;
@@ -57,10 +54,10 @@ public class Usuarios {
                     Usuario usuarioTemp = Usuario.fromJson(cuerpo);
 
                     // Comprobamos que contennga los campos necesarios para hacer el login
-                    if (contieneCamposLogin(usuarioTemp)){
+                    if (!contieneCamposLogin(usuarioTemp)){
                         JSONObject respuesta = new JSONObject();
                         ctx.status(HTTPCodes._400.getCodigo());
-                        respuesta.put(Constantes.RESPUESTA_MSG_KEY, "Faltan campos por rellenar");
+                        respuesta.put(Constantes.RESPUESTA_KEY_MSG, "Faltan campos por rellenar");
                         ctx.json(respuesta);
                         return;
                     }
@@ -105,37 +102,39 @@ public class Usuarios {
                     // Comprobamos que se tengan todos los campos necesarios para el registro
                     if (!contieneCamposRegistro(usuarioTemp)){
                         ctx.status(HTTPCodes._400.getCodigo());
-                        respuesta.put(Constantes.RESPUESTA_MSG_KEY, "Faltan campos por rellenar");
+                        respuesta.put(Constantes.RESPUESTA_KEY_MSG, "Faltan campos por rellenar");
                         ctx.json(respuesta.toJSONString());
                         return;
                     }
 
-                    UsuarioManager usuarioManager = new UsuarioManager();
+                    ControladorUsuario controladorUsuario = new ControladorUsuario();
 
-                    Par<Usuario, Exception> parUsuarioExcepcion = usuarioManager.buscarUsuarioPorCorreo(usuarioTemp.getCorreo());
-                    // Ya existe un usuario con ese correo
-                    if (parUsuarioExcepcion.getPrimero() != null){
+                    Par<Integer, Usuario> resultado = controladorUsuario.buscarUsuarioPorCorreo(usuarioTemp.getCorreo());
+                    int estado = resultado.getPrimero();
+
+                    // Existe un usuario con esas credenciales
+                    if (estado == 0){
                         ctx.status(HTTPCodes._400.getCodigo());
-                        respuesta.put(Constantes.RESPUESTA_MSG_KEY, "Ya existe un usuario con ese correo");
+                        respuesta.put(Constantes.RESPUESTA_KEY_MSG, "Ya existe un usuario con ese correo");
                         ctx.json(respuesta);
                         return;
                     }
 
                     // Ha ocurrido un error
-                    else if (parUsuarioExcepcion.getSegundo() == null){
+                    else if (estado == 1){
                         ctx.status(HTTPCodes._500.getCodigo());
-                        respuesta.put(Constantes.RESPUESTA_MSG_KEY, "Ocurrio un error en el servidor");
+                        respuesta.put(Constantes.RESPUESTA_KEY_MSG, "Ocurrio un error en el servidor");
                         ctx.json(respuesta);
                         return;
                     }
 
                     // Insertamos al usuario en la base de datos
-                    Par<Integer, Usuario> respuestaCreacionUsuario = usuarioManager.crearNuevoUsuario(usuarioTemp);
+                    Par<Integer, Usuario> respuestaCreacionUsuario = controladorUsuario.guardarNuevoUsuario(usuarioTemp);
 
                     // Ocurrio un error al insertar el registro
                     if (respuestaCreacionUsuario.getPrimero() == 1){
                         ctx.status(HTTPCodes._500.getCodigo());
-                        respuesta.put(Constantes.RESPUESTA_MSG_KEY, "Ocurrio un error en el servidor");
+                        respuesta.put(Constantes.RESPUESTA_KEY_MSG, "Ocurrio un error en el servidor");
                         ctx.json(respuesta);
                         return;
                     }
@@ -143,7 +142,7 @@ public class Usuarios {
                     // Se ha creado el registro exitosamente
                     else {
                         ctx.status(HTTPCodes._201.getCodigo());
-                        respuesta.put(Constantes.RESPUESTA_MSG_KEY, "Se ha registrado exitosamente");
+                        respuesta.put(Constantes.RESPUESTA_KEY_MSG, "Se ha registrado exitosamente");
                         ctx.json(respuesta);
                         return;
                     }
@@ -151,9 +150,9 @@ public class Usuarios {
                 } catch (Exception e) {
                     e.printStackTrace();
                     ctx.status(HTTPCodes._500.getCodigo());
-                    respuesta.put(Constantes.RESPUESTA_MSG_KEY, "Ocurrio un error en el servidor");
+                    respuesta.put(Constantes.RESPUESTA_KEY_MSG, "Ocurrio un error en el servidor");
                     ctx.json(respuesta.toJSONString());
-                    Logger.error("Ocurrio un error inesperado");
+                    Logger.error("Ocurrio un error inesperado", e);
                     return;
                 }
             }

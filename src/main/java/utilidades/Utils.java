@@ -43,23 +43,6 @@ public class Utils {
         }
     }
 
-    /**
-     * Ciframos la contraseña proporcionada usando el algoritmo BCrypt
-     * @param contrasenia
-     * @return
-     */
-    public static synchronized Par<byte[], byte[]> cifrarContrasenia(byte[] contrasenia){
-
-        SecureRandom secureRandom = new SecureRandom();
-        byte[] salt = new byte[16];
-        secureRandom.nextBytes(salt);
-
-        byte[] contraseniaSalteada = BCrypt.with(VERSION_BCRYPT, ESTRATEGIA_CONTRASENIAS_LARGAS)
-                .hash(COSTO_CIFRADO_BCRYPT, salt, contrasenia);
-
-        return new Par<>(contraseniaSalteada, salt);
-    }
-
     public static String nombreArchivoSinExtension(String nombreArchivo){
         String[] spliteado = nombreArchivo.split("\\.");
 

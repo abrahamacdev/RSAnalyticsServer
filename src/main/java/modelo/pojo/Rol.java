@@ -39,6 +39,10 @@ public class Rol {
         return null;
     }
 
+    public boolean esAdmin(){
+        return this.id == 1;
+    }
+
     public int getId() {
         return id;
     }

@@ -18,6 +18,7 @@
 
         <mapping resource="modelo/Usuario.hbm.xml"/>
         <mapping resource="modelo/Rol.hbm.xml"/>
+        <mapping resource="modelo/Token.hbm.xml"/>
 
     </session-factory>
 </hibernate-configuration>

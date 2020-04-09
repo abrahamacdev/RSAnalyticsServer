@@ -3,6 +3,7 @@ package utilidades;
 import at.favre.lib.crypto.bcrypt.BCrypt;
 import at.favre.lib.crypto.bcrypt.LongPasswordStrategies;
 import at.favre.lib.crypto.bcrypt.LongPasswordStrategy;
+import io.jsonwebtoken.SignatureAlgorithm;
 
 public class Constantes {
 
@@ -10,7 +11,8 @@ public class Constantes {
     public final static String RUTA_RELATIVA_MANEJADORES = "controlador/rest/manejadores";
     public final static String PAQUETE_MANEJADORES = "controlador.rest.manejadores";
 
-    public final static String RESPUESTA_MSG_KEY = "msg";
+    public final static String RESPUESTA_KEY_MSG = "msg";
+    public final static String RESPUESTA_KEY_TOKEN = "token";
 
     // Server
     public final static String NOMBRE_APP = "RSAnalytics";
@@ -28,6 +30,7 @@ public class Constantes {
     }
 
     // Seguridad
+    public final static SignatureAlgorithm VERSION_RSA = SignatureAlgorithm.RS384;
     public final static int COSTO_CIFRADO_BCRYPT = 14;
     public final static BCrypt.Version VERSION_BCRYPT = BCrypt.Version.VERSION_2Y;
     public final static LongPasswordStrategy ESTRATEGIA_CONTRASENIAS_LARGAS = LongPasswordStrategies.truncate(VERSION_BCRYPT);
@@ -38,4 +41,14 @@ public class Constantes {
     public final static String PROP_PUERTO_HTTPS = "server.https.port";
     public final static String PROP_KEYSTORE_PATH = "server.keystore.path";
     public final static String PROP_KEYSTORE_PASS = "server.keystore.pass";
+
+    // JWT
+    public final static String JWT_KEY_CREADOR = "iss";
+    public final static String JWT_KEY_FECHA_EXPIRACION = "exp";
+    public final static String JWT_KEY_FECHA_CREACION = "iat";
+    public final static String JWT_KEY_ID_TOKEN = "id";
+    public final static String JWT_KEY_SUJETO = "sub";
+    public final static String JWT_KEY_ADMIN = "admin";
+
+    public final static int TIEMPO_EXPIRACION_TOKEN_ACCESO = 240; // Minutos
 }

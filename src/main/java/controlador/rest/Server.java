@@ -14,7 +14,7 @@ public class Server {
 
     private Javalin app;
 
-    private ManagerManejadores managerManejadores;
+    private ManejadoresManager manejadoresManager;
     private ExecutorService piscinaHilosManejadores;
     private ExecutorService piscinaHilosScraper;
 
@@ -42,8 +42,8 @@ public class Server {
 
         app = Javalin.create();
 
-        // Dejamos que los manejadores subscriban las rutas que atenderan
-        managerManejadores = new ManagerManejadores(app, piscinaHilosManejadores);
+        // Dejamos que los managers subscriban las rutas que atenderan
+        manejadoresManager = new ManejadoresManager(app, piscinaHilosManejadores);
 
         // Iniciamos el servidor
         app.start(puertoHTTP);

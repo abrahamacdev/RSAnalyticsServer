@@ -10,23 +10,23 @@ import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 
-public class ManagerManejadores {
+public class ManejadoresManager {
 
     private ArrayList<Object> manejadores = new ArrayList<>();
 
-    public ManagerManejadores(Javalin app, ExecutorService piscina){
+    public ManejadoresManager(Javalin app, ExecutorService piscina){
         init(app, piscina);
     }
 
     private void init(Javalin app, ExecutorService piscina){
 
-        // Instanciamos los manejadores
+        // Instanciamos los managers
         String[] nombreClasesManejadores = obtenerNombresClasesManejadores();
         instanciarManejadores(nombreClasesManejadores, app, piscina);
     }
 
     /**
-     * Obtenemos los nombres de aquellas clases que es encuentren en el directorio "controlador/rest/manejadores"
+     * Obtenemos los nombres de aquellas clases que es encuentren en el directorio "managers/rest/managers"
      * @return
      */
     private String[] obtenerNombresClasesManejadores(){
@@ -41,23 +41,23 @@ public class ManagerManejadores {
     }
 
     /**
-     * Instanciaremos los manejadores que cumplan con unos criterios en concreto
+     * Instanciaremos los managers que cumplan con unos criterios en concreto
      * @param nombreClasesManejadores
      * @param app
-     * @return Si se ha podido instanciar los manejadores o no
+     * @return Si se ha podido instanciar los managers o no
      */
     private boolean instanciarManejadores(String[] nombreClasesManejadores, Javalin app, ExecutorService piscina){
 
         Class[] manejadores = new Class[nombreClasesManejadores.length];
         try {
 
-            // Creamos un objeto "Class" para cada uno de los manejadores
+            // Creamos un objeto "Class" para cada uno de los managers
             for (int i=0; i<nombreClasesManejadores.length; i++){
                 String temp = Utils.nombreArchivoSinExtension(nombreClasesManejadores[i]);
                 manejadores[i] = Class.forName(Constantes.PAQUETE_MANEJADORES + "." + temp);
             }
 
-            // Crearemos una instancia de aquellos manejadores que sean validos
+            // Crearemos una instancia de aquellos managers que sean validos
             for (Class manejador : manejadores){
                 Constructor constructorDelManejador = comprobarManejadorValido(manejador);
 
@@ -69,7 +69,7 @@ public class ManagerManejadores {
             }
 
         } catch (Exception e) {
-            Logger.error("Ocurrio un error al cargar los manejadores");
+            Logger.error(e,"Ocurrio un error al cargar los managers");
             return false;
         }
         return true;
