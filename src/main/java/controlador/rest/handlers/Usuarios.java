@@ -37,7 +37,7 @@ public class Usuarios {
         app.post("/usuario/registro", (ctx) -> ejecutar(this::registrar, ctx));
 
         // Login de un usuario
-        app.get("/usuario/login", (ctx) -> ejecutar(this::login, ctx));
+        app.post("/usuario/login", (ctx) -> ejecutar(this::login, ctx));
     }
 
 
@@ -49,6 +49,8 @@ public class Usuarios {
             public void run() {
 
                 try {
+
+                    Logger.info(ctx.body());
 
                     JSONObject cuerpo  = (JSONObject) new JSONParser().parse(ctx.body());
 

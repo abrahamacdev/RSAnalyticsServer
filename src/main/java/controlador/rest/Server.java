@@ -40,7 +40,9 @@ public class Server {
 
         int puertoHTTP = Integer.valueOf(Propiedades.getProperties().getProperty(Constantes.PROP_PUERTO_HTTP));
 
-        app = Javalin.create();
+        app = Javalin.create(config -> {
+            config.enableCorsForAllOrigins();
+        });
 
         // Dejamos que los managers subscriban las rutas que atenderan
         manejadoresManager = new ManejadoresManager(app, piscinaHilosManejadores);
