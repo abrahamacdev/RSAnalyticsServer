@@ -10,7 +10,7 @@ import utilidades.Utils;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 
-public class ControladorTokens {
+public class ControladorToken {
 
 
     // ----- Create -----

@@ -1,6 +1,12 @@
 package modelo.pojo;
 
+import io.jsonwebtoken.io.DeserializationException;
+import io.jsonwebtoken.io.Deserializer;
+import io.jsonwebtoken.io.SerializationException;
+import io.jsonwebtoken.io.Serializer;
+
 import javax.persistence.*;
+import java.util.Map;
 
 @Entity(name = "Token")
 @Table(name = "tokenAcceso")
@@ -24,6 +30,7 @@ public class Token {
         this.idPublico = idPublico;
         this.usuario = usuario;
     }
+
 
     public int getId() {
         return id;

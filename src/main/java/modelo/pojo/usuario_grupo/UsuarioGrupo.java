@@ -1,4 +1,7 @@
-package modelo.pojo;
+package modelo.pojo.usuario_grupo;
+
+import modelo.pojo.Grupo;
+import modelo.pojo.Usuario;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -12,11 +15,11 @@ public class UsuarioGrupo {
     private UsuarioGrupoId usuarioGrupoId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("idUsuario")
+    @MapsId("idUsuario") // Nombre de la variable en la clase "UsuarioGrupoId.java"
     private Usuario usuario;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("idGrupo")
+    @MapsId("idGrupo") // Nombre de la variable en la clase "UsuarioGrupoId.java"
     private Grupo grupo;
 
     @Column(name = "fecha_ingreso")

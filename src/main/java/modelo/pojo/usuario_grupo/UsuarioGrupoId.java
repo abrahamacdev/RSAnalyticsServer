@@ -1,4 +1,4 @@
-package modelo.pojo;
+package modelo.pojo.usuario_grupo;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;

@@ -1,13 +1,15 @@
 package controlador.seguridad;
 
-import controlador.managers.ControladorTokens;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import controlador.managers.ControladorToken;
+import io.jsonwebtoken.*;
+import io.jsonwebtoken.io.DeserializationException;
+import io.jsonwebtoken.io.Deserializer;
 import modelo.pojo.Token;
 import modelo.pojo.Usuario;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.tinylog.Logger;
-import sun.rmi.runtime.Log;
 import utilidades.Constantes;
 import utilidades.Par;
 import utilidades.Propiedades;
@@ -16,13 +18,14 @@ import java.io.FileInputStream;
 import java.security.*;
 import java.security.cert.Certificate;
 import java.util.Enumeration;
+import java.util.Map;
 import java.util.UUID;
 
 public class TokensManejador {
 
     private static KeyPair rsaKeys;
 
-    private ControladorTokens controladorTokens;
+    private ControladorToken controladorToken;
 
     // Cargamos las claves privadas y publicas
     public static void init(){
@@ -56,7 +59,7 @@ public class TokensManejador {
     }
 
     public TokensManejador(){
-        this.controladorTokens = new ControladorTokens();
+        this.controladorToken = new ControladorToken();
     }
 
     /**
@@ -75,7 +78,7 @@ public class TokensManejador {
         token.setUsuario(usuario);
         token.setIdPublico(idToken);
 
-        Par<Integer, Token> tokenGuardado = controladorTokens.guardarNuevoToken(token);
+        Par<Integer, Token> tokenGuardado = controladorToken.guardarNuevoToken(token);
 
         // Occurio un erro al crear el token
         if (tokenGuardado.getPrimero() == 1){
@@ -100,6 +103,31 @@ public class TokensManejador {
                 .compact();
 
         return jwt;
+    }
+
+    /**
+     * Coomprobamos si un token es valido y lo retornamos ya parseado
+     * @param token
+     * @return  0,token -> Token valido y parseado
+     *          1,null -> NO se ha podido verificar el token
+     *          2,null -> Ocurrio otro error desconocido
+     */
+    public Par<Integer, Jwt> comprobarValidezToken(String token){
+
+        try {
+
+            Jwt parsedToken = Jwts.parserBuilder()
+                    .setSigningKey(rsaKeys.getPublic())
+                    .build()
+                    .parseClaimsJws(token);
+
+            return new Par<>(0, parsedToken);
+
+        }catch (JwtException e){
+            return new Par<>(1, null);
+        }catch (Exception e){
+            return new Par<>(2,null);
+        }
     }
 
     private Par<Long, Long> generarFechasToken(){

@@ -1,6 +1,6 @@
 package modelo.pojo;
 
-import org.hibernate.annotations.Fetch;
+import modelo.pojo.usuario_grupo.UsuarioGrupo;
 
 import javax.persistence.*;
 import java.io.Serializable;

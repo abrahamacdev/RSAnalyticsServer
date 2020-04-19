@@ -8,11 +8,66 @@ import io.jsonwebtoken.SignatureAlgorithm;
 public class Constantes {
 
     // API Rest
-    public final static String RUTA_RELATIVA_MANEJADORES = "controlador/rest/handlers";
-    public final static String PAQUETE_MANEJADORES = "controlador.rest.handlers";
+    public static class REST {
 
-    public final static String RESPUESTA_KEY_MSG = "msg";
-    public final static String RESPUESTA_KEY_TOKEN = "token";
+        // Recursos relacionadas con el tratamiento de usuarios
+        public enum USUARIO{
+
+            //PATH
+            USUARIO_PATH("/usuario"),
+
+            // ENDPOINTs
+            LOGIN_ENDPOINT("/login"),
+            REGISTRO_ENDPOINT("/registro");
+
+
+            public final String value;
+            private USUARIO(String v){
+                this.value = v;
+            }
+        }
+
+        // Recursos relacionadas con el tratamiento de grupos
+        public enum GRUPO {
+
+            GRUPO_PATH("/grupo"),
+
+            REGISTRO_ENDPOINT("/registro"),
+            BUSCAR_ENDPOINT("/buscar");
+
+
+            public final String value;
+            private GRUPO(String v){
+                this.value = v;
+            }
+        }
+
+        // Claves para las respuestas de los jsons
+        public enum RESPUESTAS_KEYS {
+
+            MSG("msg"),
+            TOKEN("token");
+
+            public final String value;
+            private RESPUESTAS_KEYS(String v){
+                this.value = v;
+            }
+        }
+
+        // Claves de las peticiones entrantes
+        public enum PETICIONES_KEYS {
+
+            AUTHORIZATION_HEADER("Authorization");
+
+            public final String value;
+            private PETICIONES_KEYS(String v){
+                this.value = v;
+            }
+        }
+
+        private REST(){}
+    }
+
 
     // Server
     public final static String NOMBRE_APP = "RSAnalytics";
@@ -34,6 +89,10 @@ public class Constantes {
             HILOS_MANEJADORES_PETICIONES = Runtime.getRuntime().availableProcessors() - HILOS_PARA_ACEPTADOR - HILOS_PARA_SCRAPER - 1;
         }
     }
+
+    public final static String RUTA_RELATIVA_MANEJADORES = "controlador/rest/handlers";
+    public final static String PAQUETE_MANEJADORES = "controlador.rest.handlers";
+
 
     // Seguridad
     public final static SignatureAlgorithm VERSION_RSA = SignatureAlgorithm.RS384;
@@ -57,4 +116,6 @@ public class Constantes {
     public final static String JWT_KEY_ADMIN = "admin";
 
     public final static int TIEMPO_EXPIRACION_TOKEN_ACCESO = 180; // Minutos
+
+    private Constantes(){}
 }

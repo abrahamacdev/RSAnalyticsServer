@@ -7,6 +7,7 @@ import utilidades.Utils;
 
 import java.io.File;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 
@@ -63,8 +64,14 @@ public class ManejadoresManager {
 
                 if (constructorDelManejador != null){
                     constructorDelManejador.setAccessible(true);
-                    Object instanciaDelManejador = constructorDelManejador.newInstance(app,piscina);
-                    this.manejadores.add(instanciaDelManejador);
+
+                    boolean esAbstracta = Modifier.isAbstract(manejador.getModifiers());
+
+                    // Comprobamos que no sea una clase abstracta
+                    if (!esAbstracta){
+                        Object instanciaDelManejador = constructorDelManejador.newInstance(app,piscina);
+                        this.manejadores.add(instanciaDelManejador);
+                    }
                 }
             }
 

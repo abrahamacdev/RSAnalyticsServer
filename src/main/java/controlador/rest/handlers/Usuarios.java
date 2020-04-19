@@ -15,29 +15,25 @@ import utilidades.Constantes;
 import utilidades.Par;
 import utilidades.Utils;
 
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
-import java.util.function.Function;
 
-public class Usuarios {
+public class Usuarios extends AbstractHandler{
 
-    private Javalin app;
-    private ExecutorService piscina;
 
     public Usuarios(Javalin app, ExecutorService piscina){
-        this.app = app;
-        this.piscina = piscina;
-
-        registrarHandlers();
+        super(app,piscina);
     }
 
-    private void registrarHandlers(){
+    @Override
+    protected void registrarHandlers(){
 
         // Registro de un nuevo usuario
-        app.post("/usuario/registro", (ctx) -> ejecutar(this::registrar, ctx));
+        app.post(Constantes.REST.USUARIO.USUARIO_PATH.value + Constantes.REST.USUARIO.LOGIN_ENDPOINT.value,
+                (ctx) -> super.ejecutar(this::login, ctx));
 
         // Login de un usuario
-        app.post("/usuario/login", (ctx) -> ejecutar(this::login, ctx));
+        app.post(Constantes.REST.USUARIO.USUARIO_PATH.value + Constantes.REST.USUARIO.REGISTRO_ENDPOINT.value,
+                (ctx) -> super.ejecutar(this::registrar, ctx));
     }
 
 
@@ -50,8 +46,6 @@ public class Usuarios {
 
                 try {
 
-                    Logger.info(ctx.body());
-
                     JSONObject cuerpo  = (JSONObject) new JSONParser().parse(ctx.body());
 
                     // Creamos un objeto usuario temporal
@@ -61,14 +55,14 @@ public class Usuarios {
                     if (!contieneCamposLogin(usuarioTemp)){
                         JSONObject respuesta = new JSONObject();
                         ctx.status(HTTPCodes._400.getCodigo());
-                        respuesta.put(Constantes.RESPUESTA_KEY_MSG, "Faltan campos por rellenar");
+                        respuesta.put(Constantes.REST.RESPUESTAS_KEYS.MSG.value, "Faltan campos por rellenar");
                         ctx.json(respuesta);
                         return;
                     }
 
                     // Dejamos que el securata se encargue del resto
-                    new Securata(ctx, cuerpo)
-                        .loguea();
+                    new Securata(ctx)
+                        .loguea(usuarioTemp);
 
 
                 } catch (ParseException e) {
@@ -106,7 +100,7 @@ public class Usuarios {
                     // Comprobamos que se tengan todos los campos necesarios para el registro
                     if (!contieneCamposRegistro(usuarioTemp)){
                         ctx.status(HTTPCodes._400.getCodigo());
-                        respuesta.put(Constantes.RESPUESTA_KEY_MSG, "Faltan campos por rellenar");
+                        respuesta.put(Constantes.REST.RESPUESTAS_KEYS.MSG.value, "Faltan campos por rellenar");
                         ctx.json(respuesta.toJSONString());
                         return;
                     }
@@ -117,7 +111,7 @@ public class Usuarios {
                     // Alguno de los campos no es valido
                     if (!camposValidados.getPrimero()){
                         ctx.status(HTTPCodes._400.getCodigo());
-                        respuesta.put(Constantes.RESPUESTA_KEY_MSG, camposValidados.getSegundo());
+                        respuesta.put(Constantes.REST.RESPUESTAS_KEYS.MSG.value, camposValidados.getSegundo());
                         ctx.json(respuesta);
                         return;
                     }
@@ -131,7 +125,7 @@ public class Usuarios {
                     // Existe un usuario con esas credenciales
                     if (estado == 0){
                         ctx.status(HTTPCodes._400.getCodigo());
-                        respuesta.put(Constantes.RESPUESTA_KEY_MSG, "Ya existe un usuario con ese correo");
+                        respuesta.put(Constantes.REST.RESPUESTAS_KEYS.MSG.value, "Ya existe un usuario con ese correo");
                         ctx.json(respuesta);
                         return;
                     }
@@ -139,7 +133,7 @@ public class Usuarios {
                     // Ha ocurrido un error
                     else if (estado == 1){
                         ctx.status(HTTPCodes._500.getCodigo());
-                        respuesta.put(Constantes.RESPUESTA_KEY_MSG, "Ocurrio un error en el servidor");
+                        respuesta.put(Constantes.REST.RESPUESTAS_KEYS.MSG.value, "Ocurrio un error en el servidor");
                         ctx.json(respuesta);
                         return;
                     }
@@ -150,7 +144,7 @@ public class Usuarios {
                     // Ocurrio un error al insertar el registro
                     if (respuestaCreacionUsuario.getPrimero() == 1){
                         ctx.status(HTTPCodes._500.getCodigo());
-                        respuesta.put(Constantes.RESPUESTA_KEY_MSG, "Ocurrio un error en el servidor");
+                        respuesta.put(Constantes.REST.RESPUESTAS_KEYS.MSG.value, "Ocurrio un error en el servidor");
                         ctx.json(respuesta);
                         return;
                     }
@@ -158,7 +152,7 @@ public class Usuarios {
                     // Se ha creado el registro exitosamente
                     else {
                         ctx.status(HTTPCodes._201.getCodigo());
-                        respuesta.put(Constantes.RESPUESTA_KEY_MSG, "Se ha registrado exitosamente");
+                        respuesta.put(Constantes.REST.RESPUESTAS_KEYS.MSG.value, "Se ha registrado exitosamente");
                         ctx.json(respuesta);
                         return;
                     }
@@ -166,7 +160,7 @@ public class Usuarios {
                 } catch (Exception e) {
                     e.printStackTrace();
                     ctx.status(HTTPCodes._500.getCodigo());
-                    respuesta.put(Constantes.RESPUESTA_KEY_MSG, "Ocurrio un error en el servidor");
+                    respuesta.put(Constantes.REST.RESPUESTAS_KEYS.MSG.value, "Ocurrio un error en el servidor");
                     ctx.json(respuesta.toJSONString());
                     Logger.error("Ocurrio un error inesperado", e);
                     return;
@@ -242,20 +236,4 @@ public class Usuarios {
         return par;
     }
     // --------------------
-
-
-    /**
-     * Ejecutamos la tarea en la piscina de hilos dedicada a atender peticiones, cuando esta
-     * halla terminado de ejecutarse mandara una respuesta al cliente
-     * @param function
-     * @param ctx
-     */
-    private void ejecutar(Function<Context, Runnable> function, Context ctx){
-
-        // Añadimos la tarea a la cola de la piscina de hilos
-        CompletableFuture completableFuture = CompletableFuture.runAsync(function.apply(ctx), piscina);
-
-        // Indicamos que el resultado de la peticion estara ligado al completable future
-        ctx.result(completableFuture);
-    }
 }
