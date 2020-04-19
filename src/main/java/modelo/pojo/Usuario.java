@@ -1,24 +1,45 @@
 package modelo.pojo;
 
-import org.hibernate.Session;
-import org.hibernate.Transaction;
-import org.hibernate.query.Query;
 import org.json.simple.JSONObject;
-import org.tinylog.Logger;
-import utilidades.Utils;
 
+import javax.persistence.*;
 import java.nio.charset.Charset;
 
+@Entity
+@Table(name = "usuario")
 public class Usuario {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private int id;
+
+    @Column(name = "nombre")
     private String nombre;
-    private String primerApellido, segundoApellido;
+
+    @Column(name = "primer_apellido")
+    private String primerApellido;
+
+    @Column(name = "segundo_apellido")
+    private String segundoApellido;
+
+    @Column(name = "telefono")
     private String telefono;
+
+    @Column(name = "correo")
     private String correo;
+
+    @Column(name = "contrasenia")
     private byte[] contrasenia;
+
+    @Column(name = "salt")
     private byte[] salt;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "rol_id")
     private Rol rol;
+
+
 
     public Usuario(){}
 

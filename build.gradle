@@ -20,7 +20,10 @@ dependencies {
 
     // Hibernate
     // https://mvnrepository.com/artifact/org.hibernate.orm/hibernate-gradle-plugin
-    compile group: 'org.hibernate.orm', name: 'hibernate-gradle-plugin', version: '6.0.0.Alpha3'
+    //compile group: 'org.hibernate.orm', name: 'hibernate-gradle-plugin', version: '6.0.0.Alpha3'
+    // https://mvnrepository.com/artifact/org.hibernate/hibernate-core
+    compile group: 'org.hibernate', name: 'hibernate-core', version: '5.4.14.Final'
+
 
     // Javalin (Server)
     compile 'io.javalin:javalin:3.8.0'

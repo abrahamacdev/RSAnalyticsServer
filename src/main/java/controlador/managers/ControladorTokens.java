@@ -7,24 +7,28 @@ import org.tinylog.Logger;
 import utilidades.Par;
 import utilidades.Utils;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityTransaction;
+
 public class ControladorTokens {
 
 
     // ----- Create -----
     public Par<Integer, Token> guardarNuevoToken(Token token){
 
-        Session session = Utils.crearNuevaSesion();
-        Transaction transaction = null;
+        EntityManager session = Utils.crearEntityManager();
+        EntityTransaction transaction = null;
         Par<Integer, Token> respuesta = null;
 
         try {
 
-            transaction = session.beginTransaction();
+            transaction = session.getTransaction();
 
-            Integer id = (Integer) session.save(token);
-            token.setId(id);
-
+            transaction.begin();
+            session.persist(token);
             transaction.commit();
+
+            token.getId();
 
             respuesta = new Par<>(0, token);
 

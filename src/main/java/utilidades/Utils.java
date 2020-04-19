@@ -6,6 +6,9 @@ import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import org.tinylog.Logger;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
@@ -17,36 +20,28 @@ import static utilidades.Constantes.*;
 
 public class Utils {
 
-    private static SessionFactory sessionFactory = new Configuration().configure().buildSessionFactory();
+    private static EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("RSAnalytics");
 
-    /**
-     * Creamos una nueva sesion con la interactuaremos con la base de
-     * datos
-     * @return Session recien creada
-     */
-    public static Session crearNuevaSesion(){
-        synchronized (sessionFactory){
-            if (sessionFactory.isOpen()){
-                return sessionFactory.openSession();
+
+    public static EntityManager crearEntityManager(){
+        synchronized (entityManagerFactory){
+            if (entityManagerFactory.isOpen()){
+                return entityManagerFactory.createEntityManager();
             }
             return null;
         }
     }
 
-    /**
-     * Cerramos el objeto SessionFactory con el creamos
-     * los oobjectos Session
-     * @return
-     */
-    public static boolean cerrarSessionFactory(){
-        synchronized (sessionFactory){
-            if (sessionFactory.isOpen()){
-                sessionFactory.close();
+    public static boolean cerrarEntityManagerFactory(){
+        synchronized (entityManagerFactory){
+            if (entityManagerFactory.isOpen()){
+                entityManagerFactory.close();
                 return true;
             }
             return false;
         }
     }
+
 
     public static String nombreArchivoSinExtension(String nombreArchivo){
         String[] spliteado = nombreArchivo.split("\\.");

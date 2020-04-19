@@ -1,15 +1,23 @@
 package modelo.pojo;
 
-import org.hibernate.Session;
-import org.hibernate.Transaction;
-import org.hibernate.query.Query;
 import org.tinylog.Logger;
 import utilidades.Utils;
 
+import javax.persistence.*;
+
+@Entity
+@Table(name = "rol")
 public class Rol {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private int id;
+
+    @Column(name = "nombre")
     private String nombre;
+
+
 
     public Rol(){}
 
@@ -19,14 +27,15 @@ public class Rol {
 
     public static synchronized Rol getRolPorDefecto(){
 
-        Session session = Utils.crearNuevaSesion();
-        Transaction transaction;
+        EntityManager entityManager = Utils.crearEntityManager();
+        EntityTransaction transaction;
 
         try{
 
-            transaction = session.beginTransaction();
+            transaction = entityManager.getTransaction();
+            transaction.begin();
 
-            Query query = session.createQuery("FROM Rol AS rol WHERE rol.id = 2");
+            Query query = entityManager.createQuery("FROM Rol AS rol WHERE rol.id = 2");
             Rol rol = (Rol) query.getResultList().get(0);
 
             transaction.commit();
@@ -34,6 +43,9 @@ public class Rol {
             return rol;
         }catch (Exception e){
             Logger.error("Ocurrio un error al obtener el rol por defecto");
+        }
+        finally {
+            entityManager.close();
         }
 
         return null;

@@ -9,6 +9,8 @@ import utilidades.Par;
 import utilidades.SecurityUtils;
 import utilidades.Utils;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityTransaction;
 import javax.persistence.Query;
 import java.util.List;
 
@@ -31,15 +33,16 @@ public class ControladorUsuario {
      */
     public Par<Integer, Usuario> buscarUsuarioPorCorreo(String correo){
 
-        Session session = Utils.crearNuevaSesion();
-        Transaction transaction = null;
+        EntityManager entityManager = Utils.crearEntityManager();
+        EntityTransaction transaction = null;
         Par<Integer, Usuario> respuesta;
 
         try {
 
-            transaction = session.beginTransaction();
+            transaction = entityManager.getTransaction();
+            transaction.begin();
 
-            Query query = session.createQuery("FROM Usuario AS us WHERE us.correo = :correo");
+            Query query = entityManager.createQuery("FROM Usuario AS us WHERE us.correo = :correo");
             query.setParameter("correo", correo);
 
             List<Usuario> listaUsuarios = query.getResultList();
@@ -59,10 +62,11 @@ public class ControladorUsuario {
             }
 
         }catch (Exception e){
-            Logger.error("Ocurrio un error al buscar a un usuario", e);
+            e.printStackTrace();
+            Logger.error("Ocurrio un error al buscar a un usuario");
             respuesta = new Par<>(1, null);
         }finally {
-            session.close();
+            entityManager.close();
         }
 
         return respuesta;
@@ -80,23 +84,24 @@ public class ControladorUsuario {
      */
     public Par<Integer, Usuario> guardarNuevoUsuario(Usuario usuario){
 
-        Session session = Utils.crearNuevaSesion();
-        Transaction transaction = null;
+        EntityManager entityManager = Utils.crearEntityManager();
+        EntityTransaction transaction = null;
         Par<Integer, Usuario> respuesta = null;
 
         try {
 
-            transaction = session.beginTransaction();
+            transaction = entityManager.getTransaction();
+            transaction.begin();
 
             // Ciframos la contraseña antes de guardarla en el servidor
             Par<byte[], byte[]> contraseniaConSalt = securityUtils.cifrarContrasenia(usuario.getContrasenia());
             usuario.setContrasenia(contraseniaConSalt.getPrimero());
             usuario.setSalt(contraseniaConSalt.getSegundo());
 
-            Integer id = (Integer) session.save(usuario);
-            usuario.setId(id);
-
+            entityManager.persist(usuario);
             transaction.commit();
+
+            usuario.getId();
 
             respuesta = new Par<>(0, usuario);
 
@@ -104,7 +109,7 @@ public class ControladorUsuario {
             Logger.error(e, "Ocurrio un error al insertar un nuevo usuario");
             respuesta = new Par<>(1, null);
         }finally {
-            session.close();
+            entityManager.close();
         }
 
         return respuesta;

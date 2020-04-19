@@ -1,10 +1,20 @@
 package controlador.rest;
 
 import io.javalin.Javalin;
+import modelo.pojo.Grupo;
+import modelo.pojo.Usuario;
+import modelo.pojo.UsuarioGrupo;
 import org.tinylog.Logger;
+import sun.nio.ch.Util;
 import utilidades.Constantes;
 import utilidades.Propiedades;
+import utilidades.Utils;
 
+import javax.persistence.Entity;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityTransaction;
+import javax.persistence.Query;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 

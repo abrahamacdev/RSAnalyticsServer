@@ -1,9 +1,21 @@
 package modelo.pojo;
 
+import javax.persistence.*;
+
+@Entity(name = "Token")
+@Table(name = "tokenAcceso")
 public class Token {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private int id;
+
+    @Column(name = "publico_id")
     private String idPublico;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "usuario_id")
     private Usuario usuario;
 
     public Token(){}
