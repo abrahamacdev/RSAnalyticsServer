@@ -108,22 +108,32 @@ public class Securata {
 
         int codigo = resultado.getPrimero();
 
-        // El token no es de fiar
-        if (codigo == 1){
-            respuesta = new JSONObject();
-            ctx.status(HTTPCodes._401.getCodigo());
-            respuesta.put(Constantes.REST.RESPUESTAS_KEYS.MSG.value, "No se ha podido verificar el token");
-            ctx.result(respuesta.toJSONString());
-            return null;
-        }
+        switch (codigo){
 
-        // Ocurrio otro error desconocido
-        else  if (codigo == 2){
-            respuesta = new JSONObject();
-            ctx.status(HTTPCodes._500.getCodigo());
-            respuesta.put(Constantes.REST.RESPUESTAS_KEYS.MSG.value, "Ocurrio un error inesperado");
-            ctx.result(respuesta.toJSONString());
-            return null;
+            // El token no es de fiar
+            case 1:
+                respuesta = new JSONObject();
+                ctx.status(HTTPCodes._401.getCodigo());
+                respuesta.put(Constantes.REST.RESPUESTAS_KEYS.MSG.value, "No se ha podido verificar el token");
+                ctx.result(respuesta.toJSONString());
+                return null;
+
+            // Ocurrio otro error desconocido
+            case 2:
+                respuesta = new JSONObject();
+                ctx.status(HTTPCodes._500.getCodigo());
+                respuesta.put(Constantes.REST.RESPUESTAS_KEYS.MSG.value, "Ocurrio un error inesperado");
+                ctx.result(respuesta.toJSONString());
+                return null;
+
+            // El token ha caducado
+            case 3:
+                respuesta = new JSONObject();
+                ctx.status(HTTPCodes._470.getCodigo());
+                respuesta.put(Constantes.REST.RESPUESTAS_KEYS.MSG.value, "La sesion ha caducado");
+                ctx.result(respuesta.toJSONString());
+                return null;
+
         }
 
         // Retornamos el token

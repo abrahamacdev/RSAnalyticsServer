@@ -33,7 +33,9 @@ public class Constantes {
             GRUPO_PATH("/grupo"),
 
             REGISTRO_ENDPOINT("/registro"),
-            BUSCAR_ENDPOINT("/buscar");
+            DATOS_GRUPO_ENDPOINT("/datosGenerales"),
+            BUSCAR_ENDPOINT("/buscar"),
+            ABANDONAR_ENDPOINT("/abandonar");
 
 
             public final String value;
@@ -46,6 +48,7 @@ public class Constantes {
         public enum RESPUESTAS_KEYS {
 
             MSG("msg"),
+            GRUPO("grupo"),
             TOKEN("token");
 
             public final String value;

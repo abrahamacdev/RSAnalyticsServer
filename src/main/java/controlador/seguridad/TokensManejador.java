@@ -111,6 +111,7 @@ public class TokensManejador {
      * @return  0,token -> Token valido y parseado
      *          1,null -> NO se ha podido verificar el token
      *          2,null -> Ocurrio otro error desconocido
+     *          3,null -> El token ha expirado
      */
     public Par<Integer, Jwt> comprobarValidezToken(String token){
 
@@ -121,7 +122,35 @@ public class TokensManejador {
                     .build()
                     .parseClaimsJws(token);
 
-            return new Par<>(0, parsedToken);
+            Claims claims = (Claims) parsedToken.getBody();
+
+            String idPublico = (String) claims.get(Constantes.JWT_KEY_ID_TOKEN);
+
+            Par<Integer,Token> resultado = controladorToken.buscarTokenPorIdPublico(idPublico);
+            int codResult = resultado.getPrimero();
+
+            // Ocurrio un error desconocido
+            if (codResult == 1){
+                return new Par<>(2,null);
+            }
+
+            // No hay ningun token en la base de datos conn ese id
+            if (resultado.getSegundo() == null){
+                return new Par<>(1,null);
+            }
+
+            // Hemoos encontrado unn tokenn en la bd con ese id
+            else {
+                long expiracion = (long) claims.get(Constantes.JWT_KEY_FECHA_EXPIRACION);
+
+                // Comprobamos que el ttoken no halla caducado
+                if(Long.compare(System.currentTimeMillis(), expiracion) > 0){
+                    return new Par<>(3, null);
+                }
+
+                // EL token es valido
+                return new Par<>(0, parsedToken);
+            }
 
         }catch (JwtException e){
             return new Par<>(1, null);

@@ -3,6 +3,7 @@ package modelo.pojo;
 import modelo.pojo.usuario_grupo.UsuarioGrupo;
 
 import javax.persistence.*;
+import javax.transaction.Transactional;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Objects;
@@ -20,7 +21,7 @@ public class Grupo implements Serializable {
     @Column(name = "nombre", unique = true)
     private String nombre;
 
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToOne(cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
     @JoinColumn(name = "responsable_id", referencedColumnName = "id")
     private Usuario responsable;
 

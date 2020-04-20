@@ -23,7 +23,6 @@ public class ControladorUsuario {
     }
 
     // ----- Read -----
-
     /**
      * Buscaremos al usuario con el correo proporcionado
      * @param correo

@@ -1,10 +1,15 @@
 package controlador.rest;
 
+import controlador.managers.ControladorGrupo;
+import controlador.managers.ControladorUsuario;
 import io.javalin.Javalin;
 import modelo.pojo.Grupo;
+import modelo.pojo.Usuario;
+import modelo.pojo.usuario_grupo.UsuarioGrupo;
 import org.hibernate.Transaction;
 import org.tinylog.Logger;
 import utilidades.Constantes;
+import utilidades.Par;
 import utilidades.Propiedades;
 import utilidades.Utils;
 

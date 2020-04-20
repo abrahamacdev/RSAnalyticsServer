@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS usuario(
     contrasenia BLOB NOT NULL,
     salt BLOB NOT NULL,
     rol_id INT NOT NULL,
+    genero ENUM('H','M'),
     CONSTRAINT us_correo_uk UNIQUE (correo)
 );
 
@@ -46,14 +47,14 @@ CREATE TABLE IF NOT EXISTS usuario_grupo(
 ALTER TABLE usuario ADD CONSTRAINT us_rol_fk FOREIGN KEY (rol_id) REFERENCES rol(id);
 
 # TokenAcceso
-ALTER TABLE tokenAcceso ADD CONSTRAINT tkAc_idUs_fk FOREIGN KEY (usuario_id) REFERENCES usuario(id);
+ALTER TABLE tokenAcceso ADD CONSTRAINT tkAc_idUs_fk FOREIGN KEY (usuario_id) REFERENCES usuario(id) ON DELETE CASCADE;
 
 # Grupo
-ALTER TABLE grupo ADD CONSTRAINT grup_idResp_fk FOREIGN KEY (responsable_id) REFERENCES usuario(id);
+ALTER TABLE grupo ADD CONSTRAINT grup_idResp_fk FOREIGN KEY (responsable_id) REFERENCES usuario(id) ON DELETE CASCADE;
 
 # Usuario_Grupo
-ALTER TABLE usuario_grupo ADD CONSTRAINT usGrup_idUs_fk FOREIGN KEY (usuario_id) REFERENCES usuario(id);
-ALTER TABLE usuario_grupo ADD CONSTRAINT usGrup_idGrup_fk FOREIGN KEY (grupo_id) REFERENCES grupo(id);
+ALTER TABLE usuario_grupo ADD CONSTRAINT usGrup_idUs_fk FOREIGN KEY (usuario_id) REFERENCES usuario(id) ON DELETE CASCADE;
+ALTER TABLE usuario_grupo ADD CONSTRAINT usGrup_idGrup_fk FOREIGN KEY (grupo_id) REFERENCES grupo(id) ON DELETE CASCADE;
 
 
 INSERT INTO rol (nombre) VALUES ('Administrador'), ('Usuario Normal');

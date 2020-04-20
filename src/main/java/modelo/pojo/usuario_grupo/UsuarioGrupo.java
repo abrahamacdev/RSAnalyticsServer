@@ -14,11 +14,11 @@ public class UsuarioGrupo {
     @EmbeddedId
     private UsuarioGrupoId usuarioGrupoId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @MapsId("idUsuario") // Nombre de la variable en la clase "UsuarioGrupoId.java"
     private Usuario usuario;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @MapsId("idGrupo") // Nombre de la variable en la clase "UsuarioGrupoId.java"
     private Grupo grupo;
 

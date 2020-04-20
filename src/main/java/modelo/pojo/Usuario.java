@@ -35,6 +35,9 @@ public class Usuario {
     @Column(name = "salt")
     private byte[] salt;
 
+    @Column(name = "genero")
+    private String genero;
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "rol_id")
     private Rol rol;
@@ -43,16 +46,17 @@ public class Usuario {
 
     public Usuario(){}
 
-    public Usuario(String nombre, String primerApellido, String segundoApellido, String telefono, String correo, byte[] contrasenia) {
-        this(nombre, primerApellido, segundoApellido, telefono, correo, contrasenia, null, Rol.getRolPorDefecto());
+    public Usuario(String nombre, String primerApellido, String segundoApellido, String genero, String telefono, String correo, byte[] contrasenia) {
+        this(nombre, primerApellido, segundoApellido, genero, telefono, correo, contrasenia, null, Rol.getRolPorDefecto());
     }
 
 
 
-    public Usuario(String nombre, String primerApellido, String segundoApellido, String telefono, String correo, byte[] contrasenia, byte[] salt, Rol rol) {
+    public Usuario(String nombre, String primerApellido, String segundoApellido, String genero, String telefono, String correo, byte[] contrasenia, byte[] salt, Rol rol) {
         this.nombre = nombre;
         this.primerApellido = primerApellido;
         this.segundoApellido = segundoApellido;
+        this.genero = genero;
         this.telefono = telefono;
         this.correo = correo;
         this.contrasenia = contrasenia;
@@ -67,6 +71,7 @@ public class Usuario {
         String primerAp = null;
         String segundoAp = null;
         String telefono = null;
+        String genero = null;
         byte[] contrasenia = null;
 
         if (jsonObject.containsKey("correo")){
@@ -85,6 +90,10 @@ public class Usuario {
             segundoAp = (String) jsonObject.get("segundoApellido");
         }
 
+        if (jsonObject.containsKey("genero")){
+            genero = ((String) jsonObject.get("genero"));
+        }
+
         if (jsonObject.containsKey("telefono")){
             telefono = (String) jsonObject.get("telefono");
         }
@@ -93,7 +102,7 @@ public class Usuario {
             contrasenia = ((String)jsonObject.get("contrasenia")).getBytes(Charset.forName("UTF-8"));
         }
 
-        return new Usuario(nombre, primerAp, segundoAp, telefono, correo, contrasenia);
+        return new Usuario(nombre, primerAp, segundoAp, genero,telefono, correo, contrasenia);
     }
 
     @Override
@@ -133,6 +142,14 @@ public class Usuario {
 
     public void setSegundoApellido(String segundoApellido) {
         this.segundoApellido = segundoApellido;
+    }
+
+    public String getGenero() {
+        return genero;
+    }
+
+    public void setGenero(String genero) {
+        this.genero = genero;
     }
 
     public String getTelefono() {

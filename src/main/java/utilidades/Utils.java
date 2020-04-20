@@ -22,7 +22,6 @@ public class Utils {
 
     private static EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("RSAnalytics");
 
-
     public static EntityManager crearEntityManager(){
         synchronized (entityManagerFactory){
             if (entityManagerFactory.isOpen()){
