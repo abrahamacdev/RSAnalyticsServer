@@ -184,9 +184,10 @@ public class Usuarios extends AbstractHandler{
         boolean contieneSegundoAp = usuario.getSegundoApellido() != null;
         boolean contieneTelefono = usuario.getSegundoApellido() != null;
         boolean contieneCorreo = usuario.getSegundoApellido() != null;
+        boolean contieneGenero = usuario.getGenero() != null;
         boolean contieneContrasenia = usuario.getSegundoApellido() != null;
 
-        return contieneNombre && contienePrimerAp && contieneSegundoAp && contieneTelefono && contieneCorreo && contieneContrasenia;
+        return contieneNombre && contienePrimerAp && contieneSegundoAp && contieneGenero && contieneTelefono && contieneCorreo && contieneContrasenia;
     }
 
     /**

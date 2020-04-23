@@ -91,10 +91,26 @@ public class Grupos extends AbstractHandler{
                 return;
         }
 
-        //Coomprobamoso si existe algun grupo con ese nombre en la base de datos
+
+
+        //Comprobamoso si existe algun grupo con ese nombre en la base de datos
         String nombreGrupo = (String) cuerpo.get("nombreGrupo");
-        Par<Integer, Grupo> grupoError = controladorGrupo.buscarGrupoPorNombre(nombreGrupo);
-        int codigoGrupoError = grupoError.getPrimero();
+
+        Par<Integer, Grupo> grupoError = null;
+        int codigoGrupoError;
+
+        // Comproobamos que el nombre del grupo sea valido
+        if (nombreGrupo.trim().length() > 0){
+            grupoError = controladorGrupo.buscarGrupoPorNombre(nombreGrupo);
+            codigoGrupoError = grupoError.getPrimero();
+        }
+
+        else {
+            ctx.status(HTTPCodes._400.getCodigo());
+            respuesta.put(Constantes.REST.RESPUESTAS_KEYS.MSG.value,"El noombre del grupo no es validos");
+            ctx.result(respuesta.toJSONString());
+            return;
+        }
 
         switch (codigoGrupoError){
 
@@ -177,6 +193,7 @@ public class Grupos extends AbstractHandler{
 
                 try {
 
+
                     JSONObject json  = (JSONObject) new JSONParser().parse(ctx.body());
 
                     // No contiene los campos necesarios
@@ -223,7 +240,7 @@ public class Grupos extends AbstractHandler{
 
             JSONObject datosMiembro = new JSONObject();
             datosMiembro.put("nombre", usuario.getNombre() + " " + usuario.getPrimerApellido() + " " + usuario.getSegundoApellido());
-            datosMiembro.put("miembroDesde", usuarioGrupo.getFechaIngreso());
+            datosMiembro.put("miembroDesde", usuarioGrupo.getFechaIngreso().toInstant().toEpochMilli());
             datosMiembro.put("genero", usuario.getGenero());
 
             miembros.add(datosMiembro);

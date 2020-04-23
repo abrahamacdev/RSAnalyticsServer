@@ -42,7 +42,7 @@ public class Securata {
         if (estado == 1){
             ctx.status(HTTPCodes._500.getCodigo());
             respuesta.put(Constantes.REST.RESPUESTAS_KEYS.MSG.value, "Ocurrio un error en el servidor");
-            ctx.json(respuesta);
+            ctx.result(respuesta.toJSONString());
             return;
         }
 
@@ -50,7 +50,7 @@ public class Securata {
         else if (estado == 2){
             ctx.status(HTTPCodes._401.getCodigo());
             respuesta.put(Constantes.REST.RESPUESTAS_KEYS.MSG.value, "Compruebe que los datos introducidos son correctos");
-            ctx.json(respuesta);
+            ctx.result(respuesta.toJSONString());
             return;
         }
 
@@ -64,7 +64,7 @@ public class Securata {
         if (!contraseniasCoinciden){
             ctx.status(HTTPCodes._401.getCodigo());
             respuesta.put(Constantes.REST.RESPUESTAS_KEYS.MSG.value, "Compruebe que los datos introducidos son correctos");
-            ctx.json(respuesta);
+            ctx.result(respuesta.toJSONString());
             return;
         }
 
@@ -75,14 +75,14 @@ public class Securata {
         if (tokenUsuario == null){
             ctx.status(HTTPCodes._500.getCodigo());
             respuesta.put(Constantes.REST.RESPUESTAS_KEYS.MSG.value, "Compruebe que los datos introducidos son correctos");
-            ctx.json(respuesta);
+            ctx.result(respuesta.toJSONString());
             return;
         }
 
         // Le enviamos el token
         ctx.status(HTTPCodes._200.getCodigo());
-        respuesta.put(Constantes.REST.RESPUESTAS_KEYS.MSG.value, tokenUsuario);
-        ctx.json(respuesta);
+        respuesta.put(Constantes.REST.RESPUESTAS_KEYS.TOKEN.value, tokenUsuario);
+        ctx.result(respuesta.toJSONString());
     }
 
     public Jwt validarYRetornarToken(){

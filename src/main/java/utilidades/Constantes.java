@@ -77,7 +77,7 @@ public class Constantes {
     public final static String EMAIL_REGEX = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
     public final static String NOMBRE_REGEX = "^(?:[A-Za-zÑñÁáÉéÍíÓóÚú])+(?:\\s(?:[A-Za-zÑñÁáÉéÍíÓóÚú])+)*";
     public final static int LONGITUD_MINIMA_CONTRASENIAS = 8;
-    public final static String CONTRASENIA_REGEX = "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\\$%\\^&\\*])";
+    public final static String CONTRASENIA_REGEX = "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\\$%\\^&\\*])"; // Minuscula-Mayuscula-Numero-CaracterEspecial
     public final static String TELEFONO_REGEX = "^[0-9]{9}";
 
     public final static boolean HAY_SUFICIENTES_HILOS = Runtime.getRuntime().availableProcessors() >= 4;
@@ -88,8 +88,10 @@ public class Constantes {
         // Si tenemos suficientes hilos comprobaremos cuantos se dedicaran a cada cosa
         if (HAY_SUFICIENTES_HILOS){
             HILOS_PARA_ACEPTADOR = 1;
-            HILOS_PARA_SCRAPER = Runtime.getRuntime().availableProcessors() == 4 ? 1 : 2;
-            HILOS_MANEJADORES_PETICIONES = Runtime.getRuntime().availableProcessors() - HILOS_PARA_ACEPTADOR - HILOS_PARA_SCRAPER - 1;
+            //HILOS_PARA_SCRAPER = Runtime.getRuntime().availableProcessors() == 4 ? 1 : 2;
+            HILOS_PARA_SCRAPER = 1; // TODO Eliminar y descomentar la linea anterior en produccion
+            //HILOS_MANEJADORES_PETICIONES = Runtime.getRuntime().availableProcessors() - HILOS_PARA_ACEPTADOR - HILOS_PARA_SCRAPER - 1;
+            HILOS_MANEJADORES_PETICIONES = 1; // TODO Eliminar y descomentar la linea anterior en produccion
         }
     }
 
