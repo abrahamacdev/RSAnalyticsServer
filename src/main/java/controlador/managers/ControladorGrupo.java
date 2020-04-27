@@ -3,7 +3,6 @@ package controlador.managers;
 import modelo.pojo.Grupo;
 import modelo.pojo.Usuario;
 import modelo.pojo.usuario_grupo.UsuarioGrupo;
-import org.hibernate.Hibernate;
 import utilidades.Par;
 import utilidades.Utils;
 
@@ -12,7 +11,7 @@ import java.util.List;
 
 public class ControladorGrupo {
 
-    /* ----- Create ----- */
+    // ----- Create -----
     public Par<Exception,Grupo> guardarNuevoGrupo(Grupo grupo){
 
         EntityManager entityManager = Utils.crearEntityManager();
@@ -45,10 +44,11 @@ public class ControladorGrupo {
 
         return new Par<>(null, grupo);
     }
-    /* ------------------ */
+
+    // ------------------
 
 
-    /* ----- Read ----- */
+    // ----- Read -----
     public Par<Integer,Grupo> buscarGrupoPorNombre(String nombreGrupo){
 
         EntityManager entityManager = Utils.crearEntityManager();
@@ -102,6 +102,7 @@ public class ControladorGrupo {
             return new Par<>(2, null);
         }
     }
+
 
     public Par<Integer,Grupo> buscarGrupoDelUsuarioConCorreo(String correo){
 
@@ -163,6 +164,7 @@ public class ControladorGrupo {
         }
     }
 
+
     public int elUsuarioEsResponsableDeGrupo(String correo){
 
 
@@ -179,7 +181,7 @@ public class ControladorGrupo {
      * @param correo
      * @param entityManager
      * @return  0 -> El usuario es responsable de un grupo
-     *          1 -> El usuario no esta en ningun grupo
+     *          1 -> El usuario no es responsable de ningun grupo
      *          2 -> EL usuario es responsable de mas de un grupo
      *          3 -> Ocurrio un error desconocido
      */
@@ -212,7 +214,44 @@ public class ControladorGrupo {
             return 3;
         }
     }
+    // ----------------
 
+
+    // ----- Update -----
+    public int actualizarGrupo(Grupo grupo){
+
+        EntityManager entityManager = Utils.crearEntityManager();
+        EntityTransaction transaction = entityManager.getTransaction();
+
+        transaction.begin();
+        int resultado = actualizarGrupo(grupo, entityManager);
+
+        if (resultado == 1){
+            transaction.rollback();
+        }
+        else {
+            transaction.commit();
+        }
+
+        entityManager.close();
+
+        return resultado;
+    }
+
+    public int actualizarGrupo(Grupo grupo, EntityManager entityManager){
+
+        try {
+            entityManager.merge(grupo);
+            return 0;
+
+        }catch (Exception e){
+            return -1;
+        }
+    }
+    // ------------------
+
+
+    // ----- Delete -----
     public int eliminarDelGrupoAlUsuario(String correo){
 
         EntityManager entityManager = Utils.crearEntityManager();
@@ -288,7 +327,5 @@ public class ControladorGrupo {
             return 3;
         }
     }
-    /* ---------------- */
-
-
+    // ------------------
 }

@@ -61,7 +61,6 @@ public class ControladorUsuario {
             }
 
         }catch (Exception e){
-            e.printStackTrace();
             Logger.error("Ocurrio un error al buscar a un usuario");
             respuesta = new Par<>(1, null);
         }finally {

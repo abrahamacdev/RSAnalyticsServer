@@ -15,10 +15,13 @@ public class Constantes {
 
             //PATH
             USUARIO_PATH("/usuario"),
+            NOTIFICACIONES_PATH("/notificaciones"),
 
             // ENDPOINTs
             LOGIN_ENDPOINT("/login"),
-            REGISTRO_ENDPOINT("/registro");
+            REGISTRO_ENDPOINT("/registro"),
+            NOTIFICACIONES_PENDIENTES_ENDPOINT("/hayPendientes"),
+            MARCAR_NOTIFICACIONES_LEIDAS("/marcarNotificaciones");
 
 
             public final String value;
@@ -31,11 +34,15 @@ public class Constantes {
         public enum GRUPO {
 
             GRUPO_PATH("/grupo"),
+            INVITACION_PATH("/invitacion"),
 
             REGISTRO_ENDPOINT("/registro"),
             DATOS_GRUPO_ENDPOINT("/datosGenerales"),
             BUSCAR_ENDPOINT("/buscar"),
-            ABANDONAR_ENDPOINT("/abandonar");
+            ABANDONAR_ENDPOINT("/abandonar"),
+            INVITAR_ENDPOINT("/invitar"),
+            ACEPTAR_INVITACION_ENDPOINT("/aceptar"),
+            RECHAZAR_INVITACION_ENDPOINT("/rechazar");
 
 
             public final String value;
@@ -49,7 +56,9 @@ public class Constantes {
 
             MSG("msg"),
             GRUPO("grupo"),
-            TOKEN("token");
+            TOKEN("token"),
+            NOTIFICACIONES("notificaciones"),
+            HAY_NOTIFICACIONES_PENDIENTES("existenNotificacionesPendientes");
 
             public final String value;
             private RESPUESTAS_KEYS(String v){

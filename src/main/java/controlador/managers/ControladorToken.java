@@ -47,8 +47,7 @@ public class ControladorToken {
     // -----------------
 
 
-    /* ----- Read ----- */
-
+    // ----- Read -----
     /**
      * Buscamos un token en la base de datos a partir de su idPublico
      * @param idPublico
@@ -87,6 +86,6 @@ public class ControladorToken {
             session.close();
         }
     }
-    /* ---------------- */
+    // ----------------
 
 }

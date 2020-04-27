@@ -4,6 +4,7 @@ import org.json.simple.JSONObject;
 
 import javax.persistence.*;
 import java.nio.charset.Charset;
+import java.util.Objects;
 
 @Entity
 @Table(name = "usuario")
@@ -105,6 +106,19 @@ public class Usuario {
         }
 
         return new Usuario(nombre, primerAp, segundoAp, genero,telefono, correo, contrasenia);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Usuario usuario = (Usuario) o;
+        return Objects.equals(id, usuario.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 
     @Override

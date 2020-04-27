@@ -43,6 +43,29 @@ CREATE TABLE IF NOT EXISTS usuario_grupo(
     CONSTRAINT usGrup_idUsIdGrup_pk PRIMARY KEY (usuario_id, grupo_id)
 );
 
+CREATE TABLE IF NOT EXISTS notificacion(
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    mensaje VARCHAR(255),
+    fecha_envio DATE NOT NULL DEFAULT NOW(),
+    leida BOOLEAN NOT NULL DEFAULT FALSE,
+    emisor_id INT NOT NULL,
+    receptor_id INT NOT NULL,
+    accion_id INT
+);
+
+CREATE TABLE IF NOT EXISTS accion (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    completada BOOLEAN NOT NULL DEFAULT FALSE,
+    grupo_id INT,
+    tipo_id INT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS tipo (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    nombre VARCHAR(255) NOT NULL,
+    CONSTRAINT tip_nom_uk UNIQUE tipo(nombre)
+);
+
 # Usuario
 ALTER TABLE usuario ADD CONSTRAINT us_rol_fk FOREIGN KEY (rol_id) REFERENCES rol(id);
 
@@ -56,5 +79,16 @@ ALTER TABLE grupo ADD CONSTRAINT grup_idResp_fk FOREIGN KEY (responsable_id) REF
 ALTER TABLE usuario_grupo ADD CONSTRAINT usGrup_idUs_fk FOREIGN KEY (usuario_id) REFERENCES usuario(id) ON DELETE CASCADE;
 ALTER TABLE usuario_grupo ADD CONSTRAINT usGrup_idGrup_fk FOREIGN KEY (grupo_id) REFERENCES grupo(id) ON DELETE CASCADE;
 
+# Notificacion
+ALTER TABLE notificacion ADD CONSTRAINT not_emId_fk FOREIGN KEY (emisor_id) REFERENCES usuario(id) ON DELETE CASCADE;
+ALTER TABLE notificacion ADD CONSTRAINT not_recId_fk FOREIGN KEY (receptor_id) REFERENCES usuario(id) ON DELETE CASCADE;
+ALTER TABLE notificacion ADD CONSTRAINT not_accId_fk FOREIGN KEY (accion_id) REFERENCES accion(id) ON DELETE CASCADE;
 
+# Accion
+ALTER TABLE accion ADD CONSTRAINT acc_gruId_fk FOREIGN KEY (grupo_id) REFERENCES grupo(id) ON DELETE CASCADE;
+ALTER TABLE accion ADD CONSTRAINT acc_tipId_fk FOREIGN KEY (tipo_id) REFERENCES tipo(id) ON DELETE CASCADE;
+
+
+# Datos iniciales
 INSERT INTO rol (nombre) VALUES ('Administrador'), ('Usuario Normal');
+INSERT INTO tipo (nombre) VALUES ('Invitacion a grupo');
