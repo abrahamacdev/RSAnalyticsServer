@@ -51,7 +51,7 @@ public class Anuncio {
         String tempAtributos = "";
 
         for (AtributoAnuncio atributo : atributos) {
-            tempAtributos += atributo + ",";
+            tempAtributos += atributo + ", ";
         }
 
         tempAtributos = tempAtributos.substring(0, tempAtributos.length() - 1);

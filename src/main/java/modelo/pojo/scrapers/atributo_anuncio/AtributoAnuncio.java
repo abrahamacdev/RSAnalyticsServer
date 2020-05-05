@@ -70,7 +70,7 @@ public class AtributoAnuncio {
     @Override
     public String toString() {
         String clave = claveAtributoAnuncio != null ? claveAtributoAnuncio.getNombre() : "";
-        return clave + "(" + claveAtributoAnuncio.getId() + ") ->" + getValorActivo();
+        return clave + "(" + claveAtributoAnuncio.getId() + ") -> " + getValorActivo();
     }
 
     @Transient

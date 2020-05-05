@@ -201,6 +201,13 @@ public class Utils {
         return false;
     }
 
+    public static String capitalize(String palabra){
+        if (palabra == null || palabra.length() == 0) {
+            return palabra;
+        }
+        return palabra.substring(0, 1).toUpperCase() + palabra.substring(1);
+    }
+
     public static String convertirCertificadoEnergetico2Letra(double certNum){
 
         int temp = (int) certNum;

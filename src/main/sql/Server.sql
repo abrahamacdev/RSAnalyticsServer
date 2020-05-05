@@ -87,7 +87,7 @@ CREATE TABLE IF NOT EXISTS claveAtributoAnuncio (
 CREATE TABLE IF NOT EXISTS atributoAnuncio (
     claveAtributoAnuncio_id INT,
     anuncio_id INT,
-    valor_numerico DECIMAL(16,8),
+    valor_numerico DECIMAL(24,12),
     valor_cadena VARCHAR(255),
     CONSTRAINT atriAnun_clavAtrAn_an_id PRIMARY KEY (claveAtributoAnuncio_id, anuncio_id)
 );
@@ -131,6 +131,6 @@ INSERT INTO claveAtributoAnuncio(nombre) VALUES
     ('Zona Deportiva'),('Zona Infantil'),('Puerta Blindada'),('Electrodomésticos'),('Horno'),('Lavadora'),
     ('Nevera'),('Serv. portería'),('TV'),('Balcón'),('Lavadero'),('Internet'),('Bodega'),('Planta'),('Escalera'),
     ('Edificio'),('Numero'),('Ascensor'),('Numero habitaciones'),('Banos'),('Consumo'),('Emisiones'),
-    ('Numero Imagenes'),('Precio'),('Longitud'),('Latitud'),('Orientacion'),('Antigüedad'),('Tipo Poseedor'),('M2'),
+    ('Numero Imagenes'),('Precio'),('Longitud'),('Latitud'),('Orientacion'),('Antiguedad'),('Tipo Anunciante'),('M2'),
     ('Tipo Inmueble'),('Tipo Contrato'),('Provincia'),('Ciudad'),('CP'),('Id Anuncio'),('Id Anunciante'),
-    ('Nombre Anunciante '),('Numero de contacto');
+    ('Nombre Anunciante'),('Numero de contacto'), ('Url Anunciante');

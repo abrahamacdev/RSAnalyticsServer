@@ -11,12 +11,12 @@ import utilidades.Utils;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
-import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
 public class ControladorAnuncio {
+
 
     // ------ Create -----
     public int guardarAnuncios(List<Anuncio> anuncios){
@@ -25,7 +25,7 @@ public class ControladorAnuncio {
         EntityTransaction entityTransaction = entityManager.getTransaction();
 
         // Obtenemos una instancia "fresca" de los objetos "ClaveAtributo"
-        /*ControladorAtributo controladorAtributo = new ControladorAtributo();
+        ControladorAtributo controladorAtributo = new ControladorAtributo();
         HashSet nombresClaves = new HashSet();
         ArrayList<ClaveAtributoAnuncio> clavesSinRepetir = new ArrayList<>();
         anuncios.stream()
@@ -37,7 +37,7 @@ public class ControladorAnuncio {
                     nombresClaves.add(claveAtributoAnuncio.getNombre());
                     clavesSinRepetir.add(claveAtributoAnuncio);
                 });
-        controladorAtributo.actualizarClaves(clavesSinRepetir, entityManager);*/
+        controladorAtributo.actualizarClaves(clavesSinRepetir, entityManager);
 
         entityTransaction.begin();
 
