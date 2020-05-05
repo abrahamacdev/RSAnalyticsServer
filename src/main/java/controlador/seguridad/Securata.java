@@ -3,14 +3,13 @@ package controlador.seguridad;
 import controlador.managers.ControladorUsuario;
 import io.javalin.http.Context;
 import io.jsonwebtoken.Jwt;
-import modelo.pojo.Usuario;
+import modelo.pojo.rest.Usuario;
 import org.json.simple.JSONObject;
 import utilidades.Constantes;
-import utilidades.HTTPCodes;
+import utilidades.rest.HTTPCodes;
 import utilidades.Par;
-import utilidades.SecurityUtils;
+import utilidades.rest.SecurityUtils;
 
-import java.sql.Connection;
 import java.util.Map;
 
 /**

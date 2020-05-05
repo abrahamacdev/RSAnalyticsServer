@@ -1,4 +1,4 @@
-package modelo.pojo;
+package modelo.pojo.rest;
 
 import org.tinylog.Logger;
 import utilidades.Utils;
@@ -25,7 +25,7 @@ public class Rol {
         this.nombre = nombre;
     }
 
-    public static synchronized Rol getRolPorDefecto(){
+    public static Rol getRolPorDefecto(){
 
         EntityManager entityManager = Utils.crearEntityManager();
         EntityTransaction transaction;

@@ -1,7 +1,7 @@
-package modelo.pojo.usuario_grupo;
+package modelo.pojo.rest.usuario_grupo;
 
-import modelo.pojo.Grupo;
-import modelo.pojo.Usuario;
+import modelo.pojo.rest.Grupo;
+import modelo.pojo.rest.Usuario;
 
 import javax.persistence.*;
 import java.util.Date;

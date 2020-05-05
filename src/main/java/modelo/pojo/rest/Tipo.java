@@ -1,9 +1,8 @@
-package modelo.pojo;
+package modelo.pojo.rest;
 
 import utilidades.Utils;
 
 import javax.persistence.*;
-import java.util.List;
 import java.util.Objects;
 
 @Entity

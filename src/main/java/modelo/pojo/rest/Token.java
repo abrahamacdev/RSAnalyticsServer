@@ -1,12 +1,6 @@
-package modelo.pojo;
-
-import io.jsonwebtoken.io.DeserializationException;
-import io.jsonwebtoken.io.Deserializer;
-import io.jsonwebtoken.io.SerializationException;
-import io.jsonwebtoken.io.Serializer;
+package modelo.pojo.rest;
 
 import javax.persistence.*;
-import java.util.Map;
 
 @Entity(name = "Token")
 @Table(name = "tokenAcceso")

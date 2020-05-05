@@ -1,9 +1,6 @@
 package controlador.managers;
 
-import modelo.pojo.Token;
-import org.hibernate.NonUniqueResultException;
-import org.hibernate.Session;
-import org.hibernate.Transaction;
+import modelo.pojo.rest.Token;
 import org.tinylog.Logger;
 import utilidades.Par;
 import utilidades.Utils;

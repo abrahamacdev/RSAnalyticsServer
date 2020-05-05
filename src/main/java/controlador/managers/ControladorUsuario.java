@@ -1,12 +1,10 @@
 package controlador.managers;
 
-import modelo.pojo.Usuario;
+import modelo.pojo.rest.Usuario;
 import org.hibernate.Hibernate;
-import org.hibernate.Session;
-import org.hibernate.Transaction;
 import org.tinylog.Logger;
 import utilidades.Par;
-import utilidades.SecurityUtils;
+import utilidades.rest.SecurityUtils;
 import utilidades.Utils;
 
 import javax.persistence.EntityManager;
@@ -73,7 +71,6 @@ public class ControladorUsuario {
 
 
     // ----- Create -----
-
     /**
      * Creamos un nuevo reegistro en la base de datos a partir del objeto usuario recibido
      * @param usuario

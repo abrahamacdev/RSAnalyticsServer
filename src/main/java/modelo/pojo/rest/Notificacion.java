@@ -1,6 +1,4 @@
-package modelo.pojo;
-
-import org.jetbrains.annotations.NotNull;
+package modelo.pojo.rest;
 
 import javax.persistence.*;
 import java.sql.Date;

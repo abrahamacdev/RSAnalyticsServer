@@ -2,13 +2,9 @@ package controlador.seguridad;
 
 import controlador.managers.ControladorToken;
 import io.jsonwebtoken.*;
-import io.jsonwebtoken.io.DeserializationException;
-import io.jsonwebtoken.io.Deserializer;
-import modelo.pojo.Token;
-import modelo.pojo.Usuario;
+import modelo.pojo.rest.Token;
+import modelo.pojo.rest.Usuario;
 import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 import org.tinylog.Logger;
 import utilidades.Constantes;
 import utilidades.Par;
@@ -18,7 +14,6 @@ import java.io.FileInputStream;
 import java.security.*;
 import java.security.cert.Certificate;
 import java.util.Enumeration;
-import java.util.Map;
 import java.util.UUID;
 
 public class TokensManejador {

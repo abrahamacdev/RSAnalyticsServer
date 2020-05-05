@@ -1,26 +1,12 @@
-package controlador.rest;
+package controlador;
 
-import controlador.managers.ControladorGrupo;
-import controlador.managers.ControladorUsuario;
+import controlador.rest.ManejadoresManager;
+import controlador.scrapers.ManejadorScrapers;
 import io.javalin.Javalin;
-import io.javalin.http.Context;
-import io.javalin.http.Handler;
-import modelo.pojo.Grupo;
-import modelo.pojo.Usuario;
-import modelo.pojo.usuario_grupo.UsuarioGrupo;
-import org.hibernate.Transaction;
-import org.jetbrains.annotations.NotNull;
 import org.tinylog.Logger;
 import utilidades.Constantes;
-import utilidades.Par;
 import utilidades.Propiedades;
-import utilidades.Utils;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
-import javax.persistence.Query;
-import javax.persistence.Transient;
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -31,8 +17,12 @@ public class Server {
     private Javalin app;
 
     private ManejadoresManager manejadoresManager;
+    private ManejadorScrapers manejadorScrapers;
+
     private ExecutorService piscinaHilosManejadores;
     private ExecutorService piscinaHilosScraper;
+    private ExecutorService piscinaHilosConversor;
+    private ExecutorService piscinaHilosGeneradorInformes;
 
     public Server(){
         init();
@@ -48,8 +38,17 @@ public class Server {
         // Creamos las piscinas de hilos con la cantidad de hilos para cada funcion
         piscinaHilosManejadores = Executors.newFixedThreadPool(Constantes.HILOS_MANEJADORES_PETICIONES);
         piscinaHilosScraper = Executors.newFixedThreadPool(Constantes.HILOS_PARA_SCRAPER);
+        piscinaHilosConversor = Executors.newFixedThreadPool(Constantes.HILOS_PARA_CONVERSOR);
+        piscinaHilosGeneradorInformes = Executors.newFixedThreadPool(Constantes.HILOS_PARA_GENERADOR_INFORMES);
 
-        crearServidor();
+        lanzarScrapers();
+        //crearServidor();
+    }
+
+    private void lanzarScrapers(){
+
+        manejadorScrapers = new ManejadorScrapers(piscinaHilosScraper);
+        manejadorScrapers.scrap();
     }
 
     private void crearServidor(){

@@ -1,4 +1,4 @@
-package utilidades;
+package utilidades.rest;
 
 public enum HTTPCodes {
 

@@ -1,8 +1,7 @@
 package controlador.managers;
 
-import modelo.pojo.Grupo;
-import modelo.pojo.Usuario;
-import modelo.pojo.usuario_grupo.UsuarioGrupo;
+import modelo.pojo.rest.Grupo;
+import modelo.pojo.rest.usuario_grupo.UsuarioGrupo;
 import utilidades.Par;
 import utilidades.Utils;
 

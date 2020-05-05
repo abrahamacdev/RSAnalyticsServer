@@ -1,7 +1,8 @@
-package utilidades;
+package utilidades.rest;
 
 import at.favre.lib.crypto.bcrypt.BCrypt;
 import org.tinylog.Logger;
+import utilidades.Par;
 
 import java.security.SecureRandom;
 

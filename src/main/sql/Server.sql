@@ -66,6 +66,32 @@ CREATE TABLE IF NOT EXISTS tipo (
     CONSTRAINT tip_nom_uk UNIQUE tipo(nombre)
 );
 
+CREATE TABLE IF NOT EXISTS procedencia (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    nombre VARCHAR(255) NOT NULL UNIQUE,
+    url VARCHAR(255) NOT NULL UNIQUE
+);
+
+CREATE TABLE IF NOT EXISTS anuncio (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    fecha_obtencion DATE NOT NULL DEFAULT NOW(),
+    procedencia_id INT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS claveAtributoAnuncio (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    nombre VARCHAR(255) NOT NULL,
+    CONSTRAINT claAtAn_nom_uk UNIQUE KEY claveAtributoAnuncio(nombre)
+);
+
+CREATE TABLE IF NOT EXISTS atributoAnuncio (
+    claveAtributoAnuncio_id INT,
+    anuncio_id INT,
+    valor_numerico DECIMAL(16,8),
+    valor_cadena VARCHAR(255),
+    CONSTRAINT atriAnun_clavAtrAn_an_id PRIMARY KEY (claveAtributoAnuncio_id, anuncio_id)
+);
+
 # Usuario
 ALTER TABLE usuario ADD CONSTRAINT us_rol_fk FOREIGN KEY (rol_id) REFERENCES rol(id);
 
@@ -88,7 +114,23 @@ ALTER TABLE notificacion ADD CONSTRAINT not_accId_fk FOREIGN KEY (accion_id) REF
 ALTER TABLE accion ADD CONSTRAINT acc_gruId_fk FOREIGN KEY (grupo_id) REFERENCES grupo(id) ON DELETE CASCADE;
 ALTER TABLE accion ADD CONSTRAINT acc_tipId_fk FOREIGN KEY (tipo_id) REFERENCES tipo(id) ON DELETE CASCADE;
 
+# Anuncio
+ALTER TABLE anuncio ADD CONSTRAINT an_procId_fk FOREIGN KEY (procedencia_id) REFERENCES procedencia(id) ON UPDATE CASCADE;
+
+# AtributoAnuncio
+ALTER TABLE atributoAnuncio ADD CONSTRAINT atriAnun_clavAtrAn_id FOREIGN KEY (claveAtributoAnuncio_id) REFERENCES claveAtributoAnuncio(id);
+ALTER TABLE atributoAnuncio ADD CONSTRAINT atriAnun_an_id FOREIGN KEY (anuncio_id) REFERENCES anuncio(id);
 
 # Datos iniciales
 INSERT INTO rol (nombre) VALUES ('Administrador'), ('Usuario Normal');
 INSERT INTO tipo (nombre) VALUES ('Invitacion a grupo');
+INSERT INTO procedencia (nombre,url) VALUES ('Fotocasa','www.fotocasa.es');
+INSERT INTO claveAtributoAnuncio(nombre) VALUES
+    ('Aire acondicionado'),('Armarios'),('Calefacción'),('Cocina Equipada'),('Jardín'),('Terraza'),('Trastero'),
+    ('Z. Comunitaria'),('Alarma'),('Domótica'),('Patio'),('Energía Solar'),('Piscina'),('Videoportero'),('Suite'),
+    ('Zona Deportiva'),('Zona Infantil'),('Puerta Blindada'),('Electrodomésticos'),('Horno'),('Lavadora'),
+    ('Nevera'),('Serv. portería'),('TV'),('Balcón'),('Lavadero'),('Internet'),('Bodega'),('Planta'),('Escalera'),
+    ('Edificio'),('Numero'),('Ascensor'),('Numero habitaciones'),('Banos'),('Consumo'),('Emisiones'),
+    ('Numero Imagenes'),('Precio'),('Longitud'),('Latitud'),('Orientacion'),('Antigüedad'),('Tipo Poseedor'),('M2'),
+    ('Tipo Inmueble'),('Tipo Contrato'),('Provincia'),('Ciudad'),('CP'),('Id Anuncio'),('Id Anunciante'),
+    ('Nombre Anunciante '),('Numero de contacto');

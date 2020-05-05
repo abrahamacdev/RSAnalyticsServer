@@ -6,15 +6,15 @@ import io.javalin.Javalin;
 import io.javalin.http.Context;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwt;
-import modelo.pojo.Accion;
-import modelo.pojo.Notificacion;
-import modelo.pojo.Tipo;
+import modelo.pojo.rest.Accion;
+import modelo.pojo.rest.Notificacion;
+import modelo.pojo.rest.Tipo;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import utilidades.Constantes;
-import utilidades.HTTPCodes;
+import utilidades.rest.HTTPCodes;
 import utilidades.Par;
 import utilidades.Utils;
 
@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.function.ToIntFunction;
-import java.util.stream.Collectors;
 
 public class Notificaciones extends AbstractHandler {
 
@@ -58,6 +57,7 @@ public class Notificaciones extends AbstractHandler {
 
         // Invitacion a grupo
         if (idTipoAccion == Tipo.NOMBRE.INVITACION.getId()){
+            accionParseada.put("tipo", Tipo.NOMBRE.INVITACION.getId());
             accionParseada.put("nombreGrupo", accion.getGrupo().getNombre());
         }
 
@@ -99,6 +99,7 @@ public class Notificaciones extends AbstractHandler {
         notificaciones.stream()
                 .map(notificacion -> {
                     JSONObject notificacionParseada = new JSONObject();
+                    notificacionParseada.put("id", notificacion.getId());
                     notificacionParseada.put("fecha", notificacion.fechaEnvio2Millis());
                     notificacionParseada.put("mensaje", notificacion.getMensaje());
                     notificacionParseada.put("emisor", notificacion.getEmisor().getNombre());
@@ -190,6 +191,8 @@ public class Notificaciones extends AbstractHandler {
 
         JSONObject respuesta = new JSONObject();
         String correo = token.getSubject();
+
+        System.out.println(cuerpo.get("idsNotificaciones"));
 
         // Obtenemos cada id del JSONArray y lo metemos a la lista de ids
         List<Integer> idsNotificaciones = ((JSONArray) cuerpo.get("idsNotificaciones")).stream()

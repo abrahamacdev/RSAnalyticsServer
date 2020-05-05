@@ -1,4 +1,4 @@
-package modelo.pojo;
+package modelo.pojo.rest;
 
 import org.json.simple.JSONObject;
 

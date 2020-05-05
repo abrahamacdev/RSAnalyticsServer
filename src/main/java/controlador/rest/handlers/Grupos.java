@@ -1,6 +1,5 @@
 package controlador.rest.handlers;
 
-import com.sun.xml.bind.v2.runtime.reflect.opt.Const;
 import controlador.managers.ControladorGrupo;
 import controlador.managers.ControladorNotificacion;
 import controlador.managers.ControladorUsuario;
@@ -9,28 +8,24 @@ import io.javalin.Javalin;
 import io.javalin.http.Context;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwt;
-import modelo.pojo.*;
-import modelo.pojo.usuario_grupo.UsuarioGrupo;
+import modelo.pojo.rest.*;
+import modelo.pojo.rest.usuario_grupo.UsuarioGrupo;
 import org.hibernate.Hibernate;
-import org.hibernate.jpa.boot.spi.EntityManagerFactoryBuilder;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.tinylog.Logger;
 import utilidades.Constantes;
-import utilidades.HTTPCodes;
+import utilidades.rest.HTTPCodes;
 import utilidades.Par;
 import utilidades.Utils;
 
-import javax.persistence.Entity;
 import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
-import java.util.stream.Stream;
 
 public class Grupos extends AbstractHandler{
 
@@ -326,7 +321,7 @@ public class Grupos extends AbstractHandler{
         return runnable;
     }
     // --------------------------------------
-
+    
 
     // ----- Abandono de un grupo -----
     private Runnable abandonarGrupo(Context ctx){
@@ -619,7 +614,7 @@ public class Grupos extends AbstractHandler{
     private Par<Integer, String> realizarComprobacionesPreviasUnionGrupo(Claims token, JSONObject cuerpo){
 
         String correoUsuario = token.getSubject();
-        int idNotificacion = Integer.valueOf((String) cuerpo.get("idNotificacion"));
+        int idNotificacion = ((Long) cuerpo.get("idNotificacion")).intValue();
         ControladorUsuario controladorUsuario = new ControladorUsuario();
 
         // Comprobamos que el usuario exista en la base datos
@@ -690,7 +685,7 @@ public class Grupos extends AbstractHandler{
         }
 
         String invitado = token.getSubject();
-        int idNotificacion = Integer.valueOf((String) cuerpo.get("idNotificacion"));
+        int idNotificacion = ((Long) cuerpo.get("idNotificacion")).intValue();
 
         ControladorGrupo controladorGrupo = new ControladorGrupo();
         ControladorNotificacion controladorNotificacion = new ControladorNotificacion();
@@ -764,6 +759,8 @@ public class Grupos extends AbstractHandler{
                     try {
                         JSONObject cuerpo = (JSONObject) new JSONParser().parse(ctx.body());
 
+                        System.out.println(cuerpo);
+
                         // La peticion no contiene los campos necesarios
                         if (!aceptacionInvitacionContieneCamposNec(cuerpo)){
                             ctx.status(HTTPCodes._400.getCodigo());
@@ -807,7 +804,7 @@ public class Grupos extends AbstractHandler{
     private Par<Integer, String> realizarComprobacionesPreviasRechazoGrupo(Claims token, JSONObject cuerpo){
 
         String invitado = token.getSubject();
-        int idNotificacion = Integer.valueOf((String) cuerpo.get("idNotificacion"));
+        int idNotificacion = ((Long) cuerpo.get("idNotificacion")).intValue();
 
         ControladorNotificacion controladorNotificacion = new ControladorNotificacion();
         ControladorUsuario controladorUsuario = new ControladorUsuario();
@@ -861,7 +858,7 @@ public class Grupos extends AbstractHandler{
             return resultadoComprobaciones;
         }
 
-        int idNotificacion = Integer.valueOf((String) cuerpo.get("idNotificacion"));
+        int idNotificacion = ((Long) cuerpo.get("idNotificacion")).intValue();
         ControladorNotificacion controladorNotificacion = new ControladorNotificacion();
 
         EntityManager entityManager = Utils.crearEntityManager();
@@ -894,7 +891,7 @@ public class Grupos extends AbstractHandler{
             @Override
             public void run() {
 
-                Claims token = (Claims) new Securata(ctx).validarYRetornarToken();
+                Jwt token = new Securata(ctx).validarYRetornarToken();
 
                 if (token != null){
 
@@ -913,7 +910,7 @@ public class Grupos extends AbstractHandler{
                         }
 
                         // Rechazamos la invitacion
-                        Par<Integer, String> resultado = realizarRechazoAGrupo(token, peticion);
+                        Par<Integer, String> resultado = realizarRechazoAGrupo((Claims) token.getBody(), peticion);
                         respuesta.put(Constantes.REST.RESPUESTAS_KEYS.MSG.value, resultado.getSegundo());
                         ctx.status(resultado.getPrimero());
                         ctx.result(respuesta.toJSONString());

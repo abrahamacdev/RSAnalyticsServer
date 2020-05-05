@@ -7,17 +7,23 @@
 
         <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
 
-        <class>modelo.pojo.Usuario</class>
-        <class>modelo.pojo.Rol</class>
-        <class>modelo.pojo.Token</class>
-        <class>modelo.pojo.Grupo</class>
+        <class>modelo.pojo.rest.Usuario</class>
+        <class>modelo.pojo.rest.Rol</class>
+        <class>modelo.pojo.rest.Token</class>
+        <class>modelo.pojo.rest.Grupo</class>
 
-        <class>modelo.pojo.usuario_grupo.UsuarioGrupo</class>
-        <class>modelo.pojo.usuario_grupo.UsuarioGrupoId</class>
+        <class>modelo.pojo.rest.usuario_grupo.UsuarioGrupo</class>
+        <class>modelo.pojo.rest.usuario_grupo.UsuarioGrupoId</class>
 
-        <class>modelo.pojo.Notificacion</class>
-        <class>modelo.pojo.Accion</class>
-        <class>modelo.pojo.Tipo</class>
+        <class>modelo.pojo.rest.Notificacion</class>
+        <class>modelo.pojo.rest.Accion</class>
+        <class>modelo.pojo.rest.Tipo</class>
+
+        <class>modelo.pojo.scrapers.Anuncio</class>
+        <class>modelo.pojo.scrapers.Procedencia</class>
+        <class>modelo.pojo.scrapers.ClaveAtributoAnuncio</class>
+        <class>modelo.pojo.scrapers.atributo_anuncio.AtributoAnuncio</class>
+        <class>modelo.pojo.scrapers.atributo_anuncio.AtributoAnuncioId</class>
 
         <properties>
             <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/RSAnalytics?serverTimezone=UTC" />
@@ -25,8 +31,9 @@
             <property name="javax.persistence.jdbc.password" value="root" />
             <property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver" />
             <property name="hibernate.dialect" value="org.hibernate.dialect.MySQLDialect"/>
-            <property name="hibernate.show_sql" value="true" />
-            <property name="hibernate.format_sql" value="true" />
+            <property name="hibernate.show_sql" value="false" />
+            <property name="hibernate.format_sql" value="false" />
+            <property name="hibernate.jdbc.batch_size" value="50"/>
         </properties>
     </persistence-unit>
 

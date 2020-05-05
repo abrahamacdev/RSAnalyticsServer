@@ -1,7 +1,7 @@
 package controlador.managers;
 
-import modelo.pojo.Notificacion;
-import modelo.pojo.Tipo;
+import modelo.pojo.rest.Notificacion;
+import modelo.pojo.rest.Tipo;
 import utilidades.Par;
 import utilidades.Utils;
 
@@ -306,7 +306,7 @@ public class ControladorNotificacion {
      * @param ids
      * @param entityManager
      * @return  0, List -> Notificaciones que coincidieron
-     *          1, null -> No hubo ninguna que coincidiese
+     *          1, List -> No hubo ninguna que coincidiese
      *          2, null -> Ocurrio un error
      */
     public Par<Integer, List<Notificacion>> obtenerNotificacionesConIdDelUsuario(List<Integer> ids, String correo, EntityManager entityManager){
@@ -325,7 +325,7 @@ public class ControladorNotificacion {
                 return new Par<>(0, notificaciones);
             }
 
-            return new Par<>(1, null);
+            return new Par<>(1, notificaciones);
 
         }catch (Exception e){
             return new Par<>(2, null);

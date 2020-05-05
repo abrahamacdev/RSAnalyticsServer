@@ -1,9 +1,8 @@
-package modelo.pojo;
+package modelo.pojo.rest;
 
-import modelo.pojo.usuario_grupo.UsuarioGrupo;
+import modelo.pojo.rest.usuario_grupo.UsuarioGrupo;
 
 import javax.persistence.*;
-import javax.transaction.Transactional;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Objects;
