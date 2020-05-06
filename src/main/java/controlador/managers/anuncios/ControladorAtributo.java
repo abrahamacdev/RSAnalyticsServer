@@ -1,4 +1,4 @@
-package controlador.managers;
+package controlador.managers.anuncios;
 
 import modelo.pojo.scrapers.ClaveAtributoAnuncio;
 import org.hibernate.Session;
@@ -64,4 +64,5 @@ public class ControladorAtributo {
 
         return actualizados;
     }
+    // ------------------
 }

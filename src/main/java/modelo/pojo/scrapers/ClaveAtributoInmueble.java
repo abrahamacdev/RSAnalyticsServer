@@ -4,8 +4,8 @@ import javax.persistence.*;
 import java.util.Objects;
 
 @Entity
-@Table(name = "claveAtributoAnuncio")
-public class ClaveAtributoAnuncio {
+@Table(name = "claveAtributoInmueble")
+public class ClaveAtributoInmueble {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,13 +18,13 @@ public class ClaveAtributoAnuncio {
     @Column(name = "es_principal")
     private boolean esPrincipal = false;
 
-    public ClaveAtributoAnuncio(){}
+    public ClaveAtributoInmueble(){}
 
-    public ClaveAtributoAnuncio(String nombre) {
+    public ClaveAtributoInmueble(String nombre) {
         this.nombre = nombre;
     }
 
-    public ClaveAtributoAnuncio(String nombre, boolean esPrincipal) {
+    public ClaveAtributoInmueble(String nombre, boolean esPrincipal) {
         this.nombre = nombre;
         this.esPrincipal = esPrincipal;
     }
@@ -33,8 +33,13 @@ public class ClaveAtributoAnuncio {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        ClaveAtributoAnuncio claveAtributoAnuncio = (ClaveAtributoAnuncio) o;
-        return Objects.equals(id, claveAtributoAnuncio.id);
+        ClaveAtributoInmueble claveAtributoInmueble = (ClaveAtributoInmueble) o;
+
+        if (id == 0 || claveAtributoInmueble.id == 0){
+            return Objects.equals(nombre, claveAtributoInmueble.nombre);
+        }
+
+        return Objects.equals(id, claveAtributoInmueble.id);
     }
 
     @Override

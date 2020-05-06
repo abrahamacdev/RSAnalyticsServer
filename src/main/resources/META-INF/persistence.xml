@@ -7,6 +7,9 @@
 
         <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
 
+        <class>modelo.pojo.Municipio</class>
+        <class>modelo.pojo.Provincia</class>
+
         <class>modelo.pojo.rest.Usuario</class>
         <class>modelo.pojo.rest.Rol</class>
         <class>modelo.pojo.rest.Token</class>

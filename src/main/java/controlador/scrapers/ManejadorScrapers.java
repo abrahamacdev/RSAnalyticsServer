@@ -1,9 +1,8 @@
 package controlador.scrapers;
 
-import controlador.managers.ControladorAnuncio;
+import controlador.managers.anuncios.ControladorAnuncio;
 import controlador.scrapers.scraper.AbstractScraper;
 import controlador.scrapers.scraper.fotocasa.ScraperFotocasa;
-import modelo.pojo.rest.Tipo;
 import modelo.pojo.scrapers.Anuncio;
 import org.tinylog.Logger;
 
@@ -14,12 +13,10 @@ public class ManejadorScrapers implements OnScraperListener {
 
     private ExecutorService piscinaScraper;
 
-    private ScraperFotocasa scraperFotocasa;
     private ControladorAnuncio controladorAnuncio;
 
     public ManejadorScrapers(ExecutorService piscinaScraper){
         this.piscinaScraper = piscinaScraper;
-        this.scraperFotocasa = new ScraperFotocasa(this);
         this.controladorAnuncio = new ControladorAnuncio();
     }
 
@@ -36,12 +33,15 @@ public class ManejadorScrapers implements OnScraperListener {
     public void onScraped(List<Anuncio> anuncios, TipoScraper tipoScraper) {
 
         Logger.info("Vamos a guardar " + anuncios.size() + " anuncios");
+
+        // Guardamos los anuncios recogidos en esta tanda
         controladorAnuncio.guardarAnuncios(anuncios);
     }
 
     @Override
     public void onError(Exception e, TipoScraper tipoScraper) {
-        Logger.error("Ocurrio un error mientras se obtenian los datos de internet");
+
+        Logger.error("Ocurrio un error con algun scraper");
 
         // Volvemos a lanzar el scraper
         lanzarAsync(crearScraperDeTipo(tipoScraper));

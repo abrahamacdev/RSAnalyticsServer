@@ -35,7 +35,7 @@ public class Par<T,E> {
         if (o == null || getClass() != o.getClass()) return false;
         Par par = (Par) o;
         return Objects.equals(primero, par.primero) &&
-                Objects.deepEquals(segundo, par.segundo);
+                Objects.equals(segundo, par.segundo);
     }
 
     @Override

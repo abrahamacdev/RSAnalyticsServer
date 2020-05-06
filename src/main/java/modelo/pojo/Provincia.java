@@ -1,11 +1,13 @@
-package modelo.pojo.scrapers;
+package modelo.pojo;
+
+import modelo.pojo.scrapers.Anuncio;
 
 import javax.persistence.*;
 import java.util.Objects;
 
 @Entity
-@Table(name = "claveAtributoAnuncio")
-public class ClaveAtributoAnuncio {
+@Table( name = "provincia")
+public class Provincia {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -15,26 +17,28 @@ public class ClaveAtributoAnuncio {
     @Column(name = "nombre")
     private String nombre;
 
-    @Column(name = "es_principal")
-    private boolean esPrincipal = false;
+    public Provincia(){}
 
-    public ClaveAtributoAnuncio(){}
-
-    public ClaveAtributoAnuncio(String nombre) {
+    public Provincia(String nombre) {
         this.nombre = nombre;
     }
 
-    public ClaveAtributoAnuncio(String nombre, boolean esPrincipal) {
-        this.nombre = nombre;
-        this.esPrincipal = esPrincipal;
+    @Override
+    public String toString() {
+        return "Provincia \'" + nombre + "\'";
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        ClaveAtributoAnuncio claveAtributoAnuncio = (ClaveAtributoAnuncio) o;
-        return Objects.equals(id, claveAtributoAnuncio.id);
+        Provincia provincia = (Provincia) o;
+
+        if (id == 0 || provincia.id == 0){
+            return Objects.equals(nombre, provincia.nombre);
+        }
+
+        return Objects.equals(id, provincia.id);
     }
 
     @Override
@@ -56,13 +60,5 @@ public class ClaveAtributoAnuncio {
 
     public void setNombre(String nombre) {
         this.nombre = nombre;
-    }
-
-    public boolean isEsPrincipal() {
-        return esPrincipal;
-    }
-
-    public void setEsPrincipal(boolean esPrincipal) {
-        this.esPrincipal = esPrincipal;
     }
 }

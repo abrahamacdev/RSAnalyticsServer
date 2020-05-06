@@ -2,6 +2,8 @@ DROP DATABASE IF EXISTS RSAnalytics;
 
 CREATE DATABASE IF NOT EXISTS RSAnalytics;
 
+USE RSAnalytics;
+
 CREATE TABLE IF NOT EXISTS usuario(
 	id INT PRIMARY KEY AUTO_INCREMENT,
     nombre VARCHAR(30) NOT NULL,
@@ -75,12 +77,14 @@ CREATE TABLE IF NOT EXISTS procedencia (
 CREATE TABLE IF NOT EXISTS anuncio (
     id INT PRIMARY KEY AUTO_INCREMENT,
     fecha_obtencion DATE NOT NULL DEFAULT NOW(),
+    municipio_id INT NOT NULL,
     procedencia_id INT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS claveAtributoAnuncio (
     id INT PRIMARY KEY AUTO_INCREMENT,
     nombre VARCHAR(255) NOT NULL,
+    es_principal BOOLEAN DEFAULT FALSE,
     CONSTRAINT claAtAn_nom_uk UNIQUE KEY claveAtributoAnuncio(nombre)
 );
 
@@ -89,7 +93,67 @@ CREATE TABLE IF NOT EXISTS atributoAnuncio (
     anuncio_id INT,
     valor_numerico DECIMAL(24,12),
     valor_cadena VARCHAR(255),
-    CONSTRAINT atriAnun_clavAtrAn_an_id PRIMARY KEY (claveAtributoAnuncio_id, anuncio_id)
+    CONSTRAINT atriAnun_ids_pk PRIMARY KEY (claveAtributoAnuncio_id, anuncio_id)
+);
+
+CREATE TABLE IF NOT EXISTS municipio (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    nombre VARCHAR(255) NOT NULL,
+    codigo_postal CHAR(5) NOT NULL,
+    provincia_id INT NOT NULL,
+    CONSTRAINT mun_nomCp_uk UNIQUE KEY municipio(nombre,codigo_postal)
+);
+
+CREATE TABLE IF NOT EXISTS provincia (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    nombre VARCHAR(255) NOT NULL,
+    CONSTRAINT pro_nom_uk UNIQUE KEY provincia(nombre)
+);
+
+CREATE TABLE IF NOT EXISTS inmueble (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    tipoInmueble_id INT NOT NULL,
+    municipio_id INT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS tipoContrato (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    nombre VARCHAR(255) NOT NULL,
+    CONSTRAINT tipCon_nom_uk UNIQUE KEY tipoContrato(nombre)
+);
+
+CREATE TABLE IF NOT EXISTS tipoInmueble (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    nombre VARCHAR(255) NOT NULL,
+    CONSTRAINT tipInm_nom_uk UNIQUE KEY tipoInmueble(nombre)
+);
+
+CREATE TABLE IF NOT EXISTS claveAtributoInmueble (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    nombre VARCHAR(255) NOT NULL,
+    es_principal BOOLEAN DEFAULT FALSE,
+    CONSTRAINT claAtIn_nom_uk UNIQUE KEY claveAtributoInmueble(nombre)
+);
+
+CREATE TABLE IF NOT EXISTS tipoInmueble_claveAtributoInmueble (
+    tipoInmueble_id INT,
+    claveAtributoInmueble_id INT,
+    CONSTRAINT tipoIn_clavAtrIn_ids_pk PRIMARY KEY (claveAtributoInmueble_id, tipoInmueble_id)
+);
+
+CREATE TABLE IF NOT EXISTS atributoInmueble (
+    claveAtributoInmueble_id INT,
+    inmueble_id INT,
+    valor_numerico DECIMAL(24,12),
+    valor_cadena VARCHAR(255),
+    CONSTRAINT atriIn_ids_pk PRIMARY KEY (claveAtributoInmueble_id, inmueble_id)
+);
+
+CREATE TABLE IF NOT EXISTS anuncio_tipoContrato_inmueble (
+    inmueble_id INT,
+    anuncio_id INT,
+    tipoContrato_id INT,
+    CONSTRAINT an_tipCon_in_ids_pk PRIMARY KEY (inmueble_id, anuncio_id, tipoContrato_id)
 );
 
 # Usuario
@@ -116,21 +180,68 @@ ALTER TABLE accion ADD CONSTRAINT acc_tipId_fk FOREIGN KEY (tipo_id) REFERENCES 
 
 # Anuncio
 ALTER TABLE anuncio ADD CONSTRAINT an_procId_fk FOREIGN KEY (procedencia_id) REFERENCES procedencia(id) ON UPDATE CASCADE;
+ALTER TABLE anuncio ADD CONSTRAINT an_munId_fk FOREIGN KEY (municipio_id) REFERENCES municipio(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 # AtributoAnuncio
-ALTER TABLE atributoAnuncio ADD CONSTRAINT atriAnun_clavAtrAn_id FOREIGN KEY (claveAtributoAnuncio_id) REFERENCES claveAtributoAnuncio(id);
-ALTER TABLE atributoAnuncio ADD CONSTRAINT atriAnun_an_id FOREIGN KEY (anuncio_id) REFERENCES anuncio(id);
+ALTER TABLE atributoAnuncio ADD CONSTRAINT atriAnun_clavAtrAnId_fk FOREIGN KEY (claveAtributoAnuncio_id) REFERENCES claveAtributoAnuncio(id);
+ALTER TABLE atributoAnuncio ADD CONSTRAINT atriAnun_anId_fk FOREIGN KEY (anuncio_id) REFERENCES anuncio(id);
+
+# Municipo
+ALTER TABLE municipio ADD CONSTRAINT mun_proId_fk FOREIGN KEY (provincia_id) REFERENCES provincia(id);
+
+# Anuncio_TipoContrato_Inmueble
+ALTER TABLE anuncio_tipoContrato_inmueble ADD CONSTRAINT an_tipCon_in_inId_fk FOREIGN KEY (inmueble_id) REFERENCES inmueble(id);
+ALTER TABLE anuncio_tipoContrato_inmueble ADD CONSTRAINT an_tipCon_in_anId_fk FOREIGN KEY (anuncio_id) REFERENCES anuncio(id);
+ALTER TABLE anuncio_tipoContrato_inmueble ADD CONSTRAINT an_tipCon_in_tipConId_fk FOREIGN KEY (tipoContrato_id) REFERENCES tipoContrato(id);
+
+# Inmueble
+ALTER TABLE inmueble ADD CONSTRAINT in_tipInId_fk FOREIGN KEY (tipoInmueble_id) REFERENCES tipoInmueble(id);
+ALTER TABLE inmueble ADD CONSTRAINT in_munId_fk FOREIGN KEY (municipio_id) REFERENCES municipio(id);
+
+# AtributoInmueble
+ALTER TABLE atributoInmueble ADD CONSTRAINT atriIn_clavAtrInId_fk FOREIGN KEY (claveAtributoInmueble_id) REFERENCES claveAtributoInmueble(id);
+ALTER TABLE atributoInmueble ADD CONSTRAINT atriIn_inId_fk FOREIGN KEY (inmueble_id) REFERENCES inmueble(id);
+
+# TipoInmueble_ClaveAtributoInmueble
+ALTER TABLE tipoInmueble_claveAtributoInmueble ADD CONSTRAINT tipIn_clavAtrIn_clavAtrInId_fk FOREIGN KEY (claveAtributoInmueble_id) REFERENCES claveAtributoInmueble(id);
+ALTER TABLE tipoInmueble_claveAtributoInmueble ADD CONSTRAINT tipIn_clavAtrIn_tipInId_fk FOREIGN KEY (tipoInmueble_id) REFERENCES tipoInmueble(id);
+
 
 # Datos iniciales
 INSERT INTO rol (nombre) VALUES ('Administrador'), ('Usuario Normal');
 INSERT INTO tipo (nombre) VALUES ('Invitacion a grupo');
 INSERT INTO procedencia (nombre,url) VALUES ('Fotocasa','www.fotocasa.es');
+
 INSERT INTO claveAtributoAnuncio(nombre) VALUES
     ('Aire acondicionado'),('Armarios'),('Calefacción'),('Cocina Equipada'),('Jardín'),('Terraza'),('Trastero'),
     ('Z. Comunitaria'),('Alarma'),('Domótica'),('Patio'),('Energía Solar'),('Piscina'),('Videoportero'),('Suite'),
     ('Zona Deportiva'),('Zona Infantil'),('Puerta Blindada'),('Electrodomésticos'),('Horno'),('Lavadora'),
     ('Nevera'),('Serv. portería'),('TV'),('Balcón'),('Lavadero'),('Internet'),('Bodega'),('Planta'),('Escalera'),
-    ('Edificio'),('Numero'),('Ascensor'),('Numero habitaciones'),('Banos'),('Consumo'),('Emisiones'),
-    ('Numero Imagenes'),('Precio'),('Longitud'),('Latitud'),('Orientacion'),('Antiguedad'),('Tipo Anunciante'),('M2'),
-    ('Tipo Inmueble'),('Tipo Contrato'),('Provincia'),('Ciudad'),('CP'),('Id Anuncio'),('Id Anunciante'),
-    ('Nombre Anunciante'),('Numero de contacto'), ('Url Anunciante');
+    ('Edificio'),('Numero'),('Ascensor');
+INSERT INTO claveAtributoAnuncio(nombre, es_principal) VALUES
+    ('Numero habitaciones', TRUE),('Banos', TRUE),('Consumo', TRUE),('Emisiones', TRUE),
+    ('Numero Imagenes', TRUE),('Precio', TRUE),('Longitud', TRUE),('Latitud', TRUE),('Orientacion', TRUE),
+    ('Antiguedad', TRUE),('Tipo Anunciante', TRUE),('M2', TRUE),('Tipo Inmueble', TRUE),('Tipo Contrato', TRUE),
+    ('Id Anuncio', TRUE),('Id Anunciante', TRUE),('Nombre Anunciante', TRUE),('Numero de contacto', TRUE),
+    ('Url Anunciante', TRUE);
+
+INSERT INTO tipoInmueble(id,nombre) VALUES (1,'Vivienda');
+
+INSERT INTO claveAtributoInmueble (id, nombre) VALUES
+    (1,'Aire acondicionado'),(2,'Armarios'),(3,'Calefacción'),(4,'Cocina Equipada'),(5,'Jardín'),(6,'Terraza'),
+    (7,'Trastero'),(8,'Z. Comunitaria'),(9,'Alarma'),(10,'Domótica'),(11,'Patio'),(12,'Energía Solar'),(13,'Piscina'),
+    (14,'Videoportero'),(15,'Suite'),(16,'Zona Deportiva'),(17,'Zona Infantil'),(18,'Puerta Blindada'),(19,'Electrodomésticos'),
+    (20,'Horno'),(21,'Lavadora'),(22,'Nevera'),(23,'Serv. portería'),(24,'TV'),(25,'Balcón'),(26,'Lavadero'),
+    (27,'Internet'),(28,'Bodega'),(29,'Planta'),(30,'Escalera'),(31,'Edificio'),(32,'Numero'),(33,'Ascensor');
+INSERT INTO claveAtributoInmueble(id, nombre, es_principal) VALUES
+    (34,'Numero habitaciones', TRUE),(35,'Banos', TRUE),(36,'Consumo', TRUE),(37,'Emisiones', TRUE),
+    (38,'Numero Imagenes', TRUE),(39,'Precio', TRUE),(40,'Longitud', TRUE),(41,'Latitud', TRUE),(42,'Orientacion', TRUE),
+    (43,'Antiguedad', TRUE),(44,'Tipo Anunciante', TRUE),(45,'M2', TRUE),(46,'Id Anuncio', TRUE),(47,'Id Anunciante', TRUE),
+    (48,'Nombre Anunciante', TRUE),(49,'Numero de contacto', TRUE),(50,'Url Anunciante', TRUE);
+
+# Ligamos los atributos propios de una vivienda + atributos obligatorios de todos los inmuebles con el tipo de inmueble 'Vivienda'
+INSERT INTO tipoInmueble_claveAtributoInmueble VALUES
+    (1,1),(1,2),(1,3),(1,4),(1,5),(1,6),(1,7),(1,8),(1,9),(1,10),(1,11),(1,12),(1,13),(1,14),(1,15),(1,16),(1,17),
+    (1,18),(1,19),(1,20),(1,21),(1,22),(1,23),(1,24),(1,25),(1,26),(1,27),(1,28),(1,29),(1,30),(1,31),(1,32),(1,33),
+    (1,34),(1,35),(1,36),(1,37),(1,38),(1,39),(1,40),(1,41),(1,42),(1,43),(1,44),(1,45),(1,46),(1,47),(1,48),(1,49),
+    (1,50);

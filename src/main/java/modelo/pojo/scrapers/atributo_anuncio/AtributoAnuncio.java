@@ -14,13 +14,13 @@ public class AtributoAnuncio {
     private AtributoAnuncioId atributoAnuncioId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("idAnuncio") // Nombre de la variable en la clase "AtributoAnuncioId.java"
+    @MapsId("idAnuncio") // Nombre de la variable en la clase "AtributoInmuebleId.java"
     private Anuncio anuncio;
 
     @ManyToOne(fetch = FetchType.EAGER,
                 cascade = { CascadeType.REFRESH }
                 )
-    @MapsId("idClaveAtributoAnuncio") // Nombre de la variable en la clase "AtributoAnuncioId.java"
+    @MapsId("idClaveAtributoAnuncio") // Nombre de la variable en la clase "AtributoInmuebleId.java"
     private ClaveAtributoAnuncio claveAtributoAnuncio;
 
     @Column(name = "valor_cadena")

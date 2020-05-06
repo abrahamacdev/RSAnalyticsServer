@@ -1,6 +1,7 @@
 package utilidades;
 
 import com.google.common.io.Files;
+import com.mysql.cj.util.TimeUtil;
 import io.javalin.core.util.FileUtil;
 import kotlin.text.Charsets;
 import org.apache.commons.io.FileUtils;
@@ -23,6 +24,8 @@ import java.net.URISyntaxException;
 import java.nio.CharBuffer;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -185,6 +188,18 @@ public class Utils {
             e.printStackTrace();
         }
     }
+
+    public static long cronometrarConNanos(Runnable runnable){
+
+        long start = System.nanoTime();
+        runnable.run();
+        return System.nanoTime() - start;
+    }
+
+    public static long nano2Sec(long nanos){
+        return TimeUnit.SECONDS.convert(nanos, TimeUnit.NANOSECONDS);
+    }
+
 
     public static boolean dominioCoincideCon(String url, String buscado){
 

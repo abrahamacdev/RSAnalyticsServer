@@ -1,5 +1,6 @@
 package modelo.pojo.scrapers;
 
+import modelo.pojo.Municipio;
 import modelo.pojo.scrapers.atributo_anuncio.AtributoAnuncio;
 
 import javax.persistence.*;
@@ -16,13 +17,22 @@ public class Anuncio {
 
     @OneToMany(fetch = FetchType.EAGER,
             cascade = CascadeType.ALL,
-            mappedBy = "anuncio" // Nombre de la variable en la clase "AtributoAnuncio.java"
+            mappedBy = "anuncio" // Nombre de la variable en la clase "AtributoInmueble.java"
     )
     private List<AtributoAnuncio> atributos = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "procedencia_id")
     private Procedencia procedencia;
+
+    @Column(name = "fecha_obtencion")
+    private Date fechaObtencion;
+
+    @ManyToOne(fetch = FetchType.EAGER,
+                cascade = { CascadeType.REFRESH, CascadeType.MERGE, CascadeType.PERSIST })
+    @JoinColumn(name = "municipio_id")
+    private Municipio municipio;
+
 
     public Anuncio(){}
 
@@ -31,6 +41,11 @@ public class Anuncio {
         this.procedencia = procedencia;
     }
 
+    public Anuncio(List<AtributoAnuncio> atributos, Procedencia procedencia, Municipio municipio) {
+        this.atributos = atributos;
+        this.procedencia = procedencia;
+        this.municipio = municipio;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -82,5 +97,21 @@ public class Anuncio {
 
     public void setAtributos(List<AtributoAnuncio> atributos) {
         this.atributos = atributos;
+    }
+
+    public Date getFechaObtencion() {
+        return fechaObtencion;
+    }
+
+    public void setFechaObtencion(Date fechaObtencion) {
+        this.fechaObtencion = fechaObtencion;
+    }
+
+    public Municipio getMunicipio() {
+        return municipio;
+    }
+
+    public void setMunicipio(Municipio municipio) {
+        this.municipio = municipio;
     }
 }

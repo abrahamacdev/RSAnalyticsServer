@@ -1,22 +1,22 @@
-package controlador.managers;
+package controlador.managers.anuncios;
 
-import modelo.pojo.rest.Grupo;
+import controlador.managers.ControladorMunicipio;
+import modelo.pojo.Municipio;
 import modelo.pojo.scrapers.Anuncio;
 import modelo.pojo.scrapers.ClaveAtributoAnuncio;
-import modelo.pojo.scrapers.atributo_anuncio.AtributoAnuncio;
-import org.hibernate.Session;
 import utilidades.Constantes;
 import utilidades.Par;
 import utilidades.Utils;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class ControladorAnuncio {
 
+    private ControladorMunicipio controladorMunicipio = new ControladorMunicipio();
+    private ControladorAtributo controladorAtributo = new ControladorAtributo();
 
     // ------ Create -----
     public int guardarAnuncios(List<Anuncio> anuncios){
@@ -39,16 +39,47 @@ public class ControladorAnuncio {
                 });
         controladorAtributo.actualizarClaves(clavesSinRepetir, entityManager);
 
+        // Guardamos/Actualizamos los municipios para tener una instancia cacheada por hibernate y asi evitar
+        // que nos de errores
+        Set<Municipio> municipiosUnicos = new HashSet<>();
+        anuncios.stream()
+                .map(anuncio -> anuncio.getMunicipio())
+                .filter(municipio -> !municipiosUnicos.contains(municipio))
+                .forEach(municipio -> municipiosUnicos.add(municipio));
+        List<Municipio> municipiosActualizados = controladorMunicipio.guardarOActualizarMunicipios(new ArrayList<>(municipiosUnicos), entityManager);
+        HashMap<Par<String,String>, Municipio> munPorNombreCP = new HashMap<>();
+        municipiosActualizados.stream()
+                .forEach(mun -> munPorNombreCP.put(new Par<>(mun.getNombre(), mun.getCodigoPostal()), mun));
+
+        // Asignamos a cada anuncio el objeto municipio que acabamos de actualizar, asi nos aseguramos de
+        // que todos los anuncios hagan referencia al objeto municipio accesible por Hibernate
+        List<Anuncio> anunciosParaActualizar = anuncios.stream()
+                .filter(anuncio -> {
+                    Par tempPar = new Par(anuncio.getMunicipio().getNombre(), anuncio.getMunicipio().getCodigoPostal());
+                    return munPorNombreCP.containsKey(tempPar);
+                })
+                .map(anuncio -> {
+
+                    Par tempPar = new Par(anuncio.getMunicipio().getNombre(), anuncio.getMunicipio().getCodigoPostal());
+                    // Seteamos la provincia recien guardada/actualizada
+                    anuncio.setMunicipio(munPorNombreCP.get(tempPar));
+                    return anuncio;
+                })
+                .collect(Collectors.toList());
+
+        List<Anuncio> anunciosActualizados = new ArrayList<>(anunciosParaActualizar.size());
+
         entityTransaction.begin();
 
         int guardados = 0;
         int batch = 0;
-        for (Anuncio anuncio : anuncios){
+        for (Anuncio anuncio : anunciosParaActualizar){
 
             // Cada cierto tiempo hacemos un flush
             if (batch == Constantes.TAMANIO_BATCH_HIBERNATE){
                 entityManager.flush();
                 entityManager.clear();
+                batch = 0;
             }
 
             // Guardamos el anuncio
@@ -83,7 +114,6 @@ public class ControladorAnuncio {
 
         }catch (Exception e){
             e.printStackTrace();
-            System.exit(1);
             return new Par<>(e, null);
         }
     }

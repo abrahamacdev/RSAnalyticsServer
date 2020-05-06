@@ -1,10 +1,11 @@
 package controlador.scrapers.scraper.fotocasa;
 
-import com.google.common.base.Charsets;
-import controlador.managers.ControladorAtributo;
+import controlador.managers.anuncios.ControladorAtributo;
 import controlador.scrapers.TipoScraper;
 import controlador.scrapers.scraper.AbstractScraper;
 import controlador.scrapers.OnScraperListener;
+import modelo.pojo.Municipio;
+import modelo.pojo.Provincia;
 import modelo.pojo.scrapers.Anuncio;
 import modelo.pojo.scrapers.ClaveAtributoAnuncio;
 import modelo.pojo.scrapers.Procedencia;
@@ -16,6 +17,7 @@ import net.lightbody.bmp.core.har.Har;
 import net.lightbody.bmp.core.har.HarLog;
 import net.lightbody.bmp.proxy.CaptureType;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -33,6 +35,7 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.Select;
 import org.tinylog.Logger;
+import utilidades.Constantes;
 import utilidades.Par;
 import utilidades.Utils;
 import utilidades.scrapers.TipoContrato;
@@ -46,6 +49,7 @@ import java.util.stream.Collectors;
 
 import static utilidades.Constantes.DESCANSO_ENTRE_CICLOS;
 import static utilidades.Constantes.DESCANSO_ENTRE_PAGINAS;
+import static utilidades.Constantes.DESCANSO_ENTRE_ANUNCIOS;
 
 public class ScraperFotocasa extends AbstractScraper {
 
@@ -128,6 +132,19 @@ public class ScraperFotocasa extends AbstractScraper {
     @Override
     public void comenzar() {
 
+        // Obtendremos los datos en local
+        if (Constantes.MODO_PRUEBA){
+            scrapearLocal();
+        }
+
+        else {
+            scrapearInternet();
+        }
+
+    }
+
+    private void scrapearInternet(){
+
         final int[] recuento = new int[]{0};
 
         TimerTask timerTask = new TimerTask() {
@@ -142,6 +159,9 @@ public class ScraperFotocasa extends AbstractScraper {
         try {
 
             boolean continuar = true;
+
+            Date fechaObtencion = new Date();
+
             while (continuar){
 
                 // Vamos a la primera pagina segun el tipo de contrato y el tipo de inmueble
@@ -152,7 +172,7 @@ public class ScraperFotocasa extends AbstractScraper {
                 recuento[0] += anunciosEnJson.size();
 
                 // Avisamos de la recoleccion de una tanda de anuncios
-                onScraperListener.onScraped(parsearJsons2Pojos(anunciosEnJson), TipoScraper.FOTOCASA);
+                onScraperListener.onScraped(parsearJsons2Pojos(anunciosEnJson, fechaObtencion), TipoScraper.FOTOCASA);
 
                 do {
 
@@ -169,7 +189,7 @@ public class ScraperFotocasa extends AbstractScraper {
                     recuento[0] += anunciosEnJson.size();
 
                     // Avisamos de la recoleccion de una tanda de anuncios
-                    onScraperListener.onScraped(parsearJsons2Pojos(anunciosEnJson), TipoScraper.FOTOCASA);
+                    onScraperListener.onScraped(parsearJsons2Pojos(anunciosEnJson, fechaObtencion), TipoScraper.FOTOCASA);
 
                 }while (haySiguientePagina());
 
@@ -185,6 +205,9 @@ public class ScraperFotocasa extends AbstractScraper {
 
                     // Dormimos el hilo unas horitas
                     Utils.esperar(horasRandom * 60 * 60 * 1000);
+
+                    // Reseteamos la fecha de obtencion
+                    fechaObtencion = new Date();
                 }
             }
 
@@ -201,6 +224,56 @@ public class ScraperFotocasa extends AbstractScraper {
         // Detenemos toodo y avisamos de que terminamos exitosamente la ejecucion
         timer.cancel();
         detener();
+        onScraperListener.onTerminado(TipoScraper.FOTOCASA);
+    }
+
+    private void scrapearLocal(){
+
+        File ruta = new File(Constantes.RUTA_JSONS_MODO_PRUEBA);
+
+        Date fechaObtencion = new Date();
+
+        List<JSONObject> jsons = Arrays.stream(ruta.listFiles())
+                .filter(archivo -> FilenameUtils.getExtension(archivo.getName()).equals("json"))
+                .map(archivo -> {
+
+                    try {
+                        return FileUtils.readFileToString(archivo);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    return "";
+                })
+                .map(stringJson -> {
+                    try {
+                        return (JSONObject) new JSONParser().parse(stringJson);
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                    return new JSONObject();
+                })
+                .filter(json -> json.keySet().size() > 0)
+                .collect(Collectors.toList());
+
+
+        int salto = Constantes.TAMANIO_BATCH_HIBERNATE;
+        int actual = 0;
+        int cachos = jsons.size() / salto;
+        int restante = jsons.size() % salto;
+        for (int i=0; i<cachos; i++){
+
+            List<JSONObject> parte = jsons.subList(actual, actual + salto);
+            onScraperListener.onScraped(parsearJsons2Pojos(parte, fechaObtencion), TipoScraper.FOTOCASA);
+
+            actual += salto;
+        }
+
+        List<JSONObject> parte = jsons.subList(actual, actual + restante);
+        onScraperListener.onScraped(parsearJsons2Pojos(parte, fechaObtencion), TipoScraper.FOTOCASA);
+
+        // Detenemos el scraper
+        detener();
+
         onScraperListener.onTerminado(TipoScraper.FOTOCASA);
     }
 
@@ -393,6 +466,9 @@ public class ScraperFotocasa extends AbstractScraper {
 
     private JSONObject obtenerDatosDetalleAnuncio(JSONObject jsonDetalle){
 
+        // TODO Ver que hacer
+        Utils.esperar(DESCANSO_ENTRE_ANUNCIOS * 1000);
+
         long idInmueble = (long) jsonDetalle.get("id");
 
         String urlDetalleAnuncio = "https://api.fotocasa.es/PropertySearch/Property?culture=es-ES&locale=es-ES&transactionType=" +
@@ -419,22 +495,37 @@ public class ScraperFotocasa extends AbstractScraper {
 
     private List<JSONObject> obtenerTodosDatos(){
 
-        System.out.println("Obteniendo los datos en detalle...");
+        Logger.info("Obteniendo los datos en detalle...");
 
         List<JSONObject> listadosAnuncios = obtenerListadosAnuncios();
         List<JSONObject> resumenListadosAnuncios = obtenerResumenListadosAnuncios(listadosAnuncios);
-        return resumenListadosAnuncios.stream()
-                .map(resumen -> obtenerDatosDetalleAnuncio(resumen))
-                .collect(Collectors.toList());
-    }
-
-    private List<Anuncio> parsearJsons2Pojos(List<JSONObject> jsonAnuncios){
 
         // TODO Eliminar
-        Utils.guardarJsons2Archivo("/home/abraham/Documentos/Jsons", true, jsonAnuncios);
+        List<JSONObject> listadoEnDetalle = new ArrayList<>(resumenListadosAnuncios.size());
+        long tiempo = Utils.cronometrarConNanos(() -> {
+                    listadoEnDetalle.addAll(resumenListadosAnuncios.stream()
+                        .map(resumen -> obtenerDatosDetalleAnuncio(resumen))
+                        .collect(Collectors.toList())
+                    );
+        });
+        Logger.info("Nos ha tomado " + Utils.nano2Sec(tiempo) + "s obtener los datos");
+
+        return listadoEnDetalle;
+    }
+
+    private List<Anuncio> parsearJsons2Pojos(List<JSONObject> jsonAnuncios, Date fechaObtencion){
+
+        // TODO Eliminar en produccion. Almacena los jsons que obtengamos para poder disponer de ellos el dia de la presentacion
+        if (!Constantes.MODO_PRUEBA){
+            Utils.guardarJsons2Archivo(Constantes.RUTA_JSONS_MODO_PRUEBA, true, jsonAnuncios);
+        }
 
         return jsonAnuncios.stream()
                 .map(anuncio -> parsearJson2Pojo(anuncio))
+                .map(anuncio -> {
+                    anuncio.setFechaObtencion(fechaObtencion);
+                    return anuncio;
+                })
                 .collect(Collectors.toList());
     }
 
@@ -451,6 +542,9 @@ public class ScraperFotocasa extends AbstractScraper {
 
         // Añadimos todoos los atributos al anuncio
         anuncio.getAtributos().addAll(claveAtributoAnuncios);
+
+        // Obtenemos el municipio del anuncio
+        anuncio.setMunicipio(obtenerMunicipio(jsonAnuncio));
 
         return anuncio;
     }
@@ -487,7 +581,7 @@ public class ScraperFotocasa extends AbstractScraper {
         tempAtributos.put("Tipo Contrato", Utils.capitalize(tipoContrato.name().toLowerCase()));
 
         // Datos de localizacion (ciudad, provincia... etc)
-        tempAtributos.putAll(obtenerDatosLocalizacion(jsonAnuncio));
+        tempAtributos.putAll(obtenerLatitudLongitud(jsonAnuncio));
 
         // M2, Antiguedad... etc
         int caracteristicasBuscadas = 2;
@@ -588,7 +682,7 @@ public class ScraperFotocasa extends AbstractScraper {
         }
 
 
-        // Parseamos cada tupla del map a un objeeto "AtributoAnuncio" y lo añadimos a la lista
+        // Parseamos cada tupla del map a un objeeto "AtributoInmueble" y lo añadimos a la lista
         return mapExtras.keySet()
                 .stream()
                 .filter(key -> clavesPermitidas.containsKey(key) && mapExtras.get(key) != null)
@@ -678,34 +772,19 @@ public class ScraperFotocasa extends AbstractScraper {
     }
 
 
-    private HashMap<String, Object> obtenerDatosLocalizacion(JSONObject jsonAnuncio){
+    private HashMap<String, Object> obtenerLatitudLongitud(JSONObject jsonAnuncio){
 
         HashMap<String, Object> datosLocalizacion = new HashMap<>(5);
         List<Par<String, Object>> temporales = new ArrayList<>(5);
 
         JSONObject direccion = (JSONObject) ObjectUtils.defaultIfNull(jsonAnuncio.get("address"), new JSONObject());
 
-        // Codigo postal
-        String zipCode = (String) direccion.get("zipCode");
-        temporales.add(new Par<>("CP", zipCode));
-
         // Latitud y longitud
         JSONObject coordenadas = (JSONObject) ObjectUtils.defaultIfNull(direccion.get("coordinates"), new JSONObject());
         Double latitud = (Double) coordenadas.get("latitude");
         Double longitud = (Double) coordenadas.get("longitude");
-        temporales.add(new Par<>("Latitud", latitud));
-        temporales.add(new Par<>("Longitud", longitud));
-
-        // Ciudad y Provincia
-        JSONObject localizacion = (JSONObject) ObjectUtils.defaultIfNull(direccion.get("location"), new JSONObject());
-        String provincia = (String) localizacion.get("level2");
-        String ciudad = (String) localizacion.get("upperLevel");
-        temporales.add(new Par<>("Provincia", provincia));
-        temporales.add(new Par<>("Ciudad", ciudad));
-
-        // Añadimos todos los campos al map
-        temporales.stream()
-                .forEach(prop -> datosLocalizacion.put(prop.getPrimero(), prop.getSegundo()));
+        datosLocalizacion.put("Latitud", latitud);
+        datosLocalizacion.put("Longitud", longitud);
 
         return datosLocalizacion;
     }
@@ -717,30 +796,48 @@ public class ScraperFotocasa extends AbstractScraper {
         JSONObject jsonDatosAnunciante = (JSONObject) ObjectUtils.defaultIfNull(jsonAnuncio.get("advertiser"), new JSONObject());
 
         // Nombre del anunciante
-        String nombre = jsonDatosAnunciante.get("contactName") != null ? (String) jsonDatosAnunciante.get("contactName") : null;
+        String nombre = jsonDatosAnunciante.get("contactName") != null ? ((String) jsonDatosAnunciante.get("contactName")).trim() : null;
         datosAnunciante.put("Nombre Anunciante", nombre);
 
         // Id del anunciante
-        String idAnunciante = jsonDatosAnunciante.get("clientId") != null ? ((Long) jsonDatosAnunciante.get("clientId")).toString() : null;
+        String idAnunciante = jsonDatosAnunciante.get("clientId") != null ? (((Long) jsonDatosAnunciante.get("clientId")).toString()).trim() : null;
         datosAnunciante.put("Id Anunciante", idAnunciante);
 
         // Telefono de contacto
-        String telefono = (String) jsonDatosAnunciante.get("phone");
+        String telefono = jsonDatosAnunciante.get("phone") != null ? ((String) jsonDatosAnunciante.get("phone")).trim() : null;
         datosAnunciante.put("Numero de contacto", telefono);
 
         // Tipo de anunciante
         Integer idTipoAnunciante = ((Long) ObjectUtils.defaultIfNull(jsonDatosAnunciante.get("typeId"), -1)).intValue();
-        String tipoAnunciante = convertirIdTipoAnunciante2Texto(idTipoAnunciante);
+        String tempTipoAnunciante = convertirIdTipoAnunciante2Texto(idTipoAnunciante);
+        String tipoAnunciante = tempTipoAnunciante != null ? tempTipoAnunciante.trim() : null;
         datosAnunciante.put("Tipo Anunciante", tipoAnunciante);
 
         // Url detalle anunciante
         JSONObject jsonLogo = (JSONObject) ObjectUtils.defaultIfNull(jsonDatosAnunciante.get("logo"), new JSONObject());
         JSONObject jsonUrl = (JSONObject) ObjectUtils.defaultIfNull(jsonLogo.get("url"), new JSONObject());
-        String url = (String) jsonUrl.get("es-ES");
+        String url = jsonUrl.get("es-ES") != null ? ((String) jsonUrl.get("es-ES")).trim() : null;
         datosAnunciante.put("Url Anunciante", url);
 
         return datosAnunciante;
     }
+
+    private Municipio obtenerMunicipio(JSONObject jsonAnuncio){
+
+        JSONObject direccion = (JSONObject) ObjectUtils.defaultIfNull(jsonAnuncio.get("address"), new JSONObject());
+
+        // Provincia
+        JSONObject localizacion = (JSONObject) ObjectUtils.defaultIfNull(direccion.get("location"), new JSONObject());
+        String nombreProvincia = (String) localizacion.get("level2");
+        Provincia provincia = new Provincia(nombreProvincia);
+
+        // Municipio y codigo postal
+        String codigoPostal = (String) direccion.get("zipCode");
+        String nombreMunicipio = localizacion.get("level5") != null ? ((String) localizacion.get("level5")).trim() : null;
+        //String municipio = (String) localizacion.get("upperLevel"); // Demasiado en detalle, describe el barrio
+        return new Municipio(nombreMunicipio, codigoPostal, provincia);
+    }
+
 
 
     private boolean rotarParametros(){
@@ -869,6 +966,7 @@ public class ScraperFotocasa extends AbstractScraper {
                 return null;
         }
     }
+
 
 
     @Override
