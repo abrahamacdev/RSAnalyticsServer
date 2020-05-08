@@ -91,7 +91,7 @@ CREATE TABLE IF NOT EXISTS claveAtributoAnuncio (
 CREATE TABLE IF NOT EXISTS atributoAnuncio (
     claveAtributoAnuncio_id INT,
     anuncio_id INT,
-    valor_numerico DECIMAL(24,12),
+    valor_numerico DECIMAL(24,8),
     valor_cadena VARCHAR(255),
     CONSTRAINT atriAnun_ids_pk PRIMARY KEY (claveAtributoAnuncio_id, anuncio_id)
 );
@@ -144,7 +144,7 @@ CREATE TABLE IF NOT EXISTS tipoInmueble_claveAtributoInmueble (
 CREATE TABLE IF NOT EXISTS atributoInmueble (
     claveAtributoInmueble_id INT,
     inmueble_id INT,
-    valor_numerico DECIMAL(24,12),
+    valor_numerico DECIMAL(24,8),
     valor_cadena VARCHAR(255),
     CONSTRAINT atriIn_ids_pk PRIMARY KEY (claveAtributoInmueble_id, inmueble_id)
 );
@@ -223,7 +223,7 @@ INSERT INTO claveAtributoAnuncio(nombre, es_principal) VALUES
     ('Numero Imagenes', TRUE),('Precio', TRUE),('Longitud', TRUE),('Latitud', TRUE),('Orientacion', TRUE),
     ('Antiguedad', TRUE),('Tipo Anunciante', TRUE),('M2', TRUE),('Tipo Inmueble', TRUE),('Tipo Contrato', TRUE),
     ('Id Anuncio', TRUE),('Id Anunciante', TRUE),('Nombre Anunciante', TRUE),('Numero de contacto', TRUE),
-    ('Url Anunciante', TRUE);
+    ('Url Anunciante', TRUE), ('Fecha publicacion', TRUE), ('Referencia anunciante', TRUE);
 
 INSERT INTO tipoInmueble(id,nombre) VALUES (1,'Vivienda');
 
@@ -237,11 +237,12 @@ INSERT INTO claveAtributoInmueble(id, nombre, es_principal) VALUES
     (34,'Numero habitaciones', TRUE),(35,'Banos', TRUE),(36,'Consumo', TRUE),(37,'Emisiones', TRUE),
     (38,'Numero Imagenes', TRUE),(39,'Precio', TRUE),(40,'Longitud', TRUE),(41,'Latitud', TRUE),(42,'Orientacion', TRUE),
     (43,'Antiguedad', TRUE),(44,'Tipo Anunciante', TRUE),(45,'M2', TRUE),(46,'Id Anuncio', TRUE),(47,'Id Anunciante', TRUE),
-    (48,'Nombre Anunciante', TRUE),(49,'Numero de contacto', TRUE),(50,'Url Anunciante', TRUE);
+    (48,'Nombre Anunciante', TRUE),(49,'Numero de contacto', TRUE),(50,'Url Anunciante', TRUE),(51,'Fecha publicacion', TRUE),
+    (52,'Referencia anunciante', TRUE);
 
 # Ligamos los atributos propios de una vivienda + atributos obligatorios de todos los inmuebles con el tipo de inmueble 'Vivienda'
 INSERT INTO tipoInmueble_claveAtributoInmueble VALUES
     (1,1),(1,2),(1,3),(1,4),(1,5),(1,6),(1,7),(1,8),(1,9),(1,10),(1,11),(1,12),(1,13),(1,14),(1,15),(1,16),(1,17),
     (1,18),(1,19),(1,20),(1,21),(1,22),(1,23),(1,24),(1,25),(1,26),(1,27),(1,28),(1,29),(1,30),(1,31),(1,32),(1,33),
     (1,34),(1,35),(1,36),(1,37),(1,38),(1,39),(1,40),(1,41),(1,42),(1,43),(1,44),(1,45),(1,46),(1,47),(1,48),(1,49),
-    (1,50);
+    (1,50),(1,51),(1,52);

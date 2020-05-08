@@ -82,9 +82,6 @@ public class Constantes {
 
 
     // Server
-    public final static boolean MODO_PRUEBA = true;
-    public final static String RUTA_JSONS_MODO_PRUEBA = "/home/abraham/Documentos/Jsons";
-
     public final static String NOMBRE_APP = "RSAnalytics";
     public final static String EMAIL_REGEX = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
     public final static String NOMBRE_REGEX = "^(?:[A-Za-zÑñÁáÉéÍíÓóÚú])+(?:\\s(?:[A-Za-zÑñÁáÉéÍíÓóÚú])+)*";
@@ -140,6 +137,9 @@ public class Constantes {
     public final static int TIEMPO_EXPIRACION_TOKEN_ACCESO = 180; // Minutos
 
     // Scrapers
+    public final static boolean MODO_PRUEBA = false;
+    public final static String RUTA_JSONS_MODO_PRUEBA = "/home/abraham/Documentos/Jsons";
+    
     public final static long DESCANSO_ENTRE_ANUNCIOS = 1; // En segundos
     public final static Par<Integer, Integer> DESCANSO_ENTRE_PAGINAS = new Par(2,3); // En segundos
     // Un ciclo comprende la recoleccion de todos los inmuebles (independientemente de su tipo de contrato) de la pagina

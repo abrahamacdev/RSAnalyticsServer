@@ -43,6 +43,9 @@ import utilidades.scrapers.TipoInmueble;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -63,6 +66,9 @@ public class ScraperFotocasa extends AbstractScraper {
     private ControladorAtributo controladorAtributo;
     private Procedencia procedenciaFotocasa = Procedencia.obtenerProcedenciaConNombre("Fotocasa");
     private Map<String, ClaveAtributoAnuncio> clavesPermitidas = new HashMap<>();
+
+    private DateTimeFormatter formatoFechaAnuncio = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+
 
     private OnScraperListener onScraperListener;
 
@@ -484,7 +490,9 @@ public class ScraperFotocasa extends AbstractScraper {
             HttpResponse response = client.execute(request);
             String html = EntityUtils.toString(response.getEntity());
 
-            return ((JSONObject) new JSONParser().parse(html));
+            JSONObject root = (JSONObject) new JSONParser().parse(html);
+
+            return root;
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -509,7 +517,6 @@ public class ScraperFotocasa extends AbstractScraper {
                     );
         });
         Logger.info("Nos ha tomado " + Utils.nano2Sec(tiempo) + "s obtener los datos");
-
         return listadoEnDetalle;
     }
 
@@ -560,7 +567,19 @@ public class ScraperFotocasa extends AbstractScraper {
             tempAtributos.put("Numero Imagenes", ((Integer)imagenes.size()).doubleValue());
         }
 
-        // Precio de adquisicion
+        // Fecha de publicacion del anuncio
+        String tempFechaPublicacion = (String) jsonAnuncio.get("date");
+        Double fecha = null;
+        if (tempFechaPublicacion != null){
+            tempFechaPublicacion = tempFechaPublicacion.split("\\.")[0];
+            LocalDateTime localFecha = LocalDateTime.parse(tempFechaPublicacion, formatoFechaAnuncio);
+            fecha = ((Long) localFecha.atZone(ZoneId.systemDefault())
+                    .toInstant()
+                    .toEpochMilli()).doubleValue();
+        }
+        tempAtributos.put("Fecha publicacion", fecha);
+
+        // Precio
         JSONArray transacciones = (JSONArray) ObjectUtils.defaultIfNull(jsonAnuncio.get("transactions"), new JSONArray());
         transacciones.stream()
                 .filter(temp -> {
@@ -610,7 +629,7 @@ public class ScraperFotocasa extends AbstractScraper {
         }
 
         // Datos del anunciante
-        tempAtributos.putAll(obtenerDatosAnunciante(jsonAnuncio));
+        tempAtributos.putAll(obtenerAnunciante(jsonAnuncio));
 
         // Tipo de inmueble (piso, chalet, casa adosada... etc)
         Integer tipoId = ((Long) ObjectUtils.defaultIfNull(jsonAnuncio.get("typeId"), -1)).intValue();
@@ -643,7 +662,7 @@ public class ScraperFotocasa extends AbstractScraper {
         switch (tipoInmueble){
 
             case VIVIENDA:
-                atributosAnuncio.addAll(obtenerAtributosVivienda(anuncio, jsonAnuncio));
+                atributosAnuncio.addAll(obtenerAtributosVivienda(anuncio, jsonAnuncio, viviendaEsPiso(tipoId, subtipoId)));
         }
 
         return atributosAnuncio;
@@ -705,14 +724,13 @@ public class ScraperFotocasa extends AbstractScraper {
                 .collect(Collectors.toList());
     }
 
-    private List<AtributoAnuncio> obtenerAtributosVivienda(Anuncio anuncio, JSONObject jsonAnuncio){
+    private List<AtributoAnuncio> obtenerAtributosVivienda(Anuncio anuncio, JSONObject jsonAnuncio, boolean esPiso){
 
-        int caracteristicasEsperadas = 4;
-        HashMap<String, Object> tempAtributos = new HashMap<>(caracteristicasEsperadas);
+        HashMap<String, Object> tempAtributos = new HashMap<>();
 
+        // Baños y habitaciones
         JSONArray caracteristicas = (JSONArray) jsonAnuncio.getOrDefault("features", new JSONArray());
-        int recogidas = 0;
-
+        int porBuscar = 2;
         if (caracteristicas != null){
             // Recorremmos el listado de las caracteristicas en busca de las esperadas
             for (Object json : caracteristicas){
@@ -721,17 +739,17 @@ public class ScraperFotocasa extends AbstractScraper {
                 // Obtenemos el numero de baños
                 if (caracteristica.containsKey("bathrooms")){
                     tempAtributos.put("Banos", ((Long) caracteristica.get("bathrooms")).doubleValue());
-                    recogidas++;
+                    porBuscar--;
                 }
 
                 // Obtenemos el numero de habitaciones
                 if (caracteristica.containsKey("rooms")){
                     tempAtributos.put("Numero habitaciones", ((Long) caracteristica.get("rooms")).doubleValue());
-                    recogidas++;
+                    porBuscar--;
                 }
 
                 // Evitamos seguir recorriendo el JSON a lo tonto
-                if (recogidas == caracteristicasEsperadas){
+                if (porBuscar == 0){
                     break;
                 }
             }
@@ -747,6 +765,23 @@ public class ScraperFotocasa extends AbstractScraper {
             tempAtributos.put("Emisiones", Utils.convertirCertificadoEnergetico2Letra(emisiones));
         }
 
+        // Si es un piso obtendremos la planta a la que pertenece
+        if (esPiso){
+            JSONArray listaCaracteristicas = (JSONArray) ObjectUtils.defaultIfNull(jsonAnuncio.get("featuresList"), new JSONArray());
+
+            for (int i=0; i<listaCaracteristicas.size(); i++){
+
+                JSONObject caracteristica = (JSONObject) listaCaracteristicas.get(i);
+                String etiqueta = (String) ObjectUtils.defaultIfNull(caracteristica.get("label"),"");
+
+                // Obtenemos el numero de la planta
+                if (etiqueta.equals("floor")){
+                    Double planta = caracteristica.containsKey("id") ? ((Long) caracteristica.get("id")).doubleValue() : null;
+                    tempAtributos.put("Planta", planta);
+                    break;
+                }
+            }
+        }
 
         return tempAtributos.keySet()
                 .stream()
@@ -789,7 +824,7 @@ public class ScraperFotocasa extends AbstractScraper {
         return datosLocalizacion;
     }
 
-    private HashMap<String, Object> obtenerDatosAnunciante(JSONObject jsonAnuncio){
+    private HashMap<String, Object> obtenerAnunciante(JSONObject jsonAnuncio){
 
         HashMap<String, Object> datosAnunciante = new HashMap<>(5);
 
@@ -806,6 +841,10 @@ public class ScraperFotocasa extends AbstractScraper {
         // Telefono de contacto
         String telefono = jsonDatosAnunciante.get("phone") != null ? ((String) jsonDatosAnunciante.get("phone")).trim() : null;
         datosAnunciante.put("Numero de contacto", telefono);
+
+        // Referencia del anunciante
+        String referenciaAnunciante = jsonDatosAnunciante.get("reference") != null ? ((String) jsonDatosAnunciante.get("reference")).trim() : null;
+        datosAnunciante.put("Referencia anunciante", referenciaAnunciante);
 
         // Tipo de anunciante
         Integer idTipoAnunciante = ((Long) ObjectUtils.defaultIfNull(jsonDatosAnunciante.get("typeId"), -1)).intValue();
@@ -932,6 +971,24 @@ public class ScraperFotocasa extends AbstractScraper {
         }
 
         return "Desconocido";
+    }
+
+    private boolean viviendaEsPiso(int tipoId, int subTipoId){
+
+        // Viviendas
+        if (tipoId == 2){
+
+            switch (subTipoId){
+
+                case 3:
+                case 5:
+                case 9:
+                    return false;
+            }
+        }
+
+        return true;
+
     }
 
     private String convertirTipoOrientacion2Texto(int orientacion){
