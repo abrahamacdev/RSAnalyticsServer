@@ -22,6 +22,10 @@ public class Par<T,E> {
         return segundo;
     }
 
+    public boolean algoEsNulo(){
+        return primero == null || segundo == null;
+    }
+
     @Override
     public String toString() {
         String msgPrimero = this.primero == null ? "" : this.primero.toString();

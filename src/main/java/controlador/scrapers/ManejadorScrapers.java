@@ -50,6 +50,8 @@ public class ManejadorScrapers implements OnScraperListener {
     @Override
     public void onTerminado(TipoScraper tipoScraper) {
 
+        Logger.info("Hemos terminador de obtener la informacion");
+
     }
 
     private AbstractScraper crearScraperDeTipo(TipoScraper tipoScraper){

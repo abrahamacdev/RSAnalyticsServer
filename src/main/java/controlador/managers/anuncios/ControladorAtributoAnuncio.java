@@ -10,7 +10,7 @@ import javax.persistence.EntityTransaction;
 import javax.persistence.Query;
 import java.util.List;
 
-public class ControladorAtributo {
+public class ControladorAtributoAnuncio {
 
     // ----- Read -----
     /**
@@ -40,6 +40,28 @@ public class ControladorAtributo {
         entityManager.close();
 
         return claveAtributoAnuncios;
+    }
+
+    public ClaveAtributoAnuncio obtenerClaveConNombre(String nombre){
+
+        EntityManager entityManager = Utils.crearEntityManager();
+
+        ClaveAtributoAnuncio res = null;
+
+        try {
+
+            Query query = entityManager.createQuery("FROM ClaveAtributoAnuncio AS cla WHERE cla.nombre = :nombre");
+            query.setParameter("nombre", nombre);
+
+            res = (ClaveAtributoAnuncio) query.getSingleResult();
+
+        } catch (Exception e){
+
+        }
+
+        entityManager.close();
+
+        return res;
     }
     // ----------------
     

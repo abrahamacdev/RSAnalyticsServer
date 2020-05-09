@@ -1,6 +1,6 @@
 package controlador.scrapers.scraper.fotocasa;
 
-import controlador.managers.anuncios.ControladorAtributo;
+import controlador.managers.anuncios.ControladorAtributoAnuncio;
 import controlador.scrapers.TipoScraper;
 import controlador.scrapers.scraper.AbstractScraper;
 import controlador.scrapers.OnScraperListener;
@@ -38,6 +38,7 @@ import org.tinylog.Logger;
 import utilidades.Constantes;
 import utilidades.Par;
 import utilidades.Utils;
+import utilidades.scrapers.ScrapersUtils;
 import utilidades.scrapers.TipoContrato;
 import utilidades.scrapers.TipoInmueble;
 
@@ -63,7 +64,7 @@ public class ScraperFotocasa extends AbstractScraper {
     private TipoContrato tipoContrato;
     private TipoInmueble tipoInmueble;
 
-    private ControladorAtributo controladorAtributo;
+    private ControladorAtributoAnuncio controladorAtributoAnuncio;
     private Procedencia procedenciaFotocasa = Procedencia.obtenerProcedenciaConNombre("Fotocasa");
     private Map<String, ClaveAtributoAnuncio> clavesPermitidas = new HashMap<>();
 
@@ -85,8 +86,8 @@ public class ScraperFotocasa extends AbstractScraper {
         tipoInmueble = TipoInmueble.VIVIENDA;
 
         // Obtenemos las claves de los atributos permitidos
-        controladorAtributo = new ControladorAtributo();
-        List<ClaveAtributoAnuncio> clavesAtributosAnuncios = controladorAtributo.obtenerClavesPosibles();
+        controladorAtributoAnuncio = new ControladorAtributoAnuncio();
+        List<ClaveAtributoAnuncio> clavesAtributosAnuncios = controladorAtributoAnuncio.obtenerClavesPosibles();
         if (clavesAtributosAnuncios != null){
             clavesPermitidas = clavesAtributosAnuncios.stream()
                                 .collect(Collectors.toMap(
@@ -261,15 +262,16 @@ public class ScraperFotocasa extends AbstractScraper {
                 .filter(json -> json.keySet().size() > 0)
                 .collect(Collectors.toList());
 
-
         int salto = Constantes.TAMANIO_BATCH_HIBERNATE;
         int actual = 0;
         int cachos = jsons.size() / salto;
         int restante = jsons.size() % salto;
+
         for (int i=0; i<cachos; i++){
 
             List<JSONObject> parte = jsons.subList(actual, actual + salto);
-            onScraperListener.onScraped(parsearJsons2Pojos(parte, fechaObtencion), TipoScraper.FOTOCASA);
+            List<Anuncio> anuncios = parsearJsons2Pojos(parte, fechaObtencion);
+            onScraperListener.onScraped(anuncios, TipoScraper.FOTOCASA);
 
             actual += salto;
         }
@@ -561,6 +563,10 @@ public class ScraperFotocasa extends AbstractScraper {
 
         HashMap<String, Object> tempAtributos = new HashMap<>(17);
 
+        // Id del anuncio
+        //Integer idAnuncio = jsonAnuncio.containsKey("id") ? ((Long) jsonAnuncio.get("id")).intValue() : null;
+        //tempAtributos.put("Id Anuncio", idAnuncio);
+
         // Cantidad de imagenes
         JSONArray imagenes = (JSONArray) ObjectUtils.defaultIfNull(jsonAnuncio.get("multimedias"), new JSONArray());
         if (imagenes.size() > 0){
@@ -571,7 +577,7 @@ public class ScraperFotocasa extends AbstractScraper {
         String tempFechaPublicacion = (String) jsonAnuncio.get("date");
         Double fecha = null;
         if (tempFechaPublicacion != null){
-            tempFechaPublicacion = tempFechaPublicacion.split("\\.")[0];
+            tempFechaPublicacion = tempFechaPublicacion.substring(0,19);
             LocalDateTime localFecha = LocalDateTime.parse(tempFechaPublicacion, formatoFechaAnuncio);
             fecha = ((Long) localFecha.atZone(ZoneId.systemDefault())
                     .toInstant()
@@ -636,6 +642,8 @@ public class ScraperFotocasa extends AbstractScraper {
         Integer subtipoId = ((Long) ObjectUtils.defaultIfNull(jsonAnuncio.get("subtypeId"), -1)).intValue();
         String nombreTipoInmueble = convertirIdsTipoInmueble2Texto(tipoId, subtipoId);
         tempAtributos.put("Tipo Inmueble", nombreTipoInmueble);
+        tempAtributos.put("Id Tipo Inmueble", tipoId.doubleValue());
+        tempAtributos.put("Id Subtipo Inmueble", subtipoId.doubleValue());
 
         // Coleccionamos todas las caracteristicas generales obligatorias
         List<AtributoAnuncio> atributosAnuncio = tempAtributos.keySet()
@@ -662,7 +670,7 @@ public class ScraperFotocasa extends AbstractScraper {
         switch (tipoInmueble){
 
             case VIVIENDA:
-                atributosAnuncio.addAll(obtenerAtributosVivienda(anuncio, jsonAnuncio, viviendaEsPiso(tipoId, subtipoId)));
+                atributosAnuncio.addAll(obtenerAtributosVivienda(anuncio, jsonAnuncio, ScrapersUtils.viviendaEsPiso(subtipoId)));
         }
 
         return atributosAnuncio;
@@ -691,6 +699,7 @@ public class ScraperFotocasa extends AbstractScraper {
             if (jsonCaracteristica.containsKey("orientation")){
                 Integer tipoOrientacion = ((Long)jsonCaracteristica.get("orientation")).intValue();
                 mapExtras.put("Orientacion", convertirTipoOrientacion2Texto(tipoOrientacion));
+                mapExtras.put("Id Orientacion", convertirIdOrientacion(tipoOrientacion));
                 buscados--;
             }
 
@@ -744,7 +753,7 @@ public class ScraperFotocasa extends AbstractScraper {
 
                 // Obtenemos el numero de habitaciones
                 if (caracteristica.containsKey("rooms")){
-                    tempAtributos.put("Numero habitaciones", ((Long) caracteristica.get("rooms")).doubleValue());
+                    tempAtributos.put("Numero Habitaciones", ((Long) caracteristica.get("rooms")).doubleValue());
                     porBuscar--;
                 }
 
@@ -840,11 +849,11 @@ public class ScraperFotocasa extends AbstractScraper {
 
         // Telefono de contacto
         String telefono = jsonDatosAnunciante.get("phone") != null ? ((String) jsonDatosAnunciante.get("phone")).trim() : null;
-        datosAnunciante.put("Numero de contacto", telefono);
+        datosAnunciante.put("Numero de Contacto", telefono);
 
         // Referencia del anunciante
         String referenciaAnunciante = jsonDatosAnunciante.get("reference") != null ? ((String) jsonDatosAnunciante.get("reference")).trim() : null;
-        datosAnunciante.put("Referencia anunciante", referenciaAnunciante);
+        datosAnunciante.put("Referencia Anunciante", referenciaAnunciante);
 
         // Tipo de anunciante
         Integer idTipoAnunciante = ((Long) ObjectUtils.defaultIfNull(jsonDatosAnunciante.get("typeId"), -1)).intValue();
@@ -973,24 +982,6 @@ public class ScraperFotocasa extends AbstractScraper {
         return "Desconocido";
     }
 
-    private boolean viviendaEsPiso(int tipoId, int subTipoId){
-
-        // Viviendas
-        if (tipoId == 2){
-
-            switch (subTipoId){
-
-                case 3:
-                case 5:
-                case 9:
-                    return false;
-            }
-        }
-
-        return true;
-
-    }
-
     private String convertirTipoOrientacion2Texto(int orientacion){
 
         switch (orientacion){
@@ -1024,6 +1015,39 @@ public class ScraperFotocasa extends AbstractScraper {
         }
     }
 
+    private Integer convertirIdOrientacion(int orientacion){
+
+        switch (orientacion){
+
+            case 1:
+                return 1;
+
+            case 2:
+                return 8;
+
+            case 3:
+                return 2;
+
+            case 4:
+                return 5;
+
+            case 5:
+                return 4;
+
+            case 6:
+                return 6;
+
+            case 7:
+                return 3;
+
+            case 8:
+                return 7;
+
+            default:
+                return null;
+        }
+
+    }
 
 
     @Override

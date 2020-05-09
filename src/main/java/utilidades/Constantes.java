@@ -5,6 +5,8 @@ import at.favre.lib.crypto.bcrypt.LongPasswordStrategies;
 import at.favre.lib.crypto.bcrypt.LongPasswordStrategy;
 import io.jsonwebtoken.SignatureAlgorithm;
 
+import java.util.HashMap;
+
 public class Constantes {
 
     // API Rest
@@ -92,7 +94,7 @@ public class Constantes {
     public final static boolean HAY_SUFICIENTES_HILOS = Runtime.getRuntime().availableProcessors() >= 6;
     public static int HILOS_PARA_ACEPTADOR;
     public static int HILOS_PARA_SCRAPER;
-    public static int HILOS_PARA_CONVERSOR;
+    public static int HILOS_PARA_REFINADOR;
     public static int HILOS_PARA_GENERADOR_INFORMES;
     public static int HILOS_MANEJADORES_PETICIONES;
     static {
@@ -101,7 +103,7 @@ public class Constantes {
             HILOS_PARA_ACEPTADOR = 1;
             //HILOS_PARA_SCRAPER = Runtime.getRuntime().availableProcessors() == 4 ? 1 : 2;
             HILOS_PARA_SCRAPER = 1; // TODO Eliminar y descomentar la linea anterior en produccion
-            HILOS_PARA_CONVERSOR = 1;
+            HILOS_PARA_REFINADOR = 1;
             HILOS_PARA_GENERADOR_INFORMES = 1;
             //HILOS_MANEJADORES_PETICIONES = Runtime.getRuntime().availableProcessors() - HILOS_PARA_ACEPTADOR - HILOS_PARA_SCRAPER - 1;
             HILOS_MANEJADORES_PETICIONES = 1; // TODO Eliminar y descomentar la linea anterior en produccion
@@ -126,6 +128,23 @@ public class Constantes {
     public final static String PROP_KEYSTORE_PATH = "server.keystore.path";
     public final static String PROP_KEYSTORE_PASS = "server.keystore.pass";
 
+    // F1
+    public final static HashMap<String, Double> PESOS_F1 = new HashMap<>(){{
+        put("Numero Imagenes", 0.0);
+        put("Orientacion", 0.0);
+        put("Certificados Energeticos", 0.0);
+        put("Antiguedad", 0.0);
+        put("Tipo Inmueble", 0.0);
+        put("Corte Bano", 0.25);
+        put("Bano", 0.0);
+        put("Corte Habitaciones", 0.25);
+        put("Habitaciones", 0.0);
+        put("Corte M2", 0.15);
+        put("M2", 0.0);
+        put("Corte Coordenadas", 100.0);
+        put("Coordenadas", 0.0);
+    }};
+
     // JWT
     public final static String JWT_KEY_CREADOR = "iss";
     public final static String JWT_KEY_FECHA_EXPIRACION = "exp";
@@ -137,13 +156,14 @@ public class Constantes {
     public final static int TIEMPO_EXPIRACION_TOKEN_ACCESO = 180; // Minutos
 
     // Scrapers
-    public final static boolean MODO_PRUEBA = false;
+    public final static boolean MODO_PRUEBA = true;
     public final static String RUTA_JSONS_MODO_PRUEBA = "/home/abraham/Documentos/Jsons";
-    
+
     public final static long DESCANSO_ENTRE_ANUNCIOS = 1; // En segundos
     public final static Par<Integer, Integer> DESCANSO_ENTRE_PAGINAS = new Par(2,3); // En segundos
     // Un ciclo comprende la recoleccion de todos los inmuebles (independientemente de su tipo de contrato) de la pagina
     public final static Par<Integer, Integer> DESCANSO_ENTRE_CICLOS = new Par(1,3); // En horas
+
 
     private Constantes(){}
 }

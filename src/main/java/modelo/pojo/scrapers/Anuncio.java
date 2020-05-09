@@ -19,7 +19,7 @@ public class Anuncio {
             cascade = CascadeType.ALL,
             mappedBy = "anuncio" // Nombre de la variable en la clase "AtributoInmueble.java"
     )
-    private List<AtributoAnuncio> atributos = new ArrayList<>();
+    private Set<AtributoAnuncio> atributos = new HashSet<>();
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "procedencia_id")
@@ -36,12 +36,12 @@ public class Anuncio {
 
     public Anuncio(){}
 
-    public Anuncio(List<AtributoAnuncio> atributos, Procedencia procedencia) {
+    public Anuncio(HashSet<AtributoAnuncio> atributos, Procedencia procedencia) {
         this.atributos = atributos;
         this.procedencia = procedencia;
     }
 
-    public Anuncio(List<AtributoAnuncio> atributos, Procedencia procedencia, Municipio municipio) {
+    public Anuncio(HashSet<AtributoAnuncio> atributos, Procedencia procedencia, Municipio municipio) {
         this.atributos = atributos;
         this.procedencia = procedencia;
         this.municipio = municipio;
@@ -91,11 +91,11 @@ public class Anuncio {
         this.procedencia = procedencia;
     }
 
-    public List<AtributoAnuncio> getAtributos() {
+    public Set<AtributoAnuncio> getAtributos() {
         return atributos;
     }
 
-    public void setAtributos(List<AtributoAnuncio> atributos) {
+    public void setAtributos(Set<AtributoAnuncio> atributos) {
         this.atributos = atributos;
     }
 

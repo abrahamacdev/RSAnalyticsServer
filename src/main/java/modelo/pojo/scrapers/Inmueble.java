@@ -5,9 +5,7 @@ import modelo.pojo.rest.Rol;
 import modelo.pojo.scrapers.atributo_inmueble.AtributoInmueble;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Entity
 @Table(name = "inmueble")
@@ -22,7 +20,7 @@ public class Inmueble {
             cascade = CascadeType.ALL,
             mappedBy = "inmueble" // Nombre de la variable en la clase "AtributoInmueble.java"
     )
-    private List<AtributoInmueble> atributos = new ArrayList<>();
+    private Set<AtributoInmueble> atributos = new HashSet<>();
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "tipoInmueble_id")
@@ -39,7 +37,7 @@ public class Inmueble {
         this.municipio = municipio;
     }
 
-    public Inmueble(List<AtributoInmueble> atributos, TipoInmueble tipoInmueble, Municipio municipio) {
+    public Inmueble(HashSet<AtributoInmueble> atributos, TipoInmueble tipoInmueble, Municipio municipio) {
         this.atributos = atributos;
         this.tipoInmueble = tipoInmueble;
         this.municipio = municipio;
@@ -68,11 +66,11 @@ public class Inmueble {
         this.id = id;
     }
 
-    public List<AtributoInmueble> getAtributos() {
+    public Set<AtributoInmueble> getAtributos() {
         return atributos;
     }
 
-    public void setAtributos(List<AtributoInmueble> atributos) {
+    public void setAtributos(Set<AtributoInmueble> atributos) {
         this.atributos = atributos;
     }
 

@@ -10,13 +10,13 @@ import utilidades.Utils;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
+import javax.persistence.Query;
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class ControladorAnuncio {
 
     private ControladorMunicipio controladorMunicipio = new ControladorMunicipio();
-    private ControladorAtributo controladorAtributo = new ControladorAtributo();
 
     // ------ Create -----
     public int guardarAnuncios(List<Anuncio> anuncios){
@@ -25,7 +25,7 @@ public class ControladorAnuncio {
         EntityTransaction entityTransaction = entityManager.getTransaction();
 
         // Obtenemos una instancia "fresca" de los objetos "ClaveAtributo"
-        ControladorAtributo controladorAtributo = new ControladorAtributo();
+        ControladorAtributoAnuncio controladorAtributoAnuncio = new ControladorAtributoAnuncio();
         HashSet nombresClaves = new HashSet();
         ArrayList<ClaveAtributoAnuncio> clavesSinRepetir = new ArrayList<>();
         anuncios.stream()
@@ -37,7 +37,7 @@ public class ControladorAnuncio {
                     nombresClaves.add(claveAtributoAnuncio.getNombre());
                     clavesSinRepetir.add(claveAtributoAnuncio);
                 });
-        controladorAtributo.actualizarClaves(clavesSinRepetir, entityManager);
+        controladorAtributoAnuncio.actualizarClaves(clavesSinRepetir, entityManager);
 
         // Guardamos/Actualizamos los municipios para tener una instancia cacheada por hibernate y asi evitar
         // que nos de errores
@@ -92,6 +92,7 @@ public class ControladorAnuncio {
         }
 
         entityTransaction.commit();
+        entityManager.close();
 
         return guardados;
     }
@@ -118,4 +119,153 @@ public class ControladorAnuncio {
         }
     }
     // -------------------
+
+
+    // ------ Read -----
+    /**
+     * Obteneemos todos los anuncios cuyo id se encuentre en la lista pasada por parametros
+     * @param ids
+     * @return  null, List<Anuncio> -> Listado de anuncios encontrados
+     *          Exception, null -> Ocurrio un error
+     */
+    public Par<Exception, List<Anuncio>> obtenerAnunciosConId(List<Integer> ids){
+
+        EntityManager entityManager = Utils.crearEntityManager();
+        EntityTransaction entityTransaction = entityManager.getTransaction();
+
+        Par<Exception, List<Anuncio>> res;
+        try {
+
+            Query query = entityManager.createQuery("FROM Anuncio AS an WHERE an.id IN :ids");
+            query.setParameter("ids", ids);
+            List<Anuncio> anuncios  = query.getResultList();
+
+            res = new Par<>(null, anuncios);
+
+        } catch (Exception e){
+            res = new Par<>(e, null);
+        }
+
+        entityManager.close();
+
+        return res;
+    }
+
+    public Par<Exception, List<Anuncio>> obtenerAnuncioPorRefinarConMunicipio(int idMunicipio){
+
+        EntityManager entityManager = Utils.crearEntityManager();
+        EntityTransaction entityTransaction = entityManager.getTransaction();
+
+        Par<Exception, List<Anuncio>> res;
+
+        try {
+
+            String sentencia = "SELECT *\n" +
+                    "FROM anuncio an\n" +
+                    "WHERE an.id NOT IN (\n" +
+                    "    SELECT anTipIn.anuncio_id\n" +
+                    "    FROM anuncio_tipoContrato_inmueble anTipIn\n" +
+                    ")\n" +
+                    "AND an.municipio_id = :idMunicipio\n" +
+                    "ORDER BY an.municipio_id ASC;";
+
+            Query query = entityManager.createNativeQuery(sentencia, Anuncio.class);
+            query.setParameter("idMunicipio", idMunicipio);
+            res = new Par<>(null, query.getResultList());
+
+        }catch (Exception e){
+            res = new Par<>(e, null);
+        }
+
+        entityManager.close();
+
+        return res;
+
+    }
+
+    public Par<Exception, List<Integer>> obtenerIdsMunicipiosAnunciosPorRefinar(){
+        EntityManager entityManager = Utils.crearEntityManager();
+        EntityTransaction entityTransaction = entityManager.getTransaction();
+
+        Par<Exception, List<Integer>> res;
+
+        try {
+
+            String sentencia = "SELECT DISTINCT an.municipio_id\n" +
+                    "FROM anuncio an\n" +
+                    "WHERE an.id NOT IN (\n" +
+                    "    SELECT anTipIn.anuncio_id\n" +
+                    "    FROM anuncio_tipoContrato_inmueble anTipIn\n" +
+                    ")\n" +
+                    "ORDER BY an.municipio_id ASC;";
+
+            Query query = entityManager.createNativeQuery(sentencia);
+            res = new Par<>(null, query.getResultList());
+
+        }catch (Exception e){
+            res = new Par<>(e, null);
+        }
+
+        entityManager.close();
+        entityManager.close();
+
+        return res;
+    }
+
+    public Par<Exception, List<Integer>> obtenerIdsAnunciosPorRefinar(){
+
+        EntityManager entityManager = Utils.crearEntityManager();
+
+        Par<Exception, List<Integer>> res;
+
+        try {
+
+            String sentencia = "SELECT an.id\n" +
+                    "FROM anuncio an\n" +
+                    "WHERE an.id NOT IN (\n" +
+                    "    SELECT anTipIn.anuncio_id\n" +
+                    "    FROM anuncio_tipoContrato_inmueble anTipIn\n" +
+                    ")\n" +
+                    "ORDER BY an.municipio_id ASC, an.id ASC;";
+
+            Query query = entityManager.createNativeQuery(sentencia, Integer.class);
+            res = new Par<>(null, query.getResultList());
+
+        }catch (Exception e){
+            res = new Par<>(e, null);
+        }
+
+        entityManager.close();
+
+        return res;
+    }
+
+    public Par<Exception, Long> obtenerRecuentoAnunciosPorRefinar(){
+
+        EntityManager entityManager = Utils.crearEntityManager();
+
+        Par<Exception, Long> res;
+
+        try {
+
+            String sentencia = "SELECT COUNT(an.id)\n" +
+                    "FROM anuncio an\n" +
+                    "WHERE an.id NOT IN (\n" +
+                    "    SELECT anTipIn.anuncio_id \n" +
+                    "    FROM anuncio_tipoContrato_inmueble anTipIn \n" +
+                    ")";
+
+            Query query = entityManager.createNativeQuery(sentencia, Long.class);
+            res = new Par<>(null, (Long) query.getSingleResult());
+
+        } catch (Exception e){
+            res = new Par<>(e, null);
+        }
+
+        entityManager.close();
+
+        return res;
+
+    }
+    // -----------------
 }

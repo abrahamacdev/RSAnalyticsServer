@@ -1,5 +1,6 @@
 package controlador;
 
+import controlador.refinador.Refinador;
 import controlador.rest.ManejadoresManager;
 import controlador.scrapers.ManejadorScrapers;
 import io.javalin.Javalin;
@@ -18,10 +19,11 @@ public class Server {
 
     private ManejadoresManager manejadoresManager;
     private ManejadorScrapers manejadorScrapers;
+    private Refinador refinador;
 
     private ExecutorService piscinaHilosManejadores;
     private ExecutorService piscinaHilosScraper;
-    private ExecutorService piscinaHilosConversor;
+    private ExecutorService piscinaHilosRefinador;
     private ExecutorService piscinaHilosGeneradorInformes;
 
     public Server(){
@@ -38,17 +40,24 @@ public class Server {
         // Creamos las piscinas de hilos con la cantidad de hilos para cada funcion
         piscinaHilosManejadores = Executors.newFixedThreadPool(Constantes.HILOS_MANEJADORES_PETICIONES);
         piscinaHilosScraper = Executors.newFixedThreadPool(Constantes.HILOS_PARA_SCRAPER);
-        piscinaHilosConversor = Executors.newFixedThreadPool(Constantes.HILOS_PARA_CONVERSOR);
+        piscinaHilosRefinador = Executors.newFixedThreadPool(Constantes.HILOS_PARA_REFINADOR);
         piscinaHilosGeneradorInformes = Executors.newFixedThreadPool(Constantes.HILOS_PARA_GENERADOR_INFORMES);
 
-        lanzarScrapers();
+        //lanzarScrapers();
         //crearServidor();
+        lanzarRefinador();
     }
 
     private void lanzarScrapers(){
 
         manejadorScrapers = new ManejadorScrapers(piscinaHilosScraper);
         manejadorScrapers.scrap();
+    }
+
+    private void lanzarRefinador(){
+
+        refinador = new Refinador(piscinaHilosRefinador);
+        refinador.comenzar();
     }
 
     private void crearServidor(){
