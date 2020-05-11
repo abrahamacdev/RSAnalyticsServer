@@ -1,34 +1,79 @@
 package controlador;
 
+import org.apache.commons.lang3.ObjectUtils;
+import org.tinylog.Logger;
 import utilidades.Constantes;
 import utilidades.Par;
 import utilidades.Utils;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class F1 {
 
     public F1(){}
 
-    public double comprobarIgualdad(Map<String, Object> anuncio1, Map<String , Object> anuncio2){
+    public double comprobarIgualdad(Map<String, Object> anuncio1, List<String> extrasAnuncio1, Map<String , Object> anuncio2, List<String> extrasAnuncio2){
 
-        double puntuacionNumImagenes = compararNumImagenes(anuncio1, anuncio2);
+        ArrayList<Double> resultados = new ArrayList();
+        resultados.add(compararNumImagenes(anuncio1, anuncio2)); // Imagenes
+        resultados.add(compararPrecio(anuncio1, anuncio2)); // Precios
+        resultados.add(compararOrientacion(anuncio1, anuncio2)); // Orientacion
+        resultados.add(compararCertificadosEnergeticos(anuncio1, anuncio2)); // Certificado Energetico
+        resultados.add(compararAntiguedad(anuncio1, anuncio2)); // Antiguedad
+        resultados.add(compararTipoInmueble(anuncio1, anuncio2)); // Tipo Inmueble
+        resultados.add(compararBanios(anuncio1, anuncio2)); // Baños
+        resultados.add(compararHabitaciones(anuncio1, anuncio2)); // Habitaciones
+        resultados.add(compararM2(anuncio1, anuncio2)); // M2
+        resultados.add(compararCoordenadas(anuncio1, anuncio2)); // Coordenadas
+        resultados.add(compararExtras(extrasAnuncio1, extrasAnuncio2)); // Extras
 
+        double res = resultados.stream().reduce(new Double(0), Double::sum);
 
-        return -1;
+        return res;
     }
 
 
 
     private double compararNumImagenes(Map<String, Object> anuncio1, Map<String , Object> anuncio2){
 
-        int numImagenes1 = (int) anuncio1.get("Numero Imagenes");
-        int numImagenes2 = (int) anuncio2.get("Numero Imagenes");
+        int numImagenes1 = ((Double) anuncio1.get("Numero Imagenes")).intValue();
+        int numImagenes2 = ((Double) anuncio2.get("Numero Imagenes")).intValue();
 
         double puntuacion = numImagenes1 == numImagenes2 ? 1 : 0;
 
         return puntuacion * Constantes.PESOS_F1.get("Numero Imagenes");
+    }
+
+    private double compararPrecio(Map<String, Object> anuncio1, Map<String , Object> anuncio2){
+
+        Double precio1 = (Double) anuncio1.get("Precio");
+        Double precio2 = (Double) anuncio2.get("Precio");
+
+        if (precio1 == null || precio2 == null){
+            return 0;
+        }
+
+        Double max = Math.max(precio1, precio2);
+        Double min = Math.min(precio1, precio2);
+
+        double diferenciaPorcentual = -1.0;
+
+        try {
+
+            diferenciaPorcentual = (max - min) * 100 / max / 100;
+
+        }catch (Exception e){
+
+        }
+
+        if (diferenciaPorcentual == -1){
+            return 0;
+        }
+
+
+
+        return (1.0 - diferenciaPorcentual) * Constantes.PESOS_F1.get("Precio");
+
     }
 
     /**
@@ -45,16 +90,23 @@ public class F1 {
      */
     private double compararOrientacion(Map<String, Object> anuncio1, Map<String , Object> anuncio2){
 
-        int idOrientacion1 = (int) anuncio1.get("Id Orientacion");
-        int idOrientacion2 = (int) anuncio2.get("Id Orientacion");
+        Integer idOrientacion1 = anuncio1.containsKey("Id Orientacion") ? ((Double) anuncio1.get("Id Orientacion")).intValue() : null;
+        Integer idOrientacion2 = anuncio2.containsKey("Id Orientacion") ? ((Double) anuncio2.get("Id Orientacion")).intValue() : null;
 
         double base = 0;
+        boolean continuar = true;
+
+        if (idOrientacion1 == null || idOrientacion2 == null){
+            base = 1;
+            continuar = false;
+        }
 
         if (idOrientacion1 == idOrientacion2){
             base = 1;
+            continuar = false;
         }
 
-        else {
+        if (continuar){
             int diferencia = Math.abs(idOrientacion1 - idOrientacion2);
 
             if (diferencia == 7){
@@ -85,133 +137,155 @@ public class F1 {
 
     private double compararAntiguedad(Map<String, Object> anuncio1, Map<String , Object> anuncio2){
 
-        Long antiguedad1 = (Long) anuncio1.get("Antiguedad");
-        Long antiguedad2 = (Long) anuncio2.get("Antiguedad");
+        Long antiguedad1 = anuncio1.containsKey("Antiguedad") ? ((Double) anuncio1.get("Antiguedad")).longValue() : null;
+        Long antiguedad2 = anuncio2.containsKey("Antiguedad") ? ((Double) anuncio2.get("Antiguedad")).longValue() : null;
 
-        int base = antiguedad1 == antiguedad2 ? 1 : 0;
+        boolean continuar = true;
+        int base = 0;
+
+        if (antiguedad1 == null || antiguedad2 == null){
+            base = 1;
+            continuar = false;
+        }
+
+        if (continuar){
+            base = antiguedad1 == antiguedad2 ? 1 : 0;
+        }
 
         return base * Constantes.PESOS_F1.get("Antiguedad");
     }
 
     private double compararTipoInmueble(Map<String, Object> anuncio1, Map<String , Object> anuncio2){
 
-        int idTipoInmueble1 = (int) anuncio1.get("Id Tipo Inmueble");
-        int idSubtipoInmueble1 = (int) anuncio1.get("Id Subtipo Inmueble");
+        Integer idTipoInmueble1 = anuncio1.containsKey("Id Tipo Inmueble") ? ((Double) anuncio1.get("Id Tipo Inmueble")).intValue() : null;
+        Integer idSubtipoInmueble1 = anuncio1.containsKey("Id Subtipo Inmueble") ? ((Double) anuncio1.get("Id Subtipo Inmueble")).intValue() : null;
 
-        int idTipoInmueble2 = (int) anuncio2.get("Id Tipo Inmueble");
-        int idSubtipoInmueble2 = (int) anuncio2.get("Id Subtipo Inmueble");
+        Integer idTipoInmueble2 = anuncio2.containsKey("Id Tipo Inmueble") ? ((Double) anuncio2.get("Id Tipo Inmueble")).intValue() : null;
+        Integer idSubtipoInmueble2 = anuncio2.containsKey("Id Subtipo Inmueble") ? ((Double) anuncio2.get("Id Subtipo Inmueble")).intValue() : null;
 
-        double base = idTipoInmueble1 == idTipoInmueble2 ? 0.35 : 0;
-        base += idSubtipoInmueble1 == idSubtipoInmueble2 ? 0.65 : 0;
+        boolean continuar = true;
+        double base = 0.0;
+
+        if (idTipoInmueble1 == null || idSubtipoInmueble1 == null || idTipoInmueble2 == null || idSubtipoInmueble2 == null){
+            continuar = false;
+        }
+
+        if (continuar){
+            base = idTipoInmueble1 == idTipoInmueble2 ? 0.35 : 0;
+            base += idSubtipoInmueble1 == idSubtipoInmueble2 ? 0.65 : 0;
+        }
+
 
         return base * Constantes.PESOS_F1.get("Tipo Inmueble");
     }
 
     private double compararBanios(Map<String, Object> anuncio1, Map<String , Object> anuncio2){
 
-        Long banios1 = (Long) anuncio1.get("Banos");
-        Long banios2 = (Long) anuncio2.get("Banos");
+        Long banios1 = Utils.obtenerDelMap(anuncio1, "Banos", Long.class);
+        Long banios2 = Utils.obtenerDelMap(anuncio2, "Banos", Long.class);
+
+        double diferenciaPorcentual = 1;
+        boolean continuar = true;
 
         if (banios1 == null || banios2 == null){
-            return 0;
+            continuar = false;
         }
 
-        Long max = Math.max(banios1, banios2);
-        Long min = Math.min(banios1, banios2);
+        if (continuar){
+            Long max = Math.max(banios1, banios2);
+            Long min = Math.min(banios1, banios2);
 
-        double diferenciaPorcentual = -1;
+            try {
 
-        try {
+                diferenciaPorcentual = (max - min) * 100 / max / 100;
 
-            diferenciaPorcentual = (max - min) * 100 / max / 100;
+            }catch (Exception e){
 
-        }catch (Exception e){
-
+            }
         }
 
-        if (diferenciaPorcentual == -1){
-            return 0;
-        }
-
-        return (diferenciaPorcentual <= Constantes.PESOS_F1.get("Corte Bano") ? 1 : diferenciaPorcentual)
-                * Constantes.PESOS_F1.get("Bano");
+        return (1 - diferenciaPorcentual) * Constantes.PESOS_F1.get("Bano");
     }
 
     private double compararHabitaciones(Map<String, Object> anuncio1, Map<String , Object> anuncio2){
 
-        Long habitaciones1 = (Long) anuncio1.get("Numero Habitaciones");
-        Long habitaciones2 = (Long) anuncio2.get("Numero Habitaciones");
+        Long habitaciones1 = Utils.obtenerDelMap(anuncio1, "Numero Habitaciones", Long.class);
+        Long habitaciones2 = Utils.obtenerDelMap(anuncio2, "Numero Habitaciones", Long.class);;
+
+        boolean continuar = true;
+        double diferenciaPorcentual = 1;
 
         if (habitaciones1 == null || habitaciones2 == null){
-            return 0;
+            continuar = false;
         }
 
-        Long max = Math.max(habitaciones1, habitaciones2);
-        Long min = Math.min(habitaciones1, habitaciones2);
+        if (continuar){
+            Long max = Math.max(habitaciones1, habitaciones2);
+            Long min = Math.min(habitaciones1, habitaciones2);
 
-        double diferenciaPorcentual = -1;
+            try {
 
-        try {
+                diferenciaPorcentual = (max - min) * 100 / max / 100;
 
-            diferenciaPorcentual = (max - min) * 100 / max / 100;
+            }catch (Exception e){
 
-        }catch (Exception e){
-
+            }
         }
 
-        if (diferenciaPorcentual == -1){
-            return 0;
-        }
-
-        return (diferenciaPorcentual <= Constantes.PESOS_F1.get("Corte Habitaciones") ? 1 : diferenciaPorcentual)
-                * Constantes.PESOS_F1.get("Bano");
+        return (1 - diferenciaPorcentual) * Constantes.PESOS_F1.get("Habitaciones");
     }
 
     private double compararM2(Map<String, Object> anuncio1, Map<String , Object> anuncio2){
 
-        Long metrosCuadrados1 = (Long) anuncio1.get("M2");
-        Long metrosCuadrados2 = (Long) anuncio2.get("M2");
+        Long metrosCuadrados1 = Utils.obtenerDelMap(anuncio1, "M2", Long.class);
+        Long metrosCuadrados2 = Utils.obtenerDelMap(anuncio2, "M2", Long.class);
+
+        double diferenciaPorcentual = 1;
+        boolean continuar = true;
 
         if (metrosCuadrados1 == null || metrosCuadrados2 == null){
-            return 0;
+            continuar = false;
         }
 
-        Long max = Math.max(metrosCuadrados1, metrosCuadrados2);
-        Long min = Math.min(metrosCuadrados1, metrosCuadrados2);
+        if (continuar){
+            Long max = Math.max(metrosCuadrados1, metrosCuadrados2);
+            Long min = Math.min(metrosCuadrados1, metrosCuadrados2);
 
-        double diferenciaPorcentual = -1;
+            try {
 
-        try {
+                diferenciaPorcentual = (max - min) * 100 / max / 100;
 
-            diferenciaPorcentual = (max - min) * 100 / max / 100;
+            }catch (Exception e){
 
-        }catch (Exception e){
-
+            }
         }
 
-        if (diferenciaPorcentual == -1){
-            return 0;
-        }
-
-        return (diferenciaPorcentual <= Constantes.PESOS_F1.get("Corte M2") ? 1 : diferenciaPorcentual)
-                * Constantes.PESOS_F1.get("M2");
+        return (1.0 - diferenciaPorcentual) * Constantes.PESOS_F1.get("M2");
     }
 
     private double compararCoordenadas(Map<String, Object> anuncio1, Map<String , Object> anuncio2){
 
+        Double long1 = Utils.obtenerDelMap(anuncio1, "Longitud", Double.class);
+        Double lat1 = Utils.obtenerDelMap(anuncio1, "Latitud", Double.class);
+
+        Double long2 = Utils.obtenerDelMap(anuncio2, "Longitud", Double.class);
+        Double lat2 = Utils.obtenerDelMap(anuncio2, "Latitud", Double.class);
+
         Par<Double, Double> coordenadasAnuncio1 = new Par(anuncio1.get("Longitud"), anuncio1.get("Latitud"));
         Par<Double, Double> coordenadasAnuncio2 = new Par(anuncio2.get("Longitud"), anuncio2.get("Latitud"));
 
+
+        boolean continuar = true;
+
         if (coordenadasAnuncio1.algoEsNulo() || coordenadasAnuncio2.algoEsNulo()){
-            return 0;
+            continuar = false;
         }
 
-        double distanciaReal = Utils.distancia(coordenadasAnuncio1.getPrimero(), coordenadasAnuncio1.getSegundo(), coordenadasAnuncio2.getPrimero(), coordenadasAnuncio2.getSegundo());
-
         double distanciaMax = Constantes.PESOS_F1.get("Corte Coordenadas");
+        double distanciaReal = distanciaMax + 1;
 
-        if (distanciaReal >= distanciaMax){
-            return 0;
+        if (continuar){
+            distanciaReal = Utils.distancia(coordenadasAnuncio1.getPrimero(), coordenadasAnuncio1.getSegundo(), coordenadasAnuncio2.getPrimero(), coordenadasAnuncio2.getSegundo());
         }
 
         double normalizadoInv = Utils.normalizarInv(distanciaReal, 0, distanciaMax);
@@ -220,4 +294,24 @@ public class F1 {
         return normalizadoInv * Constantes.PESOS_F1.get("Coordenadas");
     }
 
+    private double compararExtras(List<String> extrasAnuncio1, List<String> extrasAnuncio2){
+
+        int coincidentes = 0;
+
+        HashSet<String> setExtrasMayor = new HashSet<>(extrasAnuncio1.size() > extrasAnuncio2.size() ? extrasAnuncio1 : extrasAnuncio2);
+        List<String> iterador = extrasAnuncio1.size() > extrasAnuncio2.size() ? extrasAnuncio2 : extrasAnuncio1;
+
+        for (String s : iterador) {
+            coincidentes += setExtrasMayor.contains(s) ? 1 : 0;
+        }
+
+        double porcentajeCoincidentes = 0;
+        try {
+            porcentajeCoincidentes = coincidentes * 100 / setExtrasMayor.size();
+        }catch (Exception e){
+
+        }
+
+        return porcentajeCoincidentes * Constantes.PESOS_F1.get("Extras");
+    }
 }

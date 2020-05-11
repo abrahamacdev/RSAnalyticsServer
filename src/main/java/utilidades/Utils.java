@@ -4,8 +4,17 @@ import com.google.common.io.Files;
 import com.mysql.cj.util.TimeUtil;
 import io.javalin.core.util.FileUtil;
 import kotlin.text.Charsets;
+import kotlin.text.Regex;
+import modelo.pojo.rest.Tipo;
 import org.apache.commons.io.FileUtils;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.client.methods.RequestBuilder;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 import org.tinylog.Logger;
 
 import javax.persistence.EntityManager;
@@ -15,20 +24,18 @@ import java.awt.*;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.CharBuffer;
+import java.util.*;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static utilidades.Constantes.*;
 
@@ -189,6 +196,18 @@ public class Utils {
         }
     }
 
+    public static <T,E> T obtenerDelMap(Map<E, Object> map, E clave, Class<T> tipo){
+
+        if (map.containsKey(clave)){
+            try {
+                return tipo.cast(map.get(clave));
+            }catch (Exception e){
+
+            }
+        }
+        return null;
+    }
+
     public static long cronometrarConNanos(Runnable runnable){
 
         long start = System.nanoTime();
@@ -324,5 +343,117 @@ public class Utils {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    // TODO Eliminar
+    public static void descargarJsonDeUrlsAnuncioDetalle(String rutaArchivo){
+
+        File archivo = new File(rutaArchivo);
+        HashMap<Integer, String> datos = new HashMap<>();
+
+        if (archivo.exists() && !archivo.isDirectory()){
+
+            Pattern patronId = Pattern.compile("\\/([0-9]+)\\/");
+            Pattern patronContrato = Pattern.compile("es\\/es\\/([A-Za-z]+)");
+
+            BufferedReader bufferedReader = null;
+            try {
+
+                bufferedReader = new BufferedReader(new FileReader(archivo));
+                String linea = bufferedReader.readLine();
+
+                while (linea != null){
+
+                    if (linea.startsWith("http")){
+
+                        Matcher matcherId = patronId.matcher(linea);
+                        Matcher matcherContrato = patronContrato.matcher(linea);
+
+                        if (matcherId.find() && matcherContrato.find()){
+                            int id = Integer.parseInt(matcherId.group().split("\\/")[1]);
+                            String[] contratoSplited = matcherContrato.group().split("\\/");
+                            String contrato = contratoSplited[contratoSplited.length - 1];
+                            datos.put(id, contrato);
+                        }
+                    }
+
+                    linea = bufferedReader.readLine();
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }finally {
+                try {
+                    bufferedReader.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        Function<String,Integer> convertirTipoContrato2Int = new Function<String, Integer>() {
+            @Override
+            public Integer apply(String s) {
+
+                if (s.equals("comprar")){
+                    return 1;
+                }
+
+                else if (s.equals("alquilar")){
+                    return 3;
+                }
+
+                return null;
+            }
+        };
+
+        Function<Par<Integer, Integer>, JSONObject> obtenerDatosDetalleAnuncio = new Function<Par<Integer, Integer>, JSONObject>() {
+            @Override
+            public JSONObject apply(Par<Integer, Integer> integerIntegerPar) {
+
+                int idAnuncio = integerIntegerPar.getPrimero();
+                int idContrato = integerIntegerPar.getSegundo();
+
+                String urlDetalleAnuncio = "https://api.fotocasa.es/PropertySearch/Property?culture=es-ES&locale=es-ES&transactionType=" +
+                        idContrato + "&periodicityId=0&id=" + idAnuncio;
+
+
+                HttpClient client = HttpClients.custom().build();
+                RequestBuilder requestBuilder = RequestBuilder.get().setUri(urlDetalleAnuncio);
+
+                HttpUriRequest request = requestBuilder.build();
+
+                try {
+                    HttpResponse response = client.execute(request);
+                    String html = EntityUtils.toString(response.getEntity());
+
+                    JSONObject root = (JSONObject) new JSONParser().parse(html);
+
+                    return root;
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                return new JSONObject();
+            }
+        };
+
+        List<JSONObject> jsons  = datos.keySet().stream()
+                                    .map(key -> {
+
+                                        Integer tipoContrato = convertirTipoContrato2Int.apply(datos.get(key));
+
+                                        JSONObject res = new JSONObject();
+
+                                        if (tipoContrato != null){
+                                            res = obtenerDatosDetalleAnuncio.apply(new Par<>(key, tipoContrato));
+                                            esperar(1000);
+                                        }
+
+                                        return res;
+                                    }).collect(Collectors.toList());
+
+        guardarJsons2Archivo(RUTA_JSONS_MODO_PRUEBA, false, jsons);
     }
 }

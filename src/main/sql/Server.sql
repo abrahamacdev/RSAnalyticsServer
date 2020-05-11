@@ -216,15 +216,15 @@ INSERT INTO claveAtributoAnuncio(nombre) VALUES
     ('Aire acondicionado'),('Armarios'),('Calefacción'),('Cocina Equipada'),('Jardín'),('Terraza'),('Trastero'),
     ('Z. Comunitaria'),('Alarma'),('Domótica'),('Patio'),('Energía Solar'),('Piscina'),('Videoportero'),('Suite'),
     ('Zona Deportiva'),('Zona Infantil'),('Puerta Blindada'),('Electrodomésticos'),('Horno'),('Lavadora'),
-    ('Nevera'),('Serv. portería'),('TV'),('Balcón'),('Lavadero'),('Internet'),('Bodega'),('Planta'),('Escalera'),
-    ('Edificio'),('Numero'),('Ascensor'), ('Orientacion'), ('Id Orientacion');
+    ('Nevera'),('Serv. portería'),('TV'),('Balcón'),('Lavadero'),('Internet'),('Bodega'),('Escalera'),
+    ('Edificio'),('Numero'),('Ascensor');
 INSERT INTO claveAtributoAnuncio(nombre, es_principal) VALUES
     ('Numero Habitaciones', TRUE),('Banos', TRUE),('Consumo', TRUE),('Emisiones', TRUE),
     ('Numero Imagenes', TRUE),('Precio', TRUE),('Longitud', TRUE),('Latitud', TRUE),
     ('Antiguedad', TRUE),('Tipo Anunciante', TRUE),('M2', TRUE),('Tipo Inmueble', TRUE),('Tipo Contrato', TRUE),
     ('Id Anuncio', TRUE),('Id Anunciante', TRUE),('Nombre Anunciante', TRUE),('Numero de Contacto', TRUE),
     ('Url Anunciante', TRUE), ('Fecha Publicacion', TRUE), ('Referencia Anunciante', TRUE), ('Id Tipo Inmueble', TRUE),
-    ('Id Subtipo Inmueble', TRUE);
+    ('Id Subtipo Inmueble', TRUE),('Orientacion', TRUE), ('Id Orientacion', TRUE), ('Url Anuncio', TRUE), ('Planta', TRUE);
 
 INSERT INTO tipoInmueble(id,nombre) VALUES (1,'Vivienda');
 
@@ -233,18 +233,18 @@ INSERT INTO claveAtributoInmueble (id, nombre) VALUES
     (7,'Trastero'),(8,'Z. Comunitaria'),(9,'Alarma'),(10,'Domótica'),(11,'Patio'),(12,'Energía Solar'),(13,'Piscina'),
     (14,'Videoportero'),(15,'Suite'),(16,'Zona Deportiva'),(17,'Zona Infantil'),(18,'Puerta Blindada'),(19,'Electrodomésticos'),
     (20,'Horno'),(21,'Lavadora'),(22,'Nevera'),(23,'Serv. portería'),(24,'TV'),(25,'Balcón'),(26,'Lavadero'),
-    (27,'Internet'),(28,'Bodega'),(29,'Planta'),(30,'Escalera'),(31,'Edificio'),(32,'Numero'),(33,'Ascensor'),
-    (34, 'Orientacion'), (35, 'Id Orientacion');
-INSERT INTO claveAtributoInmueble(id, nombre, es_principal) VALUES
+    (27,'Internet'),(28,'Bodega'),(29,'Escalera'),(30,'Edificio'),(31,'Numero'),(32,'Ascensor');
+INSERT INTO claveAtributoInmueble (id, nombre, es_principal) VALUES
     (50,'Numero Habitaciones', TRUE),(51,'Banos', TRUE),(52,'Consumo', TRUE),(53,'Emisiones', TRUE),
     (54,'Numero Imagenes', TRUE),(55,'Precio', TRUE),(56,'Longitud', TRUE),(57,'Latitud', TRUE), (58,'Antiguedad', TRUE),
     (59,'Tipo Anunciante', TRUE),(60,'M2', TRUE),(61,'Id Anuncio', TRUE),(62,'Id Anunciante', TRUE),
     (63,'Nombre Anunciante', TRUE),(64,'Numero de Contacto', TRUE),(65,'Url Anunciante', TRUE),(66,'Fecha Publicacion', TRUE),
-    (67,'Referencia Anunciante', TRUE),(68,'Id Tipo Inmueble', TRUE),(69,'Id Subtipo Inmueble', TRUE);
+    (67,'Referencia Anunciante', TRUE),(68,'Id Tipo Inmueble', TRUE),(69,'Id Subtipo Inmueble', TRUE),
+    (70,'Orientacion', TRUE),(71,'Id Orientacion', TRUE),(72,'Url Anuncio', TRUE), (73,'Planta', TRUE);
 
 # Ligamos los atributos propios de una vivienda + atributos obligatorios de todos los inmuebles con el tipo de inmueble 'Vivienda'
 INSERT INTO tipoInmueble_claveAtributoInmueble VALUES
     (1,1),(1,2),(1,3),(1,4),(1,5),(1,6),(1,7),(1,8),(1,9),(1,10),(1,11),(1,12),(1,13),(1,14),(1,15),(1,16),(1,17),
-    (1,18),(1,19),(1,20),(1,21),(1,22),(1,23),(1,24),(1,25),(1,26),(1,27),(1,28),(1,29),(1,30),(1,31),(1,32),(1,33),
-    (1,34),(1,35),(1,50),(1,51),(1,52),(1,53),(1,54),(1,55),(1,56),(1,57),(1,58),(1,59),(1,60),(1,61),(1,62),(1,63),
-    (1,64),(1,65),(1,66),(1,67),(1,68),(1,69);
+    (1,18),(1,19),(1,20),(1,21),(1,22),(1,23),(1,24),(1,25),(1,26),(1,27),(1,28),(1,29),(1,30),(1,31),(1,32),
+    (1,50),(1,51),(1,52),(1,53),(1,54),(1,55),(1,56),(1,57),(1,58),(1,59),(1,60),(1,61),(1,62),(1,63),(1,64),(1,65),
+    (1,66),(1,67),(1,68),(1,69),(1,70),(1,71),(1,72),(1,73);

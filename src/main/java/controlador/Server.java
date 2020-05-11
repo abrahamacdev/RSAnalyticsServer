@@ -7,9 +7,13 @@ import io.javalin.Javalin;
 import org.tinylog.Logger;
 import utilidades.Constantes;
 import utilidades.Propiedades;
+import utilidades.Utils;
 
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 public class Server {
 
@@ -43,9 +47,13 @@ public class Server {
         piscinaHilosRefinador = Executors.newFixedThreadPool(Constantes.HILOS_PARA_REFINADOR);
         piscinaHilosGeneradorInformes = Executors.newFixedThreadPool(Constantes.HILOS_PARA_GENERADOR_INFORMES);
 
+
+        //Utils.descargarJsonDeUrlsAnuncioDetalle("/home/abraham/Documentos/Prueba_Politica.txt");
         //lanzarScrapers();
         //crearServidor();
         lanzarRefinador();
+
+
     }
 
     private void lanzarScrapers(){

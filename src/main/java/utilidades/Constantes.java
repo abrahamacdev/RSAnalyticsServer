@@ -112,7 +112,7 @@ public class Constantes {
 
     public final static String RUTA_RELATIVA_MANEJADORES = "controlador/rest/handlers";
     public final static String PAQUETE_MANEJADORES = "controlador.rest.handlers";
-    public final static int TAMANIO_BATCH_HIBERNATE = 50;
+    public final static int TAMANIO_BATCH_HIBERNATE = 100;
 
 
     // Seguridad
@@ -129,20 +129,19 @@ public class Constantes {
     public final static String PROP_KEYSTORE_PASS = "server.keystore.pass";
 
     // F1
-    public final static HashMap<String, Double> PESOS_F1 = new HashMap<>(){{
-        put("Numero Imagenes", 0.0);
-        put("Orientacion", 0.0);
-        put("Certificados Energeticos", 0.0);
-        put("Antiguedad", 0.0);
-        put("Tipo Inmueble", 0.0);
-        put("Corte Bano", 0.25);
-        put("Bano", 0.0);
-        put("Corte Habitaciones", 0.25);
-        put("Habitaciones", 0.0);
-        put("Corte M2", 0.15);
-        put("M2", 0.0);
-        put("Corte Coordenadas", 100.0);
-        put("Coordenadas", 0.0);
+    public final static HashMap<String, Double> PESOS_F1 = new HashMap(){{
+        put("Numero Imagenes", 0.04);
+        put("Precio", 0.12);
+        put("Orientacion", 0.10);
+        put("Certificados Energeticos", 0.04);
+        put("Antiguedad", 0.08);
+        put("Tipo Inmueble", 0.12);
+        put("Bano", 0.12);
+        put("Habitaciones", 0.12);
+        put("M2", 0.12);
+        put("Corte Coordenadas", 100.0); // 1 = 'x'mts, 0 = 0mts
+        put("Coordenadas", 0.05);
+        put("Extras", 0.09);
     }};
 
     // JWT

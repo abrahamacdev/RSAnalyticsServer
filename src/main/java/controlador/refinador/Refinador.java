@@ -32,6 +32,7 @@ public class Refinador {
         this.piscinaHilosRefinador = piscinaHilosRefinador;
         this.controladorAnuncio = new ControladorAnuncio();
         this.controladorAtributoAnuncio = new ControladorAtributoAnuncio();
+        this.f1 = new F1();
     }
 
     public void comenzar(){
@@ -53,6 +54,8 @@ public class Refinador {
 
                 // Obtenemos la lista con los ids de los distintos municipios de los anuncios que hay por refinar
                 List<Integer> idsMunAnunsPorRefinar = resBusMunAnunsPorRef.getSegundo();
+
+                System.out.println(idsMunAnunsPorRefinar);
 
                 // Listado final de inmuebles a guardar
                 ArrayList<Inmueble> inmueblesFinales = new ArrayList<>(idsMunAnunsPorRefinar.size());
@@ -105,15 +108,16 @@ public class Refinador {
             }
         }
 
+        List<Inmueble> listadoInmuebles = new ArrayList<>();
+
         // Cogemos todos los anuncios de un municipio-contrato concretos y los cotejamos para obtener
         // la lista de inmuebles finales
         for (String tipoContrato : anunciosSegunContrato.keySet()){
 
+            listadoInmuebles.addAll(cotejarAnuncios(anunciosSegunContrato.get(tipoContrato)));
         }
 
-
-        return null;
-
+        return listadoInmuebles;
     }
 
     private List<Inmueble> cotejarAnuncios(List<Anuncio> posiblesInmuebles){
@@ -129,6 +133,8 @@ public class Refinador {
 
             Anuncio anuncio1 = posiblesInmuebles.get(i);
 
+            System.out.println(anuncio1);
+
             // Comprobamos no estar ya ligado a algun otro anuncio
             if (!anunciosCogidos.contains(anuncio1)){
 
@@ -143,6 +149,12 @@ public class Refinador {
                     // ya ligado a otro
                     if (!anunciosCogidos.contains(anuncio2)){
 
+                        try {
+                            System.out.println(comprobarIgualdadAnuncios(anuncio1, anuncio2));
+                        }catch (Exception e){
+                            e.printStackTrace();
+                        }
+
                         // Comprobamos si los anuncios son iguales a partir del algoritmo desarrollado
                         if (comprobarIgualdadAnuncios(anuncio1, anuncio2)){
                             anunciosCogidos.add(anuncio2);
@@ -154,10 +166,17 @@ public class Refinador {
 
                 // Guardamos los anuncios que son iguales
                 anunciosLigados.add(tempAnunciosLigados);
-
             }
+
         }
 
+        // TODO Eliminar
+        for (List<Anuncio> anunciosLigado : anunciosLigados) {
+            List<Integer> ids = anunciosLigado.stream()
+                    .map(anuncio -> anuncio.getId())
+                    .collect(Collectors.toList());
+            System.out.println(ids);
+        }
 
         return inmueblesFinales;
     }
@@ -166,6 +185,7 @@ public class Refinador {
 
         Map<String, Object> clavesAnuncio1 = anuncio1.getAtributos()
                 .stream()
+                .filter(atributoAnuncio -> atributoAnuncio.getClaveAtributoAnuncio().isEsPrincipal())
                 .collect(Collectors.toMap(
                         (atributoAnuncio) -> atributoAnuncio.getClaveAtributoAnuncio().getNombre(),
                         (atributoAnuncio) -> atributoAnuncio.getValorActivo()
@@ -173,13 +193,26 @@ public class Refinador {
 
         Map<String, Object> clavesAnuncio2 = anuncio2.getAtributos()
                 .stream()
+                .filter(atributoAnuncio -> atributoAnuncio.getClaveAtributoAnuncio().isEsPrincipal())
                 .collect(Collectors.toMap(
                         (atributoAnuncio) -> atributoAnuncio.getClaveAtributoAnuncio().getNombre(),
                         (atributoAnuncio) -> atributoAnuncio.getValorActivo()
                 ));
 
-        Par<Integer,Integer> tipoInmueble1 = new Par((Integer) clavesAnuncio1.get("Id Tipo Inmueble"), (Integer) clavesAnuncio1.get("Id Subtipo Inmueble"));
-        Par<Integer,Integer> tipoInmueble2 = new Par((Integer) clavesAnuncio2.get("Id Tipo Inmueble"), (Integer) clavesAnuncio2.get("Id Subtipo Inmueble"));
+        List<String> extrasAnuncio1 = anuncio1.getAtributos()
+                .stream()
+                .filter(atributoAnuncio -> !atributoAnuncio.getClaveAtributoAnuncio().isEsPrincipal())
+                .map(atributoAnuncio -> atributoAnuncio.getClaveAtributoAnuncio().getNombre())
+                .collect(Collectors.toList());
+
+        List<String> extrasAnuncio2 = anuncio1.getAtributos()
+                .stream()
+                .filter(atributoAnuncio -> !atributoAnuncio.getClaveAtributoAnuncio().isEsPrincipal())
+                .map(atributoAnuncio -> atributoAnuncio.getClaveAtributoAnuncio().getNombre())
+                .collect(Collectors.toList());
+
+        Par<Integer,Integer> tipoInmueble1 = new Par(((Double) clavesAnuncio1.get("Id Tipo Inmueble")).intValue(), ((Double) clavesAnuncio1.get("Id Subtipo Inmueble")).intValue());
+        Par<Integer,Integer> tipoInmueble2 = new Par(((Double) clavesAnuncio2.get("Id Tipo Inmueble")).intValue(), ((Double) clavesAnuncio2.get("Id Subtipo Inmueble")).intValue());
 
         // Comprobamos si los dos inmuebles son del mismo tipo
         if (!ScrapersUtils.mismoTipoInmueble(tipoInmueble1.getPrimero(), tipoInmueble1.getSegundo(), tipoInmueble2.getPrimero(), tipoInmueble2.getSegundo())){
@@ -219,7 +252,7 @@ public class Refinador {
                     // Misma planta
                     else {
                         // Necesitaran tener una igualdad minima del 85%
-                        return f1.comprobarIgualdad(clavesAnuncio1, clavesAnuncio2) > 0.85;
+                        return f1.comprobarIgualdad(clavesAnuncio1, extrasAnuncio1, clavesAnuncio2, extrasAnuncio2) > 0.85;
                     }
                 }
             }
@@ -238,7 +271,7 @@ public class Refinador {
                 // Misma planta
                 else {
                     // Necesitaran tener una puntuacion f1 > 0.7 para ser considerados iguales
-                    return f1.comprobarIgualdad(clavesAnuncio1, clavesAnuncio2) > 0.7;
+                    return f1.comprobarIgualdad(clavesAnuncio1, extrasAnuncio1, clavesAnuncio2, extrasAnuncio2) > 0.7;
                 }
             }
 
@@ -252,7 +285,7 @@ public class Refinador {
             // Estan en el mismo sitio
             if (coordenadasAnuncio1.equals(coordenadasAnuncio2)){
                 // Si dos inmuebles estan en el mismo
-                return f1.comprobarIgualdad(clavesAnuncio1, clavesAnuncio2) > 0.35;
+                return f1.comprobarIgualdad(clavesAnuncio1, extrasAnuncio1, clavesAnuncio2, extrasAnuncio2) > 0.35;
             }
 
             // Estan en sitios diferentes
@@ -274,7 +307,7 @@ public class Refinador {
 
                     // La referencia no coincide
                     else {
-                        return f1.comprobarIgualdad(clavesAnuncio1, clavesAnuncio2) > 0.85;
+                        return f1.comprobarIgualdad(clavesAnuncio1, extrasAnuncio1, clavesAnuncio2, extrasAnuncio2) > 0.85;
                     }
                 }
 
@@ -283,7 +316,7 @@ public class Refinador {
 
                     // Tenemos sospechas de que puedan ser anuncios que hagan referencia al mismo inmueble
                     // pero redactados por diferentes anunciantes
-                    return f1.comprobarIgualdad(clavesAnuncio1, clavesAnuncio2) > 0.65;
+                    return f1.comprobarIgualdad(clavesAnuncio1, extrasAnuncio1, clavesAnuncio2, extrasAnuncio2) > 0.65;
                 }
             }
         }

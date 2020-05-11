@@ -262,6 +262,8 @@ public class ScraperFotocasa extends AbstractScraper {
                 .filter(json -> json.keySet().size() > 0)
                 .collect(Collectors.toList());
 
+        Logger.info("Comenzamos a scrapear");
+
         int salto = Constantes.TAMANIO_BATCH_HIBERNATE;
         int actual = 0;
         int cachos = jsons.size() / salto;
@@ -271,12 +273,18 @@ public class ScraperFotocasa extends AbstractScraper {
 
             List<JSONObject> parte = jsons.subList(actual, actual + salto);
             List<Anuncio> anuncios = parsearJsons2Pojos(parte, fechaObtencion);
+
+            Logger.info("Parseados");
+
             onScraperListener.onScraped(anuncios, TipoScraper.FOTOCASA);
 
             actual += salto;
+
+            Logger.info("Siguiente pagina");
         }
 
         List<JSONObject> parte = jsons.subList(actual, actual + restante);
+
         onScraperListener.onScraped(parsearJsons2Pojos(parte, fechaObtencion), TipoScraper.FOTOCASA);
 
         // Detenemos el scraper
@@ -564,14 +572,19 @@ public class ScraperFotocasa extends AbstractScraper {
         HashMap<String, Object> tempAtributos = new HashMap<>(17);
 
         // Id del anuncio
-        //Integer idAnuncio = jsonAnuncio.containsKey("id") ? ((Long) jsonAnuncio.get("id")).intValue() : null;
-        //tempAtributos.put("Id Anuncio", idAnuncio);
+        Double idAnuncio = jsonAnuncio.containsKey("id") ? ((Long) jsonAnuncio.get("id")).doubleValue() : null;
+        tempAtributos.put("Id Anuncio", idAnuncio);
 
         // Cantidad de imagenes
         JSONArray imagenes = (JSONArray) ObjectUtils.defaultIfNull(jsonAnuncio.get("multimedias"), new JSONArray());
         if (imagenes.size() > 0){
             tempAtributos.put("Numero Imagenes", ((Integer)imagenes.size()).doubleValue());
         }
+
+        // Url del anuncio
+        JSONObject urlsAnuncio = (JSONObject) ObjectUtils.defaultIfNull(jsonAnuncio.get("detail"), new JSONObject());
+        String urlEspaniol = (String) urlsAnuncio.get("es");
+        tempAtributos.put("Url Anuncio", urlEspaniol);
 
         // Fecha de publicacion del anuncio
         String tempFechaPublicacion = (String) jsonAnuncio.get("date");
@@ -686,12 +699,13 @@ public class ScraperFotocasa extends AbstractScraper {
             JSONObject tempExtra = (JSONObject) extra;
             Set<String> keys = tempExtra.keySet();
             keys.stream()
-                    .forEach(key -> mapExtras.put(key, 1.0));
+                    .forEach(key -> mapExtras.put(String.valueOf(tempExtra.get(key)), 1.0));
         }
 
         // Caracteristicas de "features"
         int buscados = 1;
         JSONArray caracteristicas = (JSONArray) ObjectUtils.defaultIfNull(jsonAnuncio.get("features"), new JSONArray());
+
         for (Object temp : caracteristicas){
             JSONObject  jsonCaracteristica = (JSONObject) temp;
 
@@ -699,7 +713,8 @@ public class ScraperFotocasa extends AbstractScraper {
             if (jsonCaracteristica.containsKey("orientation")){
                 Integer tipoOrientacion = ((Long)jsonCaracteristica.get("orientation")).intValue();
                 mapExtras.put("Orientacion", convertirTipoOrientacion2Texto(tipoOrientacion));
-                mapExtras.put("Id Orientacion", convertirIdOrientacion(tipoOrientacion));
+                Integer idOrientacion = convertirIdOrientacion(tipoOrientacion);
+                mapExtras.put("Id Orientacion", idOrientacion != null ? idOrientacion.doubleValue() : null);
                 buscados--;
             }
 
@@ -708,7 +723,6 @@ public class ScraperFotocasa extends AbstractScraper {
                 break;
             }
         }
-
 
         // Parseamos cada tupla del map a un objeeto "AtributoInmueble" y lo añadimos a la lista
         return mapExtras.keySet()
@@ -721,12 +735,12 @@ public class ScraperFotocasa extends AbstractScraper {
                     Object valor = mapExtras.get(claveAtributoAnuncio.getNombre());
 
                     if (valor instanceof Double){
-                        atributoAnuncio.setValorNumerico((Double) valor);
-                    }
+                            atributoAnuncio.setValorNumerico((Double) valor);
+                        }
 
                     else {
-                        atributoAnuncio.setValorCadena((String) valor);
-                    }
+                            atributoAnuncio.setValorCadena((String) valor);
+                        }
 
                     return atributoAnuncio;
                 })
