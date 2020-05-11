@@ -7,7 +7,6 @@ import modelo.pojo.scrapers.Anuncio;
 import modelo.pojo.scrapers.ClaveAtributoAnuncio;
 import modelo.pojo.scrapers.Inmueble;
 import modelo.pojo.scrapers.atributo_anuncio.AtributoAnuncio;
-import org.apache.commons.lang3.ObjectUtils;
 import org.tinylog.Logger;
 import utilidades.Par;
 import utilidades.Utils;
@@ -33,6 +32,7 @@ public class Refinador {
         this.controladorAnuncio = new ControladorAnuncio();
         this.controladorAtributoAnuncio = new ControladorAtributoAnuncio();
         this.f1 = new F1();
+        this.claveTipoContrato = controladorAtributoAnuncio.obtenerClaveConNombre("Tipo Contrato");
     }
 
     public void comenzar(){
@@ -49,24 +49,19 @@ public class Refinador {
                     return;
                 }
 
-                // Obtenemos la clave de "Tipo Contrato"
-                claveTipoContrato = controladorAtributoAnuncio.obtenerClaveConNombre("Tipo Contrato");
-
                 // Obtenemos la lista con los ids de los distintos municipios de los anuncios que hay por refinar
                 List<Integer> idsMunAnunsPorRefinar = resBusMunAnunsPorRef.getSegundo();
 
-                System.out.println(idsMunAnunsPorRefinar);
-
-                // Listado final de inmuebles a guardar
-                ArrayList<Inmueble> inmueblesFinales = new ArrayList<>(idsMunAnunsPorRefinar.size());
+                // Listado de anuncios que formaran cada inmueble
+                List<List<Anuncio>> anunciosParaFormarInmueble = new ArrayList<>(idsMunAnunsPorRefinar.size());
 
                 // Recorremos los distintos municipios y mezclamos todos los datos
                 for (int idMunicipio : idsMunAnunsPorRefinar){
 
-                    List<Inmueble> temp = cotejarDatosDelMunicipio(idMunicipio);
+                    List<List<Anuncio>> temp = cotejarDatosDelMunicipio(idMunicipio);
 
                     if (temp != null){
-                        inmueblesFinales.addAll(temp);
+                        anunciosParaFormarInmueble.addAll(temp);
                     }
                 }
             }
@@ -75,7 +70,7 @@ public class Refinador {
         piscinaHilosRefinador.submit(runnable);
     }
 
-    private List<Inmueble> cotejarDatosDelMunicipio(int idMunicipio){
+    private List<List<Anuncio>> cotejarDatosDelMunicipio(int idMunicipio){
 
         Par<Exception, List<Anuncio>> resBusAnuns = controladorAnuncio.obtenerAnuncioPorRefinarConMunicipio(idMunicipio);
 
@@ -108,21 +103,18 @@ public class Refinador {
             }
         }
 
-        List<Inmueble> listadoInmuebles = new ArrayList<>();
+        List<List<Anuncio>> listadoInmuebles = new ArrayList<>();
 
         // Cogemos todos los anuncios de un municipio-contrato concretos y los cotejamos para obtener
         // la lista de inmuebles finales
         for (String tipoContrato : anunciosSegunContrato.keySet()){
-
             listadoInmuebles.addAll(cotejarAnuncios(anunciosSegunContrato.get(tipoContrato)));
         }
 
         return listadoInmuebles;
     }
 
-    private List<Inmueble> cotejarAnuncios(List<Anuncio> posiblesInmuebles){
-
-        ArrayList<Inmueble> inmueblesFinales = new ArrayList<>();
+    private List<List<Anuncio>> cotejarAnuncios(List<Anuncio> posiblesInmuebles){
 
         // Evitaremos tener que recorrer la lista al completo para aquellos casos que ya
         // hallan sido ligados a otros anuncios
@@ -132,8 +124,6 @@ public class Refinador {
         for (int i=0; i<posiblesInmuebles.size(); i++){
 
             Anuncio anuncio1 = posiblesInmuebles.get(i);
-
-            System.out.println(anuncio1);
 
             // Comprobamos no estar ya ligado a algun otro anuncio
             if (!anunciosCogidos.contains(anuncio1)){
@@ -149,14 +139,15 @@ public class Refinador {
                     // ya ligado a otro
                     if (!anunciosCogidos.contains(anuncio2)){
 
+                        // Comprobamos si los anuncios son iguales a partir del algoritmo desarrollado
+                        boolean iguales = false;
                         try {
-                            System.out.println(comprobarIgualdadAnuncios(anuncio1, anuncio2));
+                            iguales = comprobarIgualdadAnuncios(anuncio1, anuncio2);
                         }catch (Exception e){
                             e.printStackTrace();
                         }
 
-                        // Comprobamos si los anuncios son iguales a partir del algoritmo desarrollado
-                        if (comprobarIgualdadAnuncios(anuncio1, anuncio2)){
+                        if (iguales){
                             anunciosCogidos.add(anuncio2);
                             tempAnunciosLigados.add(anuncio2);
                         }
@@ -171,14 +162,20 @@ public class Refinador {
         }
 
         // TODO Eliminar
-        for (List<Anuncio> anunciosLigado : anunciosLigados) {
-            List<Integer> ids = anunciosLigado.stream()
-                    .map(anuncio -> anuncio.getId())
-                    .collect(Collectors.toList());
+        /*for (List<Anuncio> anunciosLigado : anunciosLigados) {
+            Map<Integer, Object> ids = anunciosLigado.stream()
+                    .collect(Collectors.toMap(Anuncio::getId, anuncio -> {
+                        Optional<AtributoAnuncio> url = anuncio.getAtributos().stream()
+                                .filter(atributoAnuncio -> atributoAnuncio.getClaveAtributoAnuncio()
+                                        .getNombre()
+                                        .equals("Url Anuncio"))
+                                .findFirst();
+                        return url.isPresent() ? url.get() : null;
+                    }));
             System.out.println(ids);
-        }
+        }*/
 
-        return inmueblesFinales;
+        return anunciosLigados;
     }
 
     private boolean comprobarIgualdadAnuncios(Anuncio anuncio1, Anuncio anuncio2){
@@ -205,7 +202,7 @@ public class Refinador {
                 .map(atributoAnuncio -> atributoAnuncio.getClaveAtributoAnuncio().getNombre())
                 .collect(Collectors.toList());
 
-        List<String> extrasAnuncio2 = anuncio1.getAtributos()
+        List<String> extrasAnuncio2 = anuncio2.getAtributos()
                 .stream()
                 .filter(atributoAnuncio -> !atributoAnuncio.getClaveAtributoAnuncio().isEsPrincipal())
                 .map(atributoAnuncio -> atributoAnuncio.getClaveAtributoAnuncio().getNombre())
@@ -215,7 +212,7 @@ public class Refinador {
         Par<Integer,Integer> tipoInmueble2 = new Par(((Double) clavesAnuncio2.get("Id Tipo Inmueble")).intValue(), ((Double) clavesAnuncio2.get("Id Subtipo Inmueble")).intValue());
 
         // Comprobamos si los dos inmuebles son del mismo tipo
-        if (!ScrapersUtils.mismoTipoInmueble(tipoInmueble1.getPrimero(), tipoInmueble1.getSegundo(), tipoInmueble2.getPrimero(), tipoInmueble2.getSegundo())){
+        if (!ScrapersUtils.mismoTipoInmueble(tipoInmueble1.getPrimero(), tipoInmueble2.getPrimero())){
             return false;
         }
 
@@ -226,6 +223,12 @@ public class Refinador {
 
             String idAnunciante1 = (String) clavesAnuncio1.get("Id Anunciante");
             String idAnunciante2 = (String) clavesAnuncio2.get("Id Anunciante");
+
+            Double tempPlanta1 = Utils.obtenerDelMap(clavesAnuncio1, "Planta", Double.class);
+            Long plantaPiso1 = tempPlanta1 != null ? tempPlanta1.longValue():  null;
+
+            Double tempPlanta2 = Utils.obtenerDelMap(clavesAnuncio2, "Planta", Double.class);
+            Long plantaPiso2 = tempPlanta2 != null ? tempPlanta2.longValue():  null;
 
             // Comprobamos si el id de los anunciantes es el mismo
             if (idAnunciante1.equals(idAnunciante2)){
@@ -241,9 +244,6 @@ public class Refinador {
                 // La referencia no coincide
                 else {
 
-                    Long plantaPiso1 = (Long) clavesAnuncio1.get("Planta");
-                    Long plantaPiso2 = (Long) clavesAnuncio2.get("Planta");
-
                     // Los pisos no estan en la misma planta
                     if (plantaPiso1 != plantaPiso2){
                         return false;
@@ -251,17 +251,15 @@ public class Refinador {
 
                     // Misma planta
                     else {
-                        // Necesitaran tener una igualdad minima del 85%
-                        return f1.comprobarIgualdad(clavesAnuncio1, extrasAnuncio1, clavesAnuncio2, extrasAnuncio2) > 0.85;
+
+                        // Necesitaran tener una igualdad minima del 95% para ser tratados como el mismo anuncio
+                        return f1.comprobarIgualdad(clavesAnuncio1, extrasAnuncio1, clavesAnuncio2, extrasAnuncio2) > 0.95;
                     }
                 }
             }
 
             // Diferente anunciante
             else{
-
-                Long plantaPiso1 = (Long) clavesAnuncio1.get("Planta");
-                Long plantaPiso2 = (Long) clavesAnuncio2.get("Planta");
 
                 // No estan en la misma planta
                 if (plantaPiso1 != plantaPiso2){
@@ -270,8 +268,8 @@ public class Refinador {
 
                 // Misma planta
                 else {
-                    // Necesitaran tener una puntuacion f1 > 0.7 para ser considerados iguales
-                    return f1.comprobarIgualdad(clavesAnuncio1, extrasAnuncio1, clavesAnuncio2, extrasAnuncio2) > 0.7;
+                    // Necesitaran tener una puntuacion f1 > 0.65 para ser considerados iguales
+                    return f1.comprobarIgualdad(clavesAnuncio1, extrasAnuncio1, clavesAnuncio2, extrasAnuncio2) > 0.65;
                 }
             }
 
@@ -307,6 +305,7 @@ public class Refinador {
 
                     // La referencia no coincide
                     else {
+                        // Tenemos la sospecha de que sea un anuncio duplicado creado por el mismo anunciante
                         return f1.comprobarIgualdad(clavesAnuncio1, extrasAnuncio1, clavesAnuncio2, extrasAnuncio2) > 0.85;
                     }
                 }

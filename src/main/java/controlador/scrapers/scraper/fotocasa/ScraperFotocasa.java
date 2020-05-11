@@ -575,6 +575,10 @@ public class ScraperFotocasa extends AbstractScraper {
         Double idAnuncio = jsonAnuncio.containsKey("id") ? ((Long) jsonAnuncio.get("id")).doubleValue() : null;
         tempAtributos.put("Id Anuncio", idAnuncio);
 
+        JSONObject direccion = (JSONObject) ObjectUtils.defaultIfNull(jsonAnuncio.get("address"), new JSONObject());
+        String codigoPostal = (String) direccion.get("zipCode");
+        tempAtributos.put("CP", codigoPostal);
+
         // Cantidad de imagenes
         JSONArray imagenes = (JSONArray) ObjectUtils.defaultIfNull(jsonAnuncio.get("multimedias"), new JSONArray());
         if (imagenes.size() > 0){
@@ -894,10 +898,9 @@ public class ScraperFotocasa extends AbstractScraper {
         Provincia provincia = new Provincia(nombreProvincia);
 
         // Municipio y codigo postal
-        String codigoPostal = (String) direccion.get("zipCode");
         String nombreMunicipio = localizacion.get("level5") != null ? ((String) localizacion.get("level5")).trim() : null;
         //String municipio = (String) localizacion.get("upperLevel"); // Demasiado en detalle, describe el barrio
-        return new Municipio(nombreMunicipio, codigoPostal, provincia);
+        return new Municipio(nombreMunicipio, provincia);
     }
 
 

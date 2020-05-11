@@ -131,16 +131,16 @@ public class Constantes {
     // F1
     public final static HashMap<String, Double> PESOS_F1 = new HashMap(){{
         put("Numero Imagenes", 0.04);
-        put("Precio", 0.12);
+        put("Precio", 0.13);
         put("Orientacion", 0.10);
         put("Certificados Energeticos", 0.04);
         put("Antiguedad", 0.08);
-        put("Tipo Inmueble", 0.12);
-        put("Bano", 0.12);
-        put("Habitaciones", 0.12);
-        put("M2", 0.12);
+        put("Tipo Inmueble", 0.13);
+        put("Bano", 0.13);
+        put("Habitaciones", 0.13);
+        put("M2", 0.13);
         put("Corte Coordenadas", 100.0); // 1 = 'x'mts, 0 = 0mts
-        put("Coordenadas", 0.05);
+        put("Coordenadas", 0.00);
         put("Extras", 0.09);
     }};
 

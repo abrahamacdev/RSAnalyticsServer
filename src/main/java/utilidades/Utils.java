@@ -202,7 +202,7 @@ public class Utils {
             try {
                 return tipo.cast(map.get(clave));
             }catch (Exception e){
-
+                e.printStackTrace();
             }
         }
         return null;

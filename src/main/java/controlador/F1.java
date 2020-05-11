@@ -15,17 +15,40 @@ public class F1 {
     public double comprobarIgualdad(Map<String, Object> anuncio1, List<String> extrasAnuncio1, Map<String , Object> anuncio2, List<String> extrasAnuncio2){
 
         ArrayList<Double> resultados = new ArrayList();
-        resultados.add(compararNumImagenes(anuncio1, anuncio2)); // Imagenes
-        resultados.add(compararPrecio(anuncio1, anuncio2)); // Precios
-        resultados.add(compararOrientacion(anuncio1, anuncio2)); // Orientacion
-        resultados.add(compararCertificadosEnergeticos(anuncio1, anuncio2)); // Certificado Energetico
-        resultados.add(compararAntiguedad(anuncio1, anuncio2)); // Antiguedad
-        resultados.add(compararTipoInmueble(anuncio1, anuncio2)); // Tipo Inmueble
-        resultados.add(compararBanios(anuncio1, anuncio2)); // Baños
-        resultados.add(compararHabitaciones(anuncio1, anuncio2)); // Habitaciones
-        resultados.add(compararM2(anuncio1, anuncio2)); // M2
-        resultados.add(compararCoordenadas(anuncio1, anuncio2)); // Coordenadas
-        resultados.add(compararExtras(extrasAnuncio1, extrasAnuncio2)); // Extras
+
+        double calNumImg = compararNumImagenes(anuncio1, anuncio2);
+        resultados.add(calNumImg); // Imagenes
+
+        double calPre = compararPrecio(anuncio1, anuncio2);
+        resultados.add(calPre); // Precios
+
+        double calOr = compararOrientacion(anuncio1, anuncio2);
+        resultados.add(calOr); // Orientacion
+
+        double calCerts = compararCertificadosEnergeticos(anuncio1, anuncio2);
+        resultados.add(calCerts); // Certificado Energetico
+
+        double calAnt = compararAntiguedad(anuncio1, anuncio2);
+        resultados.add(calAnt); // Antiguedad
+
+        double calTipIn = compararTipoInmueble(anuncio1, anuncio2);
+        resultados.add(calTipIn); // Tipo Inmueble
+
+        double calNumBan = compararBanios(anuncio1, anuncio2);
+        resultados.add(calNumBan); // Baños
+
+        double calNumHabs = compararHabitaciones(anuncio1, anuncio2);
+        resultados.add(calNumHabs); // Habitaciones
+
+        double calM2 = compararM2(anuncio1, anuncio2);
+        resultados.add(calM2); // M2
+
+        // De momento lo eliminaremos, no funciona como se esperaba
+        //double calCoor = compararCoordenadas(anuncio1, anuncio2);
+        //resultados.add(calCoor); // Coordenadas
+
+        double calExtras = compararExtras(extrasAnuncio1, extrasAnuncio2);
+        resultados.add(calExtras); // Extras
 
         double res = resultados.stream().reduce(new Double(0), Double::sum);
 
@@ -49,27 +72,25 @@ public class F1 {
         Double precio1 = (Double) anuncio1.get("Precio");
         Double precio2 = (Double) anuncio2.get("Precio");
 
+        double diferenciaPorcentual = 1.0;
+        boolean continuar = true;
+
         if (precio1 == null || precio2 == null){
-            return 0;
+            continuar = false;
         }
 
-        Double max = Math.max(precio1, precio2);
-        Double min = Math.min(precio1, precio2);
+        if (continuar){
+            Double max = Math.max(precio1, precio2);
+            Double min = Math.min(precio1, precio2);
 
-        double diferenciaPorcentual = -1.0;
+            try {
 
-        try {
+                diferenciaPorcentual = (max - min) * 100 / max / 100;
 
-            diferenciaPorcentual = (max - min) * 100 / max / 100;
+            }catch (Exception e){
 
-        }catch (Exception e){
-
+            }
         }
-
-        if (diferenciaPorcentual == -1){
-            return 0;
-        }
-
 
 
         return (1.0 - diferenciaPorcentual) * Constantes.PESOS_F1.get("Precio");
@@ -129,8 +150,19 @@ public class F1 {
 
         double base = 0;
 
-        base += consumo1 == consumo2 ? 0.5 : 0;
-        base += emisiones2 == emisiones2 ? 0.5 : 0;
+        if (consumo1 == null && consumo2 == null){
+            base += 0.5;
+        }
+        else {
+            base += consumo1.equals(consumo2) ? 0.5 : 0;
+        }
+
+        if (emisiones1 == null && emisiones2 == null){
+            base += 0.5;
+        }
+        else {
+            base += emisiones1.equals(emisiones2) ? 0.5 : 0;
+        }
 
         return base * Constantes.PESOS_F1.get("Certificados Energeticos");
     }
@@ -181,8 +213,8 @@ public class F1 {
 
     private double compararBanios(Map<String, Object> anuncio1, Map<String , Object> anuncio2){
 
-        Long banios1 = Utils.obtenerDelMap(anuncio1, "Banos", Long.class);
-        Long banios2 = Utils.obtenerDelMap(anuncio2, "Banos", Long.class);
+        Long banios1 = Utils.obtenerDelMap(anuncio1, "Banos", Double.class).longValue();
+        Long banios2 = Utils.obtenerDelMap(anuncio2, "Banos", Double.class).longValue();
 
         double diferenciaPorcentual = 1;
         boolean continuar = true;
@@ -197,7 +229,7 @@ public class F1 {
 
             try {
 
-                diferenciaPorcentual = (max - min) * 100 / max / 100;
+                diferenciaPorcentual = (max - min) * 100.0 / max / 100.0;
 
             }catch (Exception e){
 
@@ -209,8 +241,8 @@ public class F1 {
 
     private double compararHabitaciones(Map<String, Object> anuncio1, Map<String , Object> anuncio2){
 
-        Long habitaciones1 = Utils.obtenerDelMap(anuncio1, "Numero Habitaciones", Long.class);
-        Long habitaciones2 = Utils.obtenerDelMap(anuncio2, "Numero Habitaciones", Long.class);;
+        Long habitaciones1 = Utils.obtenerDelMap(anuncio1, "Numero Habitaciones", Double.class).longValue();
+        Long habitaciones2 = Utils.obtenerDelMap(anuncio2, "Numero Habitaciones", Double.class).longValue();;
 
         boolean continuar = true;
         double diferenciaPorcentual = 1;
@@ -225,7 +257,7 @@ public class F1 {
 
             try {
 
-                diferenciaPorcentual = (max - min) * 100 / max / 100;
+                diferenciaPorcentual = (max - min) * 100.0 / max / 100.0;
 
             }catch (Exception e){
 
@@ -237,10 +269,10 @@ public class F1 {
 
     private double compararM2(Map<String, Object> anuncio1, Map<String , Object> anuncio2){
 
-        Long metrosCuadrados1 = Utils.obtenerDelMap(anuncio1, "M2", Long.class);
-        Long metrosCuadrados2 = Utils.obtenerDelMap(anuncio2, "M2", Long.class);
+        Long metrosCuadrados1 = Utils.obtenerDelMap(anuncio1, "M2", Double.class).longValue();
+        Long metrosCuadrados2 = Utils.obtenerDelMap(anuncio2, "M2", Double.class).longValue();
 
-        double diferenciaPorcentual = 1;
+        double diferenciaPorcentual = 0;
         boolean continuar = true;
 
         if (metrosCuadrados1 == null || metrosCuadrados2 == null){
@@ -271,9 +303,8 @@ public class F1 {
         Double long2 = Utils.obtenerDelMap(anuncio2, "Longitud", Double.class);
         Double lat2 = Utils.obtenerDelMap(anuncio2, "Latitud", Double.class);
 
-        Par<Double, Double> coordenadasAnuncio1 = new Par(anuncio1.get("Longitud"), anuncio1.get("Latitud"));
-        Par<Double, Double> coordenadasAnuncio2 = new Par(anuncio2.get("Longitud"), anuncio2.get("Latitud"));
-
+        Par<Double, Double> coordenadasAnuncio1 = new Par(long1, lat1);
+        Par<Double, Double> coordenadasAnuncio2 = new Par(long2, lat2);
 
         boolean continuar = true;
 
@@ -296,21 +327,31 @@ public class F1 {
 
     private double compararExtras(List<String> extrasAnuncio1, List<String> extrasAnuncio2){
 
-        int coincidentes = 0;
+        double porcentajeCoincidentes = 1.0;
+        boolean continuar = true;
 
-        HashSet<String> setExtrasMayor = new HashSet<>(extrasAnuncio1.size() > extrasAnuncio2.size() ? extrasAnuncio1 : extrasAnuncio2);
-        List<String> iterador = extrasAnuncio1.size() > extrasAnuncio2.size() ? extrasAnuncio2 : extrasAnuncio1;
-
-        for (String s : iterador) {
-            coincidentes += setExtrasMayor.contains(s) ? 1 : 0;
+        if (extrasAnuncio1.size() == 0){
+            continuar = false;
+            if (extrasAnuncio2.size() > 0){
+                porcentajeCoincidentes = 0;
+            }
         }
 
-        double porcentajeCoincidentes = 0;
-        try {
-            porcentajeCoincidentes = coincidentes * 100 / setExtrasMayor.size();
-        }catch (Exception e){
+        if (continuar){
 
+            double coincidentes = 0.0;
+            HashSet<String> setExtrasMayor = new HashSet<>(extrasAnuncio1.size() > extrasAnuncio2.size() ? extrasAnuncio1 : extrasAnuncio2);
+            List<String> iterador = extrasAnuncio1.size() > extrasAnuncio2.size() ? extrasAnuncio2 : extrasAnuncio1;
+
+            for (String s : iterador) {
+                if (setExtrasMayor.contains(s)){
+                    coincidentes += 1.0;
+                }
+            }
+
+            porcentajeCoincidentes = (coincidentes * 100.0) / setExtrasMayor.size() / 100.0;
         }
+
 
         return porcentajeCoincidentes * Constantes.PESOS_F1.get("Extras");
     }

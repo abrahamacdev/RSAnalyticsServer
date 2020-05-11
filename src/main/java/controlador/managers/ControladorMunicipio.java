@@ -59,7 +59,7 @@ public class ControladorMunicipio {
                 batch = 0;
             }
 
-            Par<Exception, Municipio> resBusMunicipio = buscarMunicipioPorNombreYCP(municipio.getNombre(), municipio.getCodigoPostal(), entityManager);
+            Par<Exception, Municipio> resBusMunicipio = buscarMunicipioPorNombre(municipio.getNombre(), entityManager);
 
             // No hubo error
             if (resBusMunicipio.getPrimero() == null){
@@ -94,22 +94,20 @@ public class ControladorMunicipio {
     /**
      * Buscamos un municipio a partir del nombre y el codigo postal
      * @param nombre
-     * @param codigoPostal
      * @param entityManager
      * @return
      *          null, null, -> No se enccontro el municipio
      *          null, Municipio -> Se encontro el municipio buscado
      *          Exception, null -> Algo salio mal
      */
-    public Par<Exception, Municipio> buscarMunicipioPorNombreYCP(String nombre, String codigoPostal, EntityManager entityManager){
+    public Par<Exception, Municipio> buscarMunicipioPorNombre(String nombre, EntityManager entityManager){
 
         try{
 
-            Query query = entityManager.createQuery("FROM Municipio AS mun WHERE mun.nombre = :nombre AND mun.codigoPostal = :cp",
+            Query query = entityManager.createQuery("FROM Municipio AS mun WHERE mun.nombre = :nombre",
                     Municipio.class);
 
             query.setParameter("nombre", nombre);
-            query.setParameter("cp", codigoPostal);
 
             return new Par<>(null, (Municipio) query.getSingleResult());
 

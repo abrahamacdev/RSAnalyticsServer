@@ -1,10 +1,12 @@
+package utilidades;
+
 import org.apache.http.util.Asserts;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runners.JUnit4;
 import utilidades.Constantes;
 
-public class TestConstantes {
+public class TestsConstantes {
 
     @Test
     public void comprobarSumaPesosF1Igual1(){

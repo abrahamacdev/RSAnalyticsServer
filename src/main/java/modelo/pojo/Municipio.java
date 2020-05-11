@@ -7,7 +7,7 @@ import java.util.Objects;
 
 @Entity
 @Table( name = "municipio",
-        uniqueConstraints = { @UniqueConstraint( columnNames = { "nombre", "codigo_postal" } ) }
+        uniqueConstraints = { @UniqueConstraint( columnNames = { "nombre"} ) }
         )
 public class Municipio {
 
@@ -19,9 +19,6 @@ public class Municipio {
     @Column(name = "nombre")
     private String nombre;
 
-    @Column(name = "codigo_postal")
-    private String codigoPostal;
-
     @ManyToOne(fetch = FetchType.EAGER,
             cascade = { CascadeType.MERGE, CascadeType.PERSIST})
     @JoinColumn(name = "provincia_id")
@@ -29,15 +26,14 @@ public class Municipio {
 
     public Municipio(){}
 
-    public Municipio(String nombre, String codigoPostal, Provincia provincia) {
+    public Municipio(String nombre, Provincia provincia) {
         this.nombre = nombre;
-        this.codigoPostal = codigoPostal;
         this.provincia = provincia;
     }
 
     @Override
     public String toString() {
-        return "(Municipio) " + nombre + " con CP: " + codigoPostal;
+        return "(Municipio) " + nombre;
     }
 
     @Override
@@ -47,8 +43,7 @@ public class Municipio {
         Municipio municipio = (Municipio) o;
 
         if (id == 0 || municipio.id == 0){
-            return Objects.equals(nombre, municipio.nombre) &&
-                    Objects.equals(codigoPostal, municipio.codigoPostal);
+            return Objects.equals(nombre, municipio.nombre);
         }
 
         return Objects.equals(id, municipio.id);
@@ -74,14 +69,6 @@ public class Municipio {
 
     public void setNombre(String nombre) {
         this.nombre = nombre;
-    }
-
-    public String getCodigoPostal() {
-        return codigoPostal;
-    }
-
-    public void setCodigoPostal(String codigoPostal) {
-        this.codigoPostal = codigoPostal;
     }
 
     public Provincia getProvincia() {

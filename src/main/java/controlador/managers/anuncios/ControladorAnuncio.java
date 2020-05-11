@@ -47,22 +47,19 @@ public class ControladorAnuncio {
                 .filter(municipio -> !municipiosUnicos.contains(municipio))
                 .forEach(municipio -> municipiosUnicos.add(municipio));
         List<Municipio> municipiosActualizados = controladorMunicipio.guardarOActualizarMunicipios(new ArrayList<>(municipiosUnicos), entityManager);
-        HashMap<Par<String,String>, Municipio> munPorNombreCP = new HashMap<>();
+        HashMap<String, Municipio> munPorNombreCP = new HashMap<>();
         municipiosActualizados.stream()
-                .forEach(mun -> munPorNombreCP.put(new Par<>(mun.getNombre(), mun.getCodigoPostal()), mun));
+                .forEach(mun -> munPorNombreCP.put(mun.getNombre(), mun));
 
         // Asignamos a cada anuncio el objeto municipio que acabamos de actualizar, asi nos aseguramos de
         // que todos los anuncios hagan referencia al objeto municipio accesible por Hibernate
         List<Anuncio> anunciosParaActualizar = anuncios.stream()
                 .filter(anuncio -> {
-                    Par tempPar = new Par(anuncio.getMunicipio().getNombre(), anuncio.getMunicipio().getCodigoPostal());
-                    return munPorNombreCP.containsKey(tempPar);
+                    return munPorNombreCP.containsKey(anuncio.getMunicipio().getNombre());
                 })
                 .map(anuncio -> {
-
-                    Par tempPar = new Par(anuncio.getMunicipio().getNombre(), anuncio.getMunicipio().getCodigoPostal());
                     // Seteamos la provincia recien guardada/actualizada
-                    anuncio.setMunicipio(munPorNombreCP.get(tempPar));
+                    anuncio.setMunicipio(munPorNombreCP.get(anuncio.getMunicipio().getNombre()));
                     return anuncio;
                 })
                 .collect(Collectors.toList());

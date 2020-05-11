@@ -11,4 +11,11 @@ public interface OnScraperListener {
     public void onError (Exception e, TipoScraper tipoScraper);
     public void onTerminado(TipoScraper tipoScraper);
 
+    public interface OnAcabadoListener {
+
+        void onAcabadoExitoso(TipoScraper tipoScraper);
+
+        void onAcabadoErroneo(Exception e, TipoScraper tipoScraper);
+    }
+
 }

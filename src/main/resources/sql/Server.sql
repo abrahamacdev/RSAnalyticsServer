@@ -99,9 +99,8 @@ CREATE TABLE IF NOT EXISTS atributoAnuncio (
 CREATE TABLE IF NOT EXISTS municipio (
     id INT PRIMARY KEY AUTO_INCREMENT,
     nombre VARCHAR(255) NOT NULL,
-    codigo_postal CHAR(5) NOT NULL,
     provincia_id INT NOT NULL,
-    CONSTRAINT mun_nomCp_uk UNIQUE KEY municipio(nombre,codigo_postal)
+    CONSTRAINT mun_nomCp_uk UNIQUE KEY municipio(nombre)
 );
 
 CREATE TABLE IF NOT EXISTS provincia (
@@ -224,7 +223,8 @@ INSERT INTO claveAtributoAnuncio(nombre, es_principal) VALUES
     ('Antiguedad', TRUE),('Tipo Anunciante', TRUE),('M2', TRUE),('Tipo Inmueble', TRUE),('Tipo Contrato', TRUE),
     ('Id Anuncio', TRUE),('Id Anunciante', TRUE),('Nombre Anunciante', TRUE),('Numero de Contacto', TRUE),
     ('Url Anunciante', TRUE), ('Fecha Publicacion', TRUE), ('Referencia Anunciante', TRUE), ('Id Tipo Inmueble', TRUE),
-    ('Id Subtipo Inmueble', TRUE),('Orientacion', TRUE), ('Id Orientacion', TRUE), ('Url Anuncio', TRUE), ('Planta', TRUE);
+    ('Id Subtipo Inmueble', TRUE),('Orientacion', TRUE), ('Id Orientacion', TRUE), ('Url Anuncio', TRUE), ('Planta', TRUE),
+    ('CP', TRUE);
 
 INSERT INTO tipoInmueble(id,nombre) VALUES (1,'Vivienda');
 
@@ -240,11 +240,11 @@ INSERT INTO claveAtributoInmueble (id, nombre, es_principal) VALUES
     (59,'Tipo Anunciante', TRUE),(60,'M2', TRUE),(61,'Id Anuncio', TRUE),(62,'Id Anunciante', TRUE),
     (63,'Nombre Anunciante', TRUE),(64,'Numero de Contacto', TRUE),(65,'Url Anunciante', TRUE),(66,'Fecha Publicacion', TRUE),
     (67,'Referencia Anunciante', TRUE),(68,'Id Tipo Inmueble', TRUE),(69,'Id Subtipo Inmueble', TRUE),
-    (70,'Orientacion', TRUE),(71,'Id Orientacion', TRUE),(72,'Url Anuncio', TRUE), (73,'Planta', TRUE);
+    (70,'Orientacion', TRUE),(71,'Id Orientacion', TRUE),(72,'Url Anuncio', TRUE), (73,'Planta', TRUE), (74,'CP', TRUE);
 
 # Ligamos los atributos propios de una vivienda + atributos obligatorios de todos los inmuebles con el tipo de inmueble 'Vivienda'
 INSERT INTO tipoInmueble_claveAtributoInmueble VALUES
     (1,1),(1,2),(1,3),(1,4),(1,5),(1,6),(1,7),(1,8),(1,9),(1,10),(1,11),(1,12),(1,13),(1,14),(1,15),(1,16),(1,17),
     (1,18),(1,19),(1,20),(1,21),(1,22),(1,23),(1,24),(1,25),(1,26),(1,27),(1,28),(1,29),(1,30),(1,31),(1,32),
     (1,50),(1,51),(1,52),(1,53),(1,54),(1,55),(1,56),(1,57),(1,58),(1,59),(1,60),(1,61),(1,62),(1,63),(1,64),(1,65),
-    (1,66),(1,67),(1,68),(1,69),(1,70),(1,71),(1,72),(1,73);
+    (1,66),(1,67),(1,68),(1,69),(1,70),(1,71),(1,72),(1,73),(1,74);

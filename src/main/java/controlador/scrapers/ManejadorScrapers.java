@@ -14,6 +14,7 @@ public class ManejadorScrapers implements OnScraperListener {
     private ExecutorService piscinaScraper;
 
     private ControladorAnuncio controladorAnuncio;
+    private OnScraperListener.OnAcabadoListener onAcabadoListener;
 
     public ManejadorScrapers(ExecutorService piscinaScraper){
         this.piscinaScraper = piscinaScraper;
@@ -26,6 +27,11 @@ public class ManejadorScrapers implements OnScraperListener {
         for (TipoScraper tipo : TipoScraper.values()) {
             lanzarAsync(crearScraperDeTipo(tipo));
         }
+    }
+
+    public void scrap(OnScraperListener.OnAcabadoListener onAcabadoListener){
+        this.onAcabadoListener = onAcabadoListener;
+        scrap();
     }
 
 
@@ -42,9 +48,12 @@ public class ManejadorScrapers implements OnScraperListener {
     public void onError(Exception e, TipoScraper tipoScraper) {
 
         Logger.error("Ocurrio un error con algun scraper");
-
         // Volvemos a lanzar el scraper
         lanzarAsync(crearScraperDeTipo(tipoScraper));
+
+        if (onAcabadoListener != null){
+            onAcabadoListener.onAcabadoErroneo(e, tipoScraper);
+        }
     }
 
     @Override
@@ -52,6 +61,9 @@ public class ManejadorScrapers implements OnScraperListener {
 
         Logger.info("Hemos terminador de obtener la informacion");
 
+        if (onAcabadoListener != null){
+            onAcabadoListener.onAcabadoExitoso(tipoScraper);
+        }
     }
 
     private AbstractScraper crearScraperDeTipo(TipoScraper tipoScraper){
