@@ -6,6 +6,7 @@ import at.favre.lib.crypto.bcrypt.LongPasswordStrategy;
 import io.jsonwebtoken.SignatureAlgorithm;
 
 import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
 
 public class Constantes {
 
@@ -114,6 +115,15 @@ public class Constantes {
     public final static String PAQUETE_MANEJADORES = "controlador.rest.handlers";
     public final static int TAMANIO_BATCH_HIBERNATE = 100;
 
+    // JWT
+    public final static String JWT_KEY_CREADOR = "iss";
+    public final static String JWT_KEY_FECHA_EXPIRACION = "exp";
+    public final static String JWT_KEY_FECHA_CREACION = "iat";
+    public final static String JWT_KEY_ID_TOKEN = "id";
+    public final static String JWT_KEY_SUJETO = "sub";
+    public final static String JWT_KEY_ADMIN = "admin";
+
+    public final static int TIEMPO_EXPIRACION_TOKEN_ACCESO = 180; // Minutos
 
     // Seguridad
     public final static SignatureAlgorithm VERSION_RSA = SignatureAlgorithm.RS384;
@@ -144,15 +154,8 @@ public class Constantes {
         put("Extras", 0.09);
     }};
 
-    // JWT
-    public final static String JWT_KEY_CREADOR = "iss";
-    public final static String JWT_KEY_FECHA_EXPIRACION = "exp";
-    public final static String JWT_KEY_FECHA_CREACION = "iat";
-    public final static String JWT_KEY_ID_TOKEN = "id";
-    public final static String JWT_KEY_SUJETO = "sub";
-    public final static String JWT_KEY_ADMIN = "admin";
-
-    public final static int TIEMPO_EXPIRACION_TOKEN_ACCESO = 180; // Minutos
+    // Refinador
+    public final static Par<Long, TimeUnit> ESPERA_ENTRE_REFINAMIENTOS = new Par(2, TimeUnit.HOURS);
 
     // Scrapers
     public final static boolean MODO_PRUEBA = true;

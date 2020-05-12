@@ -1,12 +1,11 @@
 package modelo.pojo.scrapers.anuncio_inmueble_tipoContrato;
 
-import modelo.pojo.scrapers.atributo_anuncio.AtributoAnuncio;
+import modelo.pojo.scrapers.Anuncio;
+import modelo.pojo.scrapers.Inmueble;
+import modelo.pojo.scrapers.TipoContrato;
 import modelo.pojo.scrapers.atributo_anuncio.AtributoAnuncioId;
 
-import javax.persistence.EmbeddedId;
-import javax.persistence.Entity;
-import javax.persistence.Table;
-import javax.persistence.Transient;
+import javax.persistence.*;
 import java.util.Objects;
 
 @Entity
@@ -14,13 +13,30 @@ import java.util.Objects;
 public class AnuncioInmuebleTipoContrato {
 
     @EmbeddedId
-    private AtributoAnuncioId atributoAnuncioId;
+    private AnuncioInmuebleTipoContratoId anuncioInmuebleTipoContratoId;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @MapsId("idInmueble") // Nombre de la variable en la clase "AnuncioInmuebleTipoContratoId.java"
+    private Inmueble inmueble;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @MapsId("idAnuncio") // Nombre de la variable en la clase "AnuncioInmuebleTipoContratoId.java"
+    private Anuncio anuncio;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @MapsId("idTipoContrato") // Nombre de la variable en la clase "AnuncioInmuebleTipoContratoId.java"
+    private TipoContrato tipoContrato;
+
 
     public AnuncioInmuebleTipoContrato(){}
 
-    public AnuncioInmuebleTipoContrato(AtributoAnuncioId atributoAnuncioId) {
-        this.atributoAnuncioId = atributoAnuncioId;
+    public AnuncioInmuebleTipoContrato(Anuncio anuncio, Inmueble inmueble, TipoContrato tipoContrato) {
+        this.anuncioInmuebleTipoContratoId = new AnuncioInmuebleTipoContratoId(anuncio.getId(), inmueble.getId(), tipoContrato.getId());
+        this.anuncio = anuncio;
+        this.inmueble = inmueble;
+        this.tipoContrato = tipoContrato;
     }
+
 
     @Override
     public boolean equals(Object o) {
@@ -30,20 +46,54 @@ public class AnuncioInmuebleTipoContrato {
             return false;
 
         AnuncioInmuebleTipoContrato that = (AnuncioInmuebleTipoContrato) o;
-        return Objects.equals(atributoAnuncioId, that.atributoAnuncioId);
+        return Objects.equals(anuncioInmuebleTipoContratoId, that.anuncioInmuebleTipoContratoId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(atributoAnuncioId);
+        return Objects.hash(anuncioInmuebleTipoContratoId);
     }
 
-    public AtributoAnuncioId getAtributoAnuncioId() {
-        return atributoAnuncioId;
+    public AnuncioInmuebleTipoContratoId getAnuncioInmuebleTipoContratoId() {
+        return anuncioInmuebleTipoContratoId;
     }
 
     @Transient
-    public void setAtributoAnuncioId(AtributoAnuncioId atributoAnuncioId) {
-        this.atributoAnuncioId = atributoAnuncioId;
+    public void setAnuncioInmuebleTipoContratoId(AnuncioInmuebleTipoContratoId anuncioInmuebleTipoContratoId) {
+        this.anuncioInmuebleTipoContratoId = anuncioInmuebleTipoContratoId;
+    }
+
+    public Inmueble getInmueble() {
+        return inmueble;
+    }
+
+    public void setInmueble(Inmueble inmueble) {
+        if (anuncioInmuebleTipoContratoId != null){
+            anuncioInmuebleTipoContratoId.setIdInmueble(inmueble.getId());
+        }
+
+        this.inmueble = inmueble;
+    }
+
+    public Anuncio getAnuncio() {
+        return anuncio;
+    }
+
+    public void setAnuncio(Anuncio anuncio) {
+        if (anuncioInmuebleTipoContratoId != null){
+            anuncioInmuebleTipoContratoId.setIdAnuncio(anuncio.getId());
+        }
+        this.anuncio = anuncio;
+    }
+
+    public TipoContrato getTipoContrato() {
+        return tipoContrato;
+    }
+
+    public void setTipoContrato(TipoContrato tipoContrato) {
+        if (anuncioInmuebleTipoContratoId != null){
+            anuncioInmuebleTipoContratoId.setIdTipoContrato(tipoContrato.getId());
+        }
+        this.tipoContrato = tipoContrato;
     }
 }

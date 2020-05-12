@@ -21,7 +21,7 @@ public class AtributoInmueble {
     private Inmueble inmueble;
 
     @ManyToOne(fetch = FetchType.EAGER,
-                cascade = { CascadeType.REFRESH }
+                cascade = { CascadeType.MERGE, CascadeType.REFRESH }
                 )
     @MapsId("idClaveAtributoInmueble") // Nombre de la variable en la clase "AtributoInmuebleId.java"
     private ClaveAtributoInmueble claveAtributoInmueble;
@@ -97,6 +97,10 @@ public class AtributoInmueble {
     }
 
     public void setInmueble(Inmueble inmueble) {
+        if (this.atributoInmuebleId != null){
+            this.atributoInmuebleId.setIdInmueble(inmueble.getId());
+        }
+
         this.inmueble = inmueble;
     }
 
@@ -105,6 +109,10 @@ public class AtributoInmueble {
     }
 
     public void setClaveAtributoInmueble(ClaveAtributoInmueble claveAtributoInmueble) {
+        if (this.atributoInmuebleId != null){
+            this.atributoInmuebleId.setIdClaveAtributoInmueble(claveAtributoInmueble.getId());
+        }
+
         this.claveAtributoInmueble = claveAtributoInmueble;
     }
 

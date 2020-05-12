@@ -6,9 +6,9 @@ public class ScrapersUtils {
 
         switch (idSubtipo){
 
-            case 3:
-            case 5:
-            case 9:
+            case 20:    // Finca rustica
+            case 21:    // Chalet
+            case 22:    // Casa adosada
                 return false;
         }
         return true;

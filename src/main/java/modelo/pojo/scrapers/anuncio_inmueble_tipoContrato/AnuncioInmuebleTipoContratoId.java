@@ -46,4 +46,28 @@ public class AnuncioInmuebleTipoContratoId implements Serializable {
     public int hashCode() {
         return Objects.hash(idAnuncio, idInmueble, idTipoContrato);
     }
+
+    public int getIdAnuncio() {
+        return idAnuncio;
+    }
+
+    public void setIdAnuncio(int idAnuncio) {
+        this.idAnuncio = idAnuncio;
+    }
+
+    public int getIdInmueble() {
+        return idInmueble;
+    }
+
+    public void setIdInmueble(int idInmueble) {
+        this.idInmueble = idInmueble;
+    }
+
+    public int getIdTipoContrato() {
+        return idTipoContrato;
+    }
+
+    public void setIdTipoContrato(int idTipoContrato) {
+        this.idTipoContrato = idTipoContrato;
+    }
 }

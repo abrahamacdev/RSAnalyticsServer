@@ -659,8 +659,9 @@ public class ScraperFotocasa extends AbstractScraper {
         Integer subtipoId = ((Long) ObjectUtils.defaultIfNull(jsonAnuncio.get("subtypeId"), -1)).intValue();
         String nombreTipoInmueble = convertirIdsTipoInmueble2Texto(tipoId, subtipoId);
         tempAtributos.put("Tipo Inmueble", nombreTipoInmueble);
-        tempAtributos.put("Id Tipo Inmueble", tipoId.doubleValue());
-        tempAtributos.put("Id Subtipo Inmueble", subtipoId.doubleValue());
+        Par<Integer,Integer> tipoInmuebleDelSistema = convertirIdsTipoInmueble2IdsSistema(tipoId, subtipoId);
+        tempAtributos.put("Id Tipo Inmueble", tipoInmuebleDelSistema.getPrimero() != null ? tipoInmuebleDelSistema.getPrimero().doubleValue() : null);
+        tempAtributos.put("Id Subtipo Inmueble", tipoInmuebleDelSistema.getSegundo() != null ? tipoInmuebleDelSistema.getSegundo().doubleValue() : null);
 
         // Coleccionamos todas las caracteristicas generales obligatorias
         List<AtributoAnuncio> atributosAnuncio = tempAtributos.keySet()
@@ -1064,6 +1065,70 @@ public class ScraperFotocasa extends AbstractScraper {
                 return null;
         }
 
+    }
+
+    /**
+     * Convertimos los ids quee identifican el tipo de inmueble del anuncio
+     * a la nomenclatura utilizada en la aplicacion
+     * @param tipoId
+     * @param subTipoId
+     * @return
+     */
+    private Par<Integer,Integer> convertirIdsTipoInmueble2IdsSistema(int tipoId, int subTipoId){
+
+        Integer tipoIdNormal = null;
+        Integer subTipoIdNormal = null;
+
+        switch (tipoId){
+
+            case 2:
+                tipoIdNormal = 1;
+        }
+
+        switch (subTipoId){
+
+            // Planta Baja
+            case 1:
+                subTipoIdNormal = 2;
+
+            // Planta Intermedia
+            case 52:
+                subTipoIdNormal = 1;
+
+            // Apartamento
+            case 2:
+                subTipoIdNormal = 3;
+
+            // Chalet
+            case 3:
+                subTipoIdNormal = 21;
+
+            // Casa adosada
+            case 5:
+                subTipoIdNormal = 22;
+
+            //Atico
+            case 6:
+                subTipoIdNormal = 4;
+
+            // Duplex
+            case 7:
+                subTipoIdNormal = 5;
+
+            // Loft
+            case 8:
+                subTipoIdNormal = 6;
+
+            // Finca rustica
+            case 9:
+                subTipoIdNormal = 20;
+
+            // Estudio
+            case 54:
+                subTipoIdNormal = 7;
+        }
+
+        return new Par<>(tipoIdNormal, subTipoIdNormal);
     }
 
 

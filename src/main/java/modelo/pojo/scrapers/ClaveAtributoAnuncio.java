@@ -33,7 +33,13 @@ public class ClaveAtributoAnuncio {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
+
         ClaveAtributoAnuncio claveAtributoAnuncio = (ClaveAtributoAnuncio) o;
+
+        if (claveAtributoAnuncio.id == 0 || id == 0){
+            return Objects.equals(claveAtributoAnuncio.nombre, nombre);
+        }
+
         return Objects.equals(id, claveAtributoAnuncio.id);
     }
 

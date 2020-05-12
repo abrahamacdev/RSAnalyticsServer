@@ -148,6 +148,21 @@ public class ControladorAnuncio {
         return res;
     }
 
+    public Par<Exception, Anuncio> obtenerAnuncioConId(int id, EntityManager entityManager){
+
+        try {
+
+            Query query = entityManager.createQuery("FROM Anuncio AS an WHERE an.id = :id");
+            query.setParameter("id", id);
+
+            Anuncio anuncio = (Anuncio) query.getSingleResult();
+            return new Par<>(null, anuncio);
+
+        } catch (Exception e){
+            return new Par<>(e, null);
+        }
+    }
+
     public Par<Exception, List<Anuncio>> obtenerAnuncioPorRefinarConMunicipio(int idMunicipio){
 
         EntityManager entityManager = Utils.crearEntityManager();

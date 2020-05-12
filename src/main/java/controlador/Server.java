@@ -52,8 +52,6 @@ public class Server {
         //lanzarScrapers();
         //crearServidor();
         lanzarRefinador();
-
-
     }
 
     private void lanzarScrapers(){

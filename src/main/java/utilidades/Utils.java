@@ -196,6 +196,32 @@ public class Utils {
         }
     }
 
+    public static void esperar(long num, TimeUnit timeUnit){
+
+        switch (timeUnit){
+
+            case MILLISECONDS:
+                esperar(num);
+                break;
+
+            case SECONDS:
+                esperar(num * 1000);
+                break;
+
+            case MINUTES:
+                esperar(num * 1000 * 60);
+                break;
+
+            case HOURS:
+                esperar(num * 1000 * 60 * 60);
+                break;
+
+            case DAYS:
+                esperar(num * 1000 * 60 * 60 * 24);
+                break;
+        }
+    }
+
     public static <T,E> T obtenerDelMap(Map<E, Object> map, E clave, Class<T> tipo){
 
         if (map.containsKey(clave)){

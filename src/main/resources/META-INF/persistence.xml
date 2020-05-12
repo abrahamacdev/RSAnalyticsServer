@@ -27,6 +27,14 @@
         <class>modelo.pojo.scrapers.ClaveAtributoAnuncio</class>
         <class>modelo.pojo.scrapers.atributo_anuncio.AtributoAnuncio</class>
         <class>modelo.pojo.scrapers.atributo_anuncio.AtributoAnuncioId</class>
+        <class>modelo.pojo.scrapers.Inmueble</class>
+        <class>modelo.pojo.scrapers.ClaveAtributoInmueble</class>
+        <class>modelo.pojo.scrapers.TipoContrato</class>
+        <class>modelo.pojo.scrapers.TipoInmueble</class>
+        <class>modelo.pojo.scrapers.atributo_inmueble.AtributoInmueble</class>
+        <class>modelo.pojo.scrapers.atributo_inmueble.AtributoInmuebleId</class>
+        <class>modelo.pojo.scrapers.anuncio_inmueble_tipoContrato.AnuncioInmuebleTipoContrato</class>
+        <class>modelo.pojo.scrapers.anuncio_inmueble_tipoContrato.AnuncioInmuebleTipoContratoId</class>
 
         <properties>
             <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/RSAnalytics?serverTimezone=UTC" />

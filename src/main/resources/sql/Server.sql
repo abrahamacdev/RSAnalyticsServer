@@ -112,7 +112,8 @@ CREATE TABLE IF NOT EXISTS provincia (
 CREATE TABLE IF NOT EXISTS inmueble (
     id INT PRIMARY KEY AUTO_INCREMENT,
     tipoInmueble_id INT NOT NULL,
-    municipio_id INT NOT NULL
+    municipio_id INT NOT NULL,
+    fecha_creacion DATE DEFAULT NOW()
 );
 
 CREATE TABLE IF NOT EXISTS tipoContrato (
@@ -248,3 +249,5 @@ INSERT INTO tipoInmueble_claveAtributoInmueble VALUES
     (1,18),(1,19),(1,20),(1,21),(1,22),(1,23),(1,24),(1,25),(1,26),(1,27),(1,28),(1,29),(1,30),(1,31),(1,32),
     (1,50),(1,51),(1,52),(1,53),(1,54),(1,55),(1,56),(1,57),(1,58),(1,59),(1,60),(1,61),(1,62),(1,63),(1,64),(1,65),
     (1,66),(1,67),(1,68),(1,69),(1,70),(1,71),(1,72),(1,73),(1,74);
+
+INSERT INTO tipoContrato(nombre) VALUES ("Compra"), ("Alquiler");

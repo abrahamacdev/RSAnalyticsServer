@@ -3,18 +3,23 @@ package controlador.refinador;
 import controlador.F1;
 import controlador.managers.anuncios.ControladorAnuncio;
 import controlador.managers.anuncios.ControladorAtributoAnuncio;
-import modelo.pojo.scrapers.Anuncio;
-import modelo.pojo.scrapers.ClaveAtributoAnuncio;
-import modelo.pojo.scrapers.Inmueble;
+import controlador.managers.inmuebles.*;
+import modelo.pojo.scrapers.*;
+import modelo.pojo.scrapers.anuncio_inmueble_tipoContrato.AnuncioInmuebleTipoContrato;
 import modelo.pojo.scrapers.atributo_anuncio.AtributoAnuncio;
+import modelo.pojo.scrapers.atributo_inmueble.AtributoInmueble;
 import org.tinylog.Logger;
+import utilidades.Constantes;
 import utilidades.Par;
 import utilidades.Utils;
 import utilidades.scrapers.ScrapersUtils;
 import utilidades.scrapers.TipoContrato;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityTransaction;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class Refinador {
@@ -24,6 +29,12 @@ public class Refinador {
     private ControladorAnuncio controladorAnuncio;
     private ControladorAtributoAnuncio controladorAtributoAnuncio;
 
+    private ControladorTipoContrato controladorTipoContrato;
+    private ControladorTipoInmueble controladorTipoInmueble;
+    private ControladorInmueble controladorInmueble;
+    private ControladorAtributoInmueble controladorAtributoInmueble;
+    private ControladorAnuncioInmuebleTipoContrato controladorAnuncioInmuebleTipoContrato;
+
     private ClaveAtributoAnuncio claveTipoContrato;
     private F1 f1;
 
@@ -31,6 +42,11 @@ public class Refinador {
         this.piscinaHilosRefinador = piscinaHilosRefinador;
         this.controladorAnuncio = new ControladorAnuncio();
         this.controladorAtributoAnuncio = new ControladorAtributoAnuncio();
+        this.controladorTipoContrato = new ControladorTipoContrato();
+        this.controladorTipoInmueble = new ControladorTipoInmueble();
+        this.controladorInmueble = new ControladorInmueble();
+        this.controladorAtributoInmueble = new ControladorAtributoInmueble();
+        this.controladorAnuncioInmuebleTipoContrato = new ControladorAnuncioInmuebleTipoContrato();
         this.f1 = new F1();
         this.claveTipoContrato = controladorAtributoAnuncio.obtenerClaveConNombre("Tipo Contrato");
     }
@@ -40,29 +56,49 @@ public class Refinador {
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
-                Par<Exception, List<Integer>> resBusMunAnunsPorRef = controladorAnuncio.obtenerIdsMunicipiosAnunciosPorRefinar();
 
-                // No hemos podido obtener los ids de los anuncios que hay para refinar
-                if (resBusMunAnunsPorRef.getPrimero() != null){
-                    Logger.error(resBusMunAnunsPorRef.getPrimero(), "Ocurrio un error al refinar los datos");
-                    reintentar();
-                    return;
-                }
+                while (true){
+                    try {
 
-                // Obtenemos la lista con los ids de los distintos municipios de los anuncios que hay por refinar
-                List<Integer> idsMunAnunsPorRefinar = resBusMunAnunsPorRef.getSegundo();
+                        Par<Exception, List<Integer>> resBusMunAnunsPorRef = controladorAnuncio.obtenerIdsMunicipiosAnunciosPorRefinar();
 
-                // Listado de anuncios que formaran cada inmueble
-                List<List<Anuncio>> anunciosParaFormarInmueble = new ArrayList<>(idsMunAnunsPorRefinar.size());
+                        // No hemos podido obtener los ids de los anuncios que hay para refinar
+                        if (resBusMunAnunsPorRef.getPrimero() != null){
+                            Logger.error(resBusMunAnunsPorRef.getPrimero(), "Ocurrio un error al refinar los datos");
+                        }
 
-                // Recorremos los distintos municipios y mezclamos todos los datos
-                for (int idMunicipio : idsMunAnunsPorRefinar){
+                        // Obtenemos la lista con los ids de los distintos municipios de los anuncios que hay por refinar
+                        List<Integer> idsMunAnunsPorRefinar = resBusMunAnunsPorRef.getSegundo();
 
-                    List<List<Anuncio>> temp = cotejarDatosDelMunicipio(idMunicipio);
+                        // Listado de anuncios que formaran cada inmueble
+                        List<List<Anuncio>> anunciosParaFormarInmueble = new ArrayList<>(idsMunAnunsPorRefinar.size());
 
-                    if (temp != null){
-                        anunciosParaFormarInmueble.addAll(temp);
+                        // Recorremos los distintos municipios y mezclamos todos los datos
+                        for (int idMunicipio : idsMunAnunsPorRefinar){
+
+                            List<List<Anuncio>> temp = cotejarDatosDelMunicipio(idMunicipio);
+
+                            if (temp != null){
+                                anunciosParaFormarInmueble.addAll(temp);
+                            }
+                        }
+
+                        // Obtenemos el listado de inmuebles que guardaremos en la base de datos
+                        List<Par<Inmueble, List<AnuncioInmuebleTipoContrato>>> inmueblesParaGuardar = convertirTodosAnunciosEnInmueble(anunciosParaFormarInmueble);
+
+                        // Guardamos la lista de inmuebles
+                        if (inmueblesParaGuardar != null) {
+                            guardarInmuebles(inmueblesParaGuardar);
+                        }
+
+                    }catch (Exception e){
+                        Logger.error(e, "Ocurrio un error al refinar los datos");
                     }
+
+
+
+                    // Esperamos dos horas antes de volver a refinar
+                    Utils.esperar(Constantes.ESPERA_ENTRE_REFINAMIENTOS.getPrimero(), Constantes.ESPERA_ENTRE_REFINAMIENTOS.getSegundo());
                 }
             }
         };
@@ -141,11 +177,7 @@ public class Refinador {
 
                         // Comprobamos si los anuncios son iguales a partir del algoritmo desarrollado
                         boolean iguales = false;
-                        try {
-                            iguales = comprobarIgualdadAnuncios(anuncio1, anuncio2);
-                        }catch (Exception e){
-                            e.printStackTrace();
-                        }
+                        iguales = comprobarIgualdadAnuncios(anuncio1, anuncio2);
 
                         if (iguales){
                             anunciosCogidos.add(anuncio2);
@@ -160,20 +192,6 @@ public class Refinador {
             }
 
         }
-
-        // TODO Eliminar
-        /*for (List<Anuncio> anunciosLigado : anunciosLigados) {
-            Map<Integer, Object> ids = anunciosLigado.stream()
-                    .collect(Collectors.toMap(Anuncio::getId, anuncio -> {
-                        Optional<AtributoAnuncio> url = anuncio.getAtributos().stream()
-                                .filter(atributoAnuncio -> atributoAnuncio.getClaveAtributoAnuncio()
-                                        .getNombre()
-                                        .equals("Url Anuncio"))
-                                .findFirst();
-                        return url.isPresent() ? url.get() : null;
-                    }));
-            System.out.println(ids);
-        }*/
 
         return anunciosLigados;
     }
@@ -217,7 +235,7 @@ public class Refinador {
         }
 
         // Comprobamos si los inmuebles son pisos
-        boolean sonPisos = tipoInmueble1.getPrimero() == 2 && ScrapersUtils.viviendaEsPiso(tipoInmueble1.getSegundo());
+        boolean sonPisos = tipoInmueble1.getPrimero() == 1 && ScrapersUtils.viviendaEsPiso(tipoInmueble1.getSegundo());
 
         if (sonPisos){
 
@@ -321,6 +339,173 @@ public class Refinador {
         }
     }
 
+
+
+    private List<Par<Inmueble,List<AnuncioInmuebleTipoContrato>>> convertirTodosAnunciosEnInmueble(List<List<Anuncio>> anuncios){
+
+        Par<Exception, List<modelo.pojo.scrapers.TipoContrato>> resBusTiposContratos = controladorTipoContrato.obtenerTiposContratos();
+        Par<Exception, List<TipoInmueble>> resBusTiposInmuebles = controladorTipoInmueble.obtenerTiposInmueble();
+        Par<Exception, List<ClaveAtributoInmueble>> resBusClavAtIn = controladorAtributoInmueble.obtenerClavesPosibles();
+        if (resBusTiposContratos.getPrimero() != null || resBusTiposInmuebles.getPrimero() != null || resBusClavAtIn.getPrimero() != null){
+            Logger.error("Ocurrio un error al convertir los anuncios en inmuebles");
+            return null;
+        }
+
+        // Obtenemos un map con los tipos de contratos de nuestra base de datos
+        Map<String, modelo.pojo.scrapers.TipoContrato> mapTiposContratos = resBusTiposContratos.getSegundo()
+                                                                                    .stream()
+                                                                                    .collect(Collectors.toMap(t -> t.getNombre(), t -> t));
+
+        // Obtenemos un map con los tipos de inmuebles de nuestra base de datos
+        Map<Integer, TipoInmueble> mapTiposInmuebles = resBusTiposInmuebles.getSegundo()
+                                                            .stream()
+                                                            .collect(Collectors.toMap(t -> t.getId(), t -> t));
+
+
+        // Obtenemos un map con las distintas claves de los atributos de inmuebles
+        Map<String, ClaveAtributoInmueble> mapClavesAtsInmuebles = resBusClavAtIn.getSegundo()
+                                                                .stream()
+                                                                .collect(Collectors.toMap(t->t.getNombre(), t->t));
+
+        return anuncios.stream()
+                .map(listadoAnuncios -> convertirAnunciosEnInmueble(listadoAnuncios, mapTiposInmuebles, mapTiposContratos, mapClavesAtsInmuebles))
+                .collect(Collectors.toList());
+    }
+
+    private Par<Inmueble,List<AnuncioInmuebleTipoContrato>> convertirAnunciosEnInmueble(List<Anuncio> anuncios, Map<Integer, TipoInmueble> mapTiposInmuebles, Map<String, modelo.pojo.scrapers.TipoContrato> mapTiposContratos, Map<String, ClaveAtributoInmueble> mapClavesAtIn){
+
+        Inmueble inmuebleFinal = new Inmueble();
+        Anuncio anuncioBase = null;
+        long fechaAnuncio = -1;
+
+        // Obtenemos el anuncio con la fecha mas reciente
+        for (Anuncio anuncio : anuncios) {
+            long tempFecha = -1;
+
+            for (AtributoAnuncio atributoAnuncio :  anuncio.getAtributos()){
+                if (atributoAnuncio.getClaveAtributoAnuncio().getNombre().equals("Fecha Publicacion")){
+                    tempFecha = ((Double) atributoAnuncio.getValorActivo()).longValue();
+                    break;
+                }
+            }
+
+            // Actualizamos los datos del anuncio mas reciente
+            if (tempFecha > fechaAnuncio){
+                anuncioBase = anuncio;
+                fechaAnuncio = tempFecha;
+            }
+        }
+
+        // Si no se ha podido obtener la fecha de ninguno de los anuncios, cogeremos uno al azar par
+        // usar sus datos
+        if (fechaAnuncio == -1){
+            anuncioBase = anuncios.get((int) (Math.random() * anuncios.size()));
+        }
+
+        // Indexamos los atributos del anuncio por el nombre de la clave
+        Map<String, AtributoAnuncio> atributosDelAnuncioBase =
+                anuncioBase.getAtributos()
+                        .stream()
+                        .collect(Collectors.toMap(at -> at.getClaveAtributoAnuncio().getNombre(),
+                                                    at -> at));
+
+        // Obtenemos los atributos del inmueble final
+        List<AtributoInmueble> atributosDelInmueble = convertirAtributosAnuncio2AtributosInmueble(inmuebleFinal, atributosDelAnuncioBase, mapClavesAtIn);
+
+        // Obtenemos el tipo de inmueble a partir de los atributos del anuncio
+        int idTipoInmueble = atributosDelAnuncioBase.containsKey("Id Tipo Inmueble") ? ((Double) atributosDelAnuncioBase.get("Id Tipo Inmueble").getValorActivo()).intValue() : null;
+        TipoInmueble tipoInmueble = mapTiposInmuebles.get(idTipoInmueble);
+
+        // Seteamos los campos al inmueble final
+        inmuebleFinal.setMunicipio(anuncioBase.getMunicipio());
+        inmuebleFinal.setAtributos(new HashSet<>(atributosDelInmueble));
+        inmuebleFinal.setTipoInmueble(tipoInmueble);
+
+        // Obtenemos el tipo de contrato del inmueble a partir del anuncio base
+        String nombreTipoContrato = atributosDelAnuncioBase.get("Tipo Contrato").getValorCadena();
+        modelo.pojo.scrapers.TipoContrato tipoContrato = mapTiposContratos.get(nombreTipoContrato);
+
+        // Creamos el listado de anuncios que estara ligado a la instancia del inmueble
+        List<AnuncioInmuebleTipoContrato> listadoAnunciosQueFormanInmueble = ligarAnunciosAlInmueble(inmuebleFinal, anuncios, tipoContrato);
+
+        return new Par<Inmueble, List<AnuncioInmuebleTipoContrato>>(inmuebleFinal, listadoAnunciosQueFormanInmueble);
+    }
+
+
+
+    private List<AtributoInmueble> convertirAtributosAnuncio2AtributosInmueble(Inmueble inmueble, Map<String, AtributoAnuncio> atributosDelAnuncio, Map<String, ClaveAtributoInmueble> mapClavesAtIn){
+
+        List<AtributoInmueble> atributosInmueble = new ArrayList<>();
+
+        for (String keyAtributoAnuncio : atributosDelAnuncio.keySet()){
+
+            // COmprobamos que exista un atributo para los inmuebles con el mismo nombre
+            // que el actual atributo del anuncio
+            if (mapClavesAtIn.containsKey(keyAtributoAnuncio)){
+
+                Object valorAt = atributosDelAnuncio.get(keyAtributoAnuncio).getValorActivo();
+                AtributoInmueble atributoInmueble = new AtributoInmueble(inmueble, mapClavesAtIn.get(keyAtributoAnuncio));
+
+                if (valorAt instanceof String){
+                    atributoInmueble.setValorCadena((String) valorAt);
+                }
+
+                else {
+                    atributoInmueble.setValorNumerico((Double) valorAt);
+                }
+
+                 atributosInmueble.add(atributoInmueble);
+            }
+        }
+
+        return atributosInmueble;
+    }
+
+    private List<AnuncioInmuebleTipoContrato> ligarAnunciosAlInmueble(Inmueble inmueble, List<Anuncio> anuncios, modelo.pojo.scrapers.TipoContrato tipoContrato){
+
+        ArrayList anunciosParaInmueble = new ArrayList(anuncios.size());
+
+        anuncios.forEach(anuncio -> {
+            anunciosParaInmueble.add(new AnuncioInmuebleTipoContrato(anuncio, inmueble, tipoContrato));
+        });
+
+        return anunciosParaInmueble;
+    }
+
+
+
+    private void guardarInmuebles(List<Par<Inmueble,List<AnuncioInmuebleTipoContrato>>> datos){
+
+        // Guardamos cada inmueblle junto con
+        for (Par<Inmueble, List<AnuncioInmuebleTipoContrato>> parDatos : datos){
+
+            EntityManager entityManager = Utils.crearEntityManager();
+            EntityTransaction entityTransaction = entityManager.getTransaction();
+            entityTransaction.begin();
+
+            Par<Exception, Inmueble> resGuardadoInmueble = controladorInmueble.guardarInmueble(parDatos.getPrimero(), entityManager);
+            boolean hacerRoll = false;
+            // Comprobamos que se halla guardado el registro
+            if (resGuardadoInmueble.getSegundo() != null){
+
+                int guardados = controladorAnuncioInmuebleTipoContrato.guardarAnunciosLigados(parDatos.getSegundo(), entityManager);
+
+                // Si no se han guardado todos los datos haremos rollback
+                if (guardados != parDatos.getSegundo().size()){
+                    hacerRoll = true;
+                }
+            }
+
+            // Haremos rollback
+            if (hacerRoll) {
+                entityTransaction.rollback();
+            } else {
+                entityTransaction.commit();
+            }
+
+            entityManager.close();
+        }
+    }
 
     private void reintentar() {
 

@@ -38,6 +38,11 @@ public class AtributoInmuebleId implements Serializable {
         return Objects.hash(idInmueble, idClaveAtributoInmueble);
     }
 
+    @Override
+    public String toString() {
+        return "AtributoInmueble formado por inmueble(" + idInmueble + ") y claveAtributoInmueble(" + idClaveAtributoInmueble + ")";
+    }
+
     public int getIdInmueble() {
         return idInmueble;
     }

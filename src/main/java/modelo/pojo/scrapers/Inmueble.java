@@ -16,7 +16,7 @@ public class Inmueble {
     @Column(name = "id")
     private int id;
 
-    @OneToMany(fetch = FetchType.EAGER,
+    @OneToMany(fetch = FetchType.LAZY,
             cascade = CascadeType.ALL,
             mappedBy = "inmueble" // Nombre de la variable en la clase "AtributoInmueble.java"
     )
@@ -29,6 +29,9 @@ public class Inmueble {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "municipio_id")
     private Municipio municipio;
+
+    @Column(name = "fecha_creacion")
+    private Date fechaCreacion = new Date();
 
     public Inmueble() {}
 
@@ -57,6 +60,10 @@ public class Inmueble {
         return Objects.hash(id);
     }
 
+    @Override
+    public String toString() {
+        return "(Inmueble " + id + ") tiene " + atributos.size() + " atributos";
+    }
 
     public int getId() {
         return id;
@@ -88,5 +95,13 @@ public class Inmueble {
 
     public void setMunicipio(Municipio municipio) {
         this.municipio = municipio;
+    }
+
+    public Date getFechaCreacion() {
+        return fechaCreacion;
+    }
+
+    public void setFechaCreacion(Date fechaCreacion) {
+        this.fechaCreacion = fechaCreacion;
     }
 }
