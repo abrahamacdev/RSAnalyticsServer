@@ -33,7 +33,7 @@ dependencies {
     // Tinylog
     implementation 'org.tinylog:tinylog-api:2.1.1'
     implementation 'org.tinylog:tinylog-impl:2.1.1'
-    //compile "org.slf4j:slf4j-simple:1.7.28"
+    compile "org.slf4j:slf4j-simple:1.7.28"
 
     // BCrypt
     // https://mvnrepository.com/artifact/at.favre.lib/bcrypt

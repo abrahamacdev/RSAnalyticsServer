@@ -75,8 +75,6 @@ public class Usuario {
         String genero = null;
         byte[] contrasenia = null;
 
-        System.out.println(jsonObject);
-
         if (jsonObject.containsKey("correo")){
             correo = (String) jsonObject.get("correo");
         }

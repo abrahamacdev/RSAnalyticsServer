@@ -35,12 +35,13 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.Select;
 import org.tinylog.Logger;
+import sun.rmi.runtime.Log;
 import utilidades.Constantes;
 import utilidades.Par;
 import utilidades.Utils;
 import utilidades.scrapers.ScrapersUtils;
 import utilidades.scrapers.TipoContrato;
-import utilidades.scrapers.TipoInmueble;
+import utilidades.inmuebles.TipoInmueble;
 
 import java.io.File;
 import java.io.IOException;
@@ -274,13 +275,9 @@ public class ScraperFotocasa extends AbstractScraper {
             List<JSONObject> parte = jsons.subList(actual, actual + salto);
             List<Anuncio> anuncios = parsearJsons2Pojos(parte, fechaObtencion);
 
-            Logger.info("Parseados");
-
             onScraperListener.onScraped(anuncios, TipoScraper.FOTOCASA);
 
             actual += salto;
-
-            Logger.info("Siguiente pagina");
         }
 
         List<JSONObject> parte = jsons.subList(actual, actual + restante);
@@ -551,14 +548,14 @@ public class ScraperFotocasa extends AbstractScraper {
         Anuncio anuncio = new Anuncio();
         anuncio.setProcedencia(procedenciaFotocasa);
 
-        List<AtributoAnuncio> claveAtributoAnuncios = new ArrayList<>();
+        List<AtributoAnuncio> atributoAnuncios = new ArrayList<>();
 
         // Obtenemos todos los atributos del anuncio
-        claveAtributoAnuncios.addAll(obtenerAtributosPrincipales(anuncio, jsonAnuncio));
-        claveAtributoAnuncios.addAll(obtenerAtributosExtras(anuncio, jsonAnuncio));
+        atributoAnuncios.addAll(obtenerAtributosPrincipales(anuncio, jsonAnuncio));
+        atributoAnuncios.addAll(obtenerAtributosExtras(anuncio, jsonAnuncio));
 
         // Añadimos todoos los atributos al anuncio
-        anuncio.getAtributos().addAll(claveAtributoAnuncios);
+        anuncio.getAtributos().addAll(atributoAnuncios);
 
         // Obtenemos el municipio del anuncio
         anuncio.setMunicipio(obtenerMunicipio(jsonAnuncio));
@@ -1090,42 +1087,52 @@ public class ScraperFotocasa extends AbstractScraper {
             // Planta Baja
             case 1:
                 subTipoIdNormal = 2;
+                break;
 
             // Planta Intermedia
             case 52:
                 subTipoIdNormal = 1;
+                break;
 
             // Apartamento
             case 2:
                 subTipoIdNormal = 3;
+                break;
 
             // Chalet
             case 3:
                 subTipoIdNormal = 21;
+                break;
 
             // Casa adosada
             case 5:
                 subTipoIdNormal = 22;
+                break;
 
             //Atico
             case 6:
                 subTipoIdNormal = 4;
+                break;
 
             // Duplex
             case 7:
                 subTipoIdNormal = 5;
+                break;
 
             // Loft
             case 8:
                 subTipoIdNormal = 6;
+                break;
 
             // Finca rustica
             case 9:
                 subTipoIdNormal = 20;
+                break;
 
             // Estudio
             case 54:
                 subTipoIdNormal = 7;
+                break;
         }
 
         return new Par<>(tipoIdNormal, subTipoIdNormal);

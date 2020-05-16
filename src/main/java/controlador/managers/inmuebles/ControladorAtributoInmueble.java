@@ -7,6 +7,7 @@ import utilidades.Utils;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
+import java.util.HashMap;
 import java.util.List;
 
 public class ControladorAtributoInmueble {
@@ -75,6 +76,67 @@ public class ControladorAtributoInmueble {
         }
 
         return res;
+    }
+
+    public Par<Exception, List<Integer>> obtenerInmueblesConAtributo(HashMap<Integer, Object> valores){
+
+        EntityManager entityManager = Utils.crearEntityManager();
+
+        Par<Exception, List<Integer>> res = obtenerInmueblesConAtributo(valores, entityManager);
+
+        entityManager.close();
+
+        return res;
+    }
+
+    public Par<Exception, List<Integer>> obtenerInmueblesConAtributo(HashMap<Integer, Object> valores, EntityManager entityManager){
+
+        try {
+
+            String sentencia = "SELECT DISTINCT atIn.inmueble_id\n" +
+                    "FROM atributoInmueble atIn\n";
+
+            boolean primero = true;
+            int i=1;
+            for (Integer key : valores.keySet()){
+
+                if (primero){
+                    sentencia += "WHERE ";
+                    primero = false;
+                }
+
+                else {
+                    sentencia += " AND ";
+                }
+
+                sentencia += "(atIn.claveAtributoInmueble_id = :idClaAtIn" + i;
+
+                Object valor = valores.get(key);
+
+                if (valor instanceof String){
+                    sentencia += " AND atIn.valor_cadena = :valor" + i + ")";
+                }
+                else {
+                    sentencia += " AND atIn.valor_numerico = :valor" + i + ")";
+                }
+
+                i++;
+            }
+
+            Query query = entityManager.createNativeQuery(sentencia);
+
+            i = 1;
+            for (Integer key : valores.keySet()){
+                query.setParameter("idClaAtIn" + i, key);
+                query.setParameter("valor" + i, valores.get(key));
+                i++;
+            }
+
+            return new Par(null, (List<Integer>) query.getResultList());
+
+        }catch (Exception e){
+            return new Par<>(e, null);
+        }
     }
     // ----------------
 

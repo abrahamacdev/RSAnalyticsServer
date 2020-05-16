@@ -33,6 +33,17 @@ public class ControladorTipoContrato {
         return res;
     }
 
+    public Par<Exception, TipoContrato> buscarTipoContratoConId(int id){
+
+        EntityManager entityManager = Utils.crearEntityManager();
+
+        Par<Exception, TipoContrato> res = buscarTipoContratoConId(id, entityManager);
+
+        entityManager.close();
+
+        return res;
+    }
+
     public Par<Exception, TipoContrato> buscarTipoContratoConId(int id, EntityManager entityManager){
 
         try {

@@ -1,9 +1,12 @@
 package controlador;
 
+import controlador.informes.GestorInforme;
 import controlador.refinador.Refinador;
 import controlador.rest.ManejadoresManager;
 import controlador.scrapers.ManejadorScrapers;
 import io.javalin.Javalin;
+import modelo.pojo.rest.Usuario;
+import org.json.simple.JSONObject;
 import org.tinylog.Logger;
 import utilidades.Constantes;
 import utilidades.Propiedades;
@@ -50,7 +53,7 @@ public class Server {
 
         //Utils.descargarJsonDeUrlsAnuncioDetalle("/home/abraham/Documentos/Prueba_Politica.txt");
         //lanzarScrapers();
-        //crearServidor();
+        crearServidor();
         lanzarRefinador();
     }
 

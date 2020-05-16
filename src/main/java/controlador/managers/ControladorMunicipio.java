@@ -5,6 +5,7 @@ import modelo.pojo.Provincia;
 import org.hibernate.Session;
 import utilidades.Constantes;
 import utilidades.Par;
+import utilidades.Utils;
 
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -91,6 +92,15 @@ public class ControladorMunicipio {
     }
 
     // ----- Read -----
+    public Par<Exception,Municipio> buscarMunicipioPorNombre(String nombre){
+
+        EntityManager entityManager = Utils.crearEntityManager();
+        Par<Exception, Municipio> res = buscarMunicipioPorNombre(nombre, entityManager);
+        entityManager.close();
+
+        return res;
+    }
+
     /**
      * Buscamos un municipio a partir del nombre y el codigo postal
      * @param nombre

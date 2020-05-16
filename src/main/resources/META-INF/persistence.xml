@@ -35,6 +35,9 @@
         <class>modelo.pojo.scrapers.atributo_inmueble.AtributoInmuebleId</class>
         <class>modelo.pojo.scrapers.anuncio_inmueble_tipoContrato.AnuncioInmuebleTipoContrato</class>
         <class>modelo.pojo.scrapers.anuncio_inmueble_tipoContrato.AnuncioInmuebleTipoContratoId</class>
+        <class>modelo.pojo.scrapers.Informe</class>
+        <class>modelo.pojo.scrapers.informe_inmueble.InformeInmueble</class>
+        <class>modelo.pojo.scrapers.informe_inmueble.InformeInmuebleId</class>
 
         <properties>
             <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/RSAnalytics?serverTimezone=UTC" />

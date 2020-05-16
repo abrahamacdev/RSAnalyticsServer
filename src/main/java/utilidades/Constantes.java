@@ -54,6 +54,19 @@ public class Constantes {
             }
         }
 
+        // Recursos relacionados con los informes
+        public enum INFORME {
+
+            INFORME_PATH("/informe"),
+
+            SOLICITAR_ENDPOINT("/solicitar");
+
+            public final String value;
+            private INFORME(String v){
+                this.value = v;
+            }
+        }
+
         // Claves para las respuestas de los jsons
         public enum RESPUESTAS_KEYS {
 

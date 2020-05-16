@@ -156,6 +156,22 @@ CREATE TABLE IF NOT EXISTS anuncio_tipoContrato_inmueble (
     CONSTRAINT an_tipCon_in_ids_pk PRIMARY KEY (inmueble_id, anuncio_id, tipoContrato_id)
 );
 
+CREATE TABLE IF NOT EXISTS informe (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    usuario_id INT,
+    tipoContrato_id INT,
+    nombre VARCHAR(255) NOT NULL,
+    fecha_realizacion BIGINT,
+    fecha_creacion_solicitud BIGINT NOT NULL,
+    ruta_archivo VARCHAR(255)
+);
+
+CREATE TABLE IF NOT EXISTS inmueble_informe (
+    inmueble_id INT,
+    informe_id INT
+);
+
+
 # Usuario
 ALTER TABLE usuario ADD CONSTRAINT us_rol_fk FOREIGN KEY (rol_id) REFERENCES rol(id);
 
@@ -206,6 +222,13 @@ ALTER TABLE atributoInmueble ADD CONSTRAINT atriIn_inId_fk FOREIGN KEY (inmueble
 ALTER TABLE tipoInmueble_claveAtributoInmueble ADD CONSTRAINT tipIn_clavAtrIn_clavAtrInId_fk FOREIGN KEY (claveAtributoInmueble_id) REFERENCES claveAtributoInmueble(id);
 ALTER TABLE tipoInmueble_claveAtributoInmueble ADD CONSTRAINT tipIn_clavAtrIn_tipInId_fk FOREIGN KEY (tipoInmueble_id) REFERENCES tipoInmueble(id);
 
+# Informe
+ALTER TABLE informe ADD CONSTRAINT inf_usId_fk FOREIGN KEY (usuario_id) REFERENCES usuario(id);
+ALTER TABLE informe ADD CONSTRAINT inf_tipConId_fk FOREIGN KEY (tipoContrato_id) REFERENCES tipoContrato(id);
+
+# Inmueble_Informe
+ALTER TABLE inmueble_informe ADD CONSTRAINT in_inf_inmId_fk FOREIGN KEY (inmueble_id) REFERENCES inmueble(id);
+ALTER TABLE inmueble_informe ADD CONSTRAINT in_inf_infId_fk FOREIGN KEY (informe_id) REFERENCES informe(id);
 
 # Datos iniciales
 INSERT INTO rol (nombre) VALUES ('Administrador'), ('Usuario Normal');
@@ -250,4 +273,4 @@ INSERT INTO tipoInmueble_claveAtributoInmueble VALUES
     (1,50),(1,51),(1,52),(1,53),(1,54),(1,55),(1,56),(1,57),(1,58),(1,59),(1,60),(1,61),(1,62),(1,63),(1,64),(1,65),
     (1,66),(1,67),(1,68),(1,69),(1,70),(1,71),(1,72),(1,73),(1,74);
 
-INSERT INTO tipoContrato(nombre) VALUES ("Compra"), ("Alquiler");
+INSERT INTO tipoContrato(id,nombre) VALUES (1,"Compra"), (2,"Alquiler");
