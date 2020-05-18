@@ -35,7 +35,6 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.Select;
 import org.tinylog.Logger;
-import sun.rmi.runtime.Log;
 import utilidades.Constantes;
 import utilidades.Par;
 import utilidades.Utils;

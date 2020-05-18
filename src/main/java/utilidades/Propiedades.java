@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Properties;
 
+
 public class Propiedades {
 
     private static Properties properties;
@@ -20,7 +21,8 @@ public class Propiedades {
             properties = new Properties();
             try {
 
-                properties.load(new FileInputStream("./" + Constantes.NOMBRE_ARCHIVO_PROPIEDADES));
+                // Leemos el archivo de propiedades de la ruta especificada en la variable pasada como parametro
+                properties.load(new FileInputStream(Constantes.RUTA_DIRECTORIO_RSANALYTICS + Constantes.RUTA_DIRECTORIO_CONFIGURACION + "/" + Constantes.NOMBRE_ARCHIVO_PROPIEDADES));
             } catch (IOException ex) {
                 Logger.error("Error cargando el archivo de propiedades", ex);
             }

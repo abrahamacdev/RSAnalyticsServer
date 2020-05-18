@@ -1,5 +1,6 @@
 package controlador;
 
+import controlador.informes.GeneradorInforme;
 import controlador.informes.GestorInforme;
 import controlador.refinador.Refinador;
 import controlador.rest.ManejadoresManager;
@@ -27,6 +28,7 @@ public class Server {
     private ManejadoresManager manejadoresManager;
     private ManejadorScrapers manejadorScrapers;
     private Refinador refinador;
+    private GeneradorInforme generadorInforme;
 
     private ExecutorService piscinaHilosManejadores;
     private ExecutorService piscinaHilosScraper;
@@ -54,7 +56,8 @@ public class Server {
         //Utils.descargarJsonDeUrlsAnuncioDetalle("/home/abraham/Documentos/Prueba_Politica.txt");
         //lanzarScrapers();
         crearServidor();
-        lanzarRefinador();
+        //lanzarRefinador();
+        lanzarGeneradorInformes();
     }
 
     private void lanzarScrapers(){
@@ -67,6 +70,12 @@ public class Server {
 
         refinador = new Refinador(piscinaHilosRefinador);
         refinador.comenzar();
+    }
+
+    private void lanzarGeneradorInformes() {
+
+        generadorInforme = new GeneradorInforme(piscinaHilosGeneradorInformes);
+        generadorInforme.comenzar();
     }
 
     private void crearServidor(){

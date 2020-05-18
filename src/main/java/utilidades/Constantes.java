@@ -99,6 +99,7 @@ public class Constantes {
 
     // Server
     public final static String NOMBRE_APP = "RSAnalytics";
+    public final static String RUTA_DIRECTORIO_RSANALYTICS = "/opt/RSAnalytics";
     public final static String EMAIL_REGEX = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
     public final static String NOMBRE_REGEX = "^(?:[A-Za-zÑñÁáÉéÍíÓóÚú])+(?:\\s(?:[A-Za-zÑñÁáÉéÍíÓóÚú])+)*";
     public final static int LONGITUD_MINIMA_CONTRASENIAS = 8;
@@ -126,6 +127,12 @@ public class Constantes {
 
     public final static String RUTA_RELATIVA_MANEJADORES = "controlador/rest/handlers";
     public final static String PAQUETE_MANEJADORES = "controlador.rest.handlers";
+    public final static String RUTA_DIRECTORIO_PLANTILLAS = "/plantillas";
+    public final static String RUTA_DIRECTORIO_INFORMES = "/informes/usuarios";
+    public final static String RUTA_DIRECTORIO_INFORMES_GENERADOS = "/generados";
+    public final static String RUTA_DIRECTORIO_TEMPORAL = "/temp";
+    public final static String RUTA_DIRECTORIO_CONFIGURACION = "/conf";
+    public final static String RUTA_DIRECTORIO_INFORMES_RAW = "/raw";
     public final static int TAMANIO_BATCH_HIBERNATE = 100;
 
     // JWT
@@ -166,6 +173,9 @@ public class Constantes {
         put("Coordenadas", 0.00);
         put("Extras", 0.09);
     }};
+
+    // Generador informes
+    public final static Par<Long, TimeUnit> ESPERA_SI_NO_HAY_INFORMES = new Par(5, TimeUnit.MINUTES);
 
     // Refinador
     public final static Par<Long, TimeUnit> ESPERA_ENTRE_REFINAMIENTOS = new Par(2, TimeUnit.HOURS);

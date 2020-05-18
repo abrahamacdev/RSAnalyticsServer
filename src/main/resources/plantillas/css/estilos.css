@@ -1,0 +1,58 @@
+@media print { 
+    body { 
+        -webkit-print-color-adjust: exact; 
+    } 
+
+    div {
+        page-break-inside: avoid;
+    }
+}
+
+html, body {
+    margin: 0 auto;
+    padding: 0;
+    width: 100%;
+}
+
+#fileInput {
+    display: hidden;
+    height: 0;
+    width: 0;
+}
+
+/*.A4 {
+    background: white;
+    width: 21cm;
+    height: 29.7cm;
+    display: block;
+    margin: 0 auto;
+    padding: 10px 25px;
+    margin-bottom: 0.5cm;
+    box-shadow: 0 0 0.5cm rgba(0, 0, 0, 0.5);
+    box-sizing: border-box;
+}*/
+
+.A4>div {
+    width: 100%;
+    height: calc(100vh / 4);
+    /*height: 450px;*/
+}
+
+.contenedorGrafica {
+    position: relative;
+    width: 50%;
+    height: 90%;
+    top: 5%;
+}
+
+.derecha {
+    float: right;
+}
+
+.izquierda {
+    float: left;
+}
+
+#completo {
+    visibility: hidden;
+}

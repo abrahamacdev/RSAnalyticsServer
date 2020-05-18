@@ -22,6 +22,8 @@ import utilidades.inmuebles.TipoInmueble;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import java.text.SimpleDateFormat;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -30,7 +32,7 @@ public class GestorInforme {
 
     public GestorInforme(){}
 
-    public Par<Exception, String>   crearSolicitud(JSONObject datos, Usuario usuario){
+    public Par<Exception, String>  crearSolicitud(JSONObject datos, Usuario usuario){
 
         ControladorMunicipio controladorMunicipio = new ControladorMunicipio();
         ControladorInmueble controladorInmueble = new ControladorInmueble();
@@ -86,8 +88,9 @@ public class GestorInforme {
         EntityTransaction transaction = entityManager.getTransaction();
 
         // Obtenemos la fecha de generacion de la solicitud
-        long fechaCreacionSolicitud = System.currentTimeMillis();
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd_MM_yyyy_HH\':\'mm");
+        long fechaCreacionSolicitud = ZonedDateTime.now(ZoneId.of( "Europe/Madrid" )).toInstant().toEpochMilli();
+
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy-HH_mm");
         Date date = new Date(fechaCreacionSolicitud);
         String fechaCreacionTexto = simpleDateFormat.format(date);
 

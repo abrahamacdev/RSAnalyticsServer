@@ -8,7 +8,6 @@ import modelo.pojo.scrapers.TipoContrato;
 import modelo.pojo.scrapers.anuncio_inmueble_tipoContrato.AnuncioInmuebleTipoContrato;
 import modelo.pojo.scrapers.atributo_inmueble.AtributoInmueble;
 import org.tinylog.Logger;
-import sun.rmi.runtime.Log;
 import utilidades.Par;
 import utilidades.Utils;
 

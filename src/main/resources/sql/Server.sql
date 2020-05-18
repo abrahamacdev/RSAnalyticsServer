@@ -50,7 +50,7 @@ CREATE TABLE IF NOT EXISTS notificacion(
     mensaje VARCHAR(255),
     fecha_envio DATE NOT NULL DEFAULT NOW(),
     leida BOOLEAN NOT NULL DEFAULT FALSE,
-    emisor_id INT NOT NULL,
+    emisor_id INT,
     receptor_id INT NOT NULL,
     accion_id INT
 );

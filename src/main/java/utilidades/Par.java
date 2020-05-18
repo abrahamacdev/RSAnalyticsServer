@@ -26,6 +26,18 @@ public class Par<T,E> {
         return primero == null || segundo == null;
     }
 
+    public boolean ambosSonNulos (){
+        return primero == null && segundo == null;
+    }
+
+    public boolean primeroEsNulo(){
+        return primero == null;
+    }
+
+    public boolean segundoEsNulo(){
+        return segundo == null;
+    }
+
     @Override
     public String toString() {
         String msgPrimero = this.primero == null ? "" : this.primero.toString();

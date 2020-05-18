@@ -15,7 +15,7 @@ public class Notificacion {
     private int id;
 
     @ManyToOne
-    @JoinColumn(name = "emisor_id", nullable = false)
+    @JoinColumn(name = "emisor_id")
     private Usuario emisor;
 
     @ManyToOne
