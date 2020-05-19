@@ -10,7 +10,6 @@ import modelo.pojo.rest.Notificacion;
 import modelo.pojo.rest.Usuario;
 import modelo.pojo.scrapers.Informe;
 import modelo.pojo.scrapers.Inmueble;
-import modelo.pojo.scrapers.TipoInmueble;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.json.simple.JSONObject;
@@ -24,6 +23,7 @@ import org.tinylog.Logger;
 import utilidades.Constantes;
 import utilidades.Par;
 import utilidades.Utils;
+import utilidades.inmuebles.TipoInmueble;
 import utilidades.scrapers.TipoContrato;
 
 import javax.persistence.EntityManager;
@@ -34,7 +34,9 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Para generar informes tenemos que tener permisos para acceder al directorio
@@ -188,20 +190,44 @@ public class GeneradorInforme {
 
     private JSONObject crearJsonInforme(Informe informe){
 
-        Par<Exception, List<Inmueble>> resBusInms = controladorInforme.obtenerTodosLosInmueblesDelInforme(informe);
+        EntityManager entityManager = Utils.crearEntityManager();
+        EntityTransaction entityTransaction = entityManager.getTransaction();
+        entityTransaction.begin();
 
-        if (resBusInms.primeroEsNulo()){
+        Par<Exception, List<Inmueble>> resBusInms = controladorInforme.obtenerTodosLosInmueblesDelInforme(informe, entityManager);
+
+        if (!resBusInms.primeroEsNulo()){
             return null;
         }
 
         // Creamos un oobservable con la lista de inmuebles
-        Observable<Inmueble> inmuebleObservable = Observable.fromIterable(resBusInms.getSegundo());
-        AbstractAnalitica abstractAnalitica;
+        Observable<Par<Inmueble,Map<String, Object>>> inmuebleObservable = Observable.fromIterable(prepararDatosObservable(resBusInms.getSegundo()));
+        AbstractAnalitica abstractAnalitica = null;
 
-        TipoInmueble tipoInmueble = resBusInms.getSegundo().get(0).getTipoInmueble();
+        // Cerramos la sesion
+        entityTransaction.commit();
+        entityManager.close();
 
+        TipoInmueble tipoInmueble = resBusInms.getSegundo().get(0).getTipoInmueble().tipoInmuebleAsEnum();
+        TipoContrato tipoContrato = informe.getTipoContrato().tipoContratoAsEnum();
+        switch (tipoInmueble){
 
-        return jsonObject;
+            case VIVIENDA:
+                abstractAnalitica = new AnaliticaVivienda(inmuebleObservable, tipoInmueble, tipoContrato);
+                break;
+        }
+
+        // No tenemos ninguna analitica para el tipo de inmueble solicitados
+        if (abstractAnalitica == null){
+            return null;
+        }
+
+        // Generamos las analiticas
+        abstractAnalitica.generarAnalitica();
+        System.out.println(abstractAnalitica.getJsonFinal());
+        System.exit(1);
+
+        return abstractAnalitica.getJsonFinal();
     }
 
     private void finalizarCreacionInforme(Informe informe){
@@ -267,6 +293,27 @@ public class GeneradorInforme {
         int resGuardado = controladorNotificacion.guardarNuevaNotificacion(notificacion);
 
         return resGuardado == 0;
+    }
+
+    private List<Par<Inmueble,Map<String, Object>>> prepararDatosObservable(List<Inmueble> inmuebles){
+
+        try {
+            return inmuebles.stream()
+                    .map(inmueble -> {
+                        Map<String, Object> atributos = inmueble.getAtributos()
+                                .stream()
+                                .map(atributoInmueble -> {
+                                    return new Par<String,Object>(atributoInmueble.getClaveAtributoInmueble().getNombre(), atributoInmueble.getValorActivo());
+                                })
+                                .collect(Collectors.toMap(par -> par.getPrimero(), par -> par.getSegundo()));
+                        return new Par<Inmueble, Map<String,Object>>(inmueble, atributos);
+                    })
+                    .collect(Collectors.toList());
+        }catch (Exception e){
+            e.printStackTrace();
+            return null;
+        }
+
     }
 
 

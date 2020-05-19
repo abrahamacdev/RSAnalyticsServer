@@ -24,24 +24,6 @@ public class TipoInmueble {
         this.nombre = nombre;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        TipoInmueble tipoInmueble = (TipoInmueble) o;
-
-        if (id == 0 || tipoInmueble.id == 0){
-            return Objects.equals(nombre, tipoInmueble.nombre);
-        }
-
-        return Objects.equals(id, tipoInmueble.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
-    }
-
     public static TipoInmueble obtenerTipoInmuebleConNombre(String nombre){
 
         EntityManager entityManager = Utils.crearEntityManager();
@@ -70,6 +52,28 @@ public class TipoInmueble {
 
     public boolean es(utilidades.inmuebles.TipoInmueble tipoInmueble){
         return id == tipoInmueble.id;
+    }
+
+    public utilidades.inmuebles.TipoInmueble tipoInmuebleAsEnum(){
+        return utilidades.inmuebles.TipoInmueble.obtenerPorId(id);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TipoInmueble tipoInmueble = (TipoInmueble) o;
+
+        if (id == 0 || tipoInmueble.id == 0){
+            return Objects.equals(nombre, tipoInmueble.nombre);
+        }
+
+        return Objects.equals(id, tipoInmueble.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 
     public int getId() {

@@ -1,28 +1,32 @@
 package controlador.analiticas;
 
 import io.reactivex.rxjava3.core.Observable;
-import modelo.pojo.scrapers.Informe;
+import modelo.pojo.scrapers.Inmueble;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import utilidades.Par;
 import utilidades.Utils;
+import utilidades.inmuebles.TipoInmueble;
+import utilidades.scrapers.TipoContrato;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public abstract class AbstractAnalitica {
 
-    protected Observable<Par<Informe, HashMap<String, Object>>> observableInformes;
+    protected Observable<Par<Inmueble, Map<String, Object>>> observableInmuebles;
     protected JSONObject jsonFinal;
     protected JSONArray jsonAnaliticas;
+    protected TipoInmueble tipoInmueble;
+    protected TipoContrato tipoContrato;
 
-    public AbstractAnalitica(Observable<Par<Informe, HashMap<String, Object>>> observableInformes){
-        this.observableInformes = observableInformes;
+    public AbstractAnalitica(Observable<Par<Inmueble, Map<String, Object>>> observableInmuebles, TipoInmueble tipoInmueble, TipoContrato tipoContrato){
+        this.observableInmuebles = observableInmuebles;
         this.jsonFinal = new JSONObject();
+        this.jsonAnaliticas = new JSONArray();
+        this.tipoInmueble = tipoInmueble;
+        this.tipoContrato = tipoContrato;
     }
 
     protected List<Method> obtenerMetodos(String tipoMetodos){
@@ -47,6 +51,8 @@ public abstract class AbstractAnalitica {
 
     public JSONObject getJsonFinal(){
         jsonFinal.put("analiticas", jsonAnaliticas);
+        jsonFinal.put("idTipoInmueble", tipoInmueble.id);
+        jsonFinal.put("idTipoContrato", tipoContrato.id);
         return this.jsonFinal;
     }
 }

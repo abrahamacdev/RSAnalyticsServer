@@ -1,6 +1,7 @@
 package utilidades.inmuebles;
 
 import modelo.pojo.rest.Tipo;
+import utilidades.scrapers.TipoContrato;
 
 public enum  TipoInmueble {
     VIVIENDA(1);
@@ -18,6 +19,15 @@ public enum  TipoInmueble {
             return tipos[indice];
         }
 
+        return null;
+    }
+
+    public static TipoInmueble obtenerPorId(int id){
+        for (TipoInmueble tipoInmueble : TipoInmueble.values()){
+            if (tipoInmueble.id == id){
+                return tipoInmueble;
+            }
+        }
         return null;
     }
 

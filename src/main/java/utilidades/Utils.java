@@ -20,6 +20,7 @@ import org.tinylog.Logger;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
+import javax.persistence.criteria.CriteriaBuilder;
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
@@ -406,12 +407,56 @@ public class Utils {
 
         else {
             acumuladas.add(superClase);
-            return obtenerSuperclasesDe(clase, acumuladas);
+            return obtenerSuperclasesDe(superClase, acumuladas);
         }
     }
 
     public static List<Class> obtenerSuperclasesDe(Class clase){
         return obtenerSuperclasesDe(clase, new ArrayList<>());
+    }
+
+    public static Par<Integer, Integer> obtenerAniosAntiguedadInmueble (int idAntiguedad){
+
+        switch (idAntiguedad){
+
+            // Nuevo
+            case 1:
+                return new Par<>(0,0);
+
+            // 1-5 Años
+            case 2:
+                return new Par<>(1,5);
+
+            // 5-10 años
+            case 3:
+                return new Par<>(5,10);
+
+            // 10-20 años
+            case 4:
+                return new Par<>(10,20);
+
+            // 20-30 años
+            case 5:
+                return new Par<>(20,30);
+
+            // 30-50 años
+            case 6:
+                return new Par<>(30,50);
+
+            // 50-70 años
+            case 7:
+                return new Par<>(50,70);
+
+            // 70-100 años
+            case 8:
+                return new Par<>(70,100);
+
+            // 100 años
+            case 9:
+                return new Par<>(100,Integer.MAX_VALUE);
+        }
+
+        return null;
     }
 
     // TODO Eliminar
