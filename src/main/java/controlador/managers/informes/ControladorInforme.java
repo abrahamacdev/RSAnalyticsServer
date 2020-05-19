@@ -3,6 +3,7 @@ package controlador.managers.informes;
 import controlador.managers.ControladorUsuario;
 import controlador.managers.inmuebles.ControladorTipoContrato;
 import modelo.pojo.scrapers.Informe;
+import modelo.pojo.scrapers.Inmueble;
 import modelo.pojo.scrapers.TipoContrato;
 import org.hibernate.Session;
 import utilidades.Par;
@@ -12,6 +13,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
+import java.util.List;
 
 public class ControladorInforme {
 
@@ -52,6 +54,37 @@ public class ControladorInforme {
         } catch (Exception e){
             return new Par<>(e, null);
         }
+    }
+
+    public Par<Exception, List<Inmueble>> obtenerTodosLosInmueblesDelInforme(Informe informe){
+
+        EntityManager entityManager = Utils.crearEntityManager();
+
+        Par<Exception,List<Inmueble>> res = obtenerTodosLosInmueblesDelInforme(informe, entityManager);
+
+        entityManager.close();
+
+        return res;
+    }
+
+    public Par<Exception, List<Inmueble>> obtenerTodosLosInmueblesDelInforme(Informe informe, EntityManager entityManager){
+
+        try {
+
+            Query query = entityManager.createNativeQuery("SELECT inmInf.inmueble_id\n" +
+                    "FROM inmueble_informe inmInf\n" +
+                    "WHERE inmInf.informe_id = 1");
+            List<Integer> idsInmueblesInforme = query.getResultList();
+
+            query = entityManager.createQuery("FROM Inmueble AS inm WHERE inm.id IN :ids");
+            query.setParameter("ids", idsInmueblesInforme);
+
+            return new Par<>(null, query.getResultList());
+
+        }catch (Exception e){
+            return new Par<>(e, null);
+        }
+
     }
     // ------------
 

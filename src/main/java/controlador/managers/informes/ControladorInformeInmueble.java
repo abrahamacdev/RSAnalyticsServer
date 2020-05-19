@@ -1,9 +1,12 @@
 package controlador.managers.informes;
 
+import modelo.pojo.scrapers.Informe;
+import modelo.pojo.scrapers.Inmueble;
 import modelo.pojo.scrapers.informe_inmueble.InformeInmueble;
 import utilidades.Par;
 
 import javax.persistence.EntityManager;
+import java.util.List;
 
 public class ControladorInformeInmueble {
 
@@ -20,6 +23,5 @@ public class ControladorInformeInmueble {
         }
 
     }
-    // --------------
-
+    // -------------
 }

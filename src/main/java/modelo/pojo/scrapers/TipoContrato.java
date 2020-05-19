@@ -50,6 +50,27 @@ public class TipoContrato {
 
     }
 
+    public utilidades.scrapers.TipoContrato tipoContratoAsEnum(){
+
+        String nombre = this.nombre.toUpperCase();
+
+        if (this.nombre == null){
+            return null;
+        }
+
+        // Compra
+        if (nombre.equals(utilidades.scrapers.TipoContrato.COMPRA.name())){
+            return utilidades.scrapers.TipoContrato.COMPRA;
+        }
+
+        // Alquiler
+        else if (nombre.equals(utilidades.scrapers.TipoContrato.ALQUILER.name())){
+            return utilidades.scrapers.TipoContrato.ALQUILER;
+        }
+
+        return null;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

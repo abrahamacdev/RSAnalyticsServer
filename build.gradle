@@ -62,4 +62,8 @@ dependencies {
     // Apache CommonsIO
     // https://mvnrepository.com/artifact/commons-io/commons-io
     compile group: 'commons-io', name: 'commons-io', version: '2.6'
+
+    // RXJava
+    // https://search.maven.org/artifact/io.reactivex.rxjava3/rxjava/3.0.3/jar
+    implementation 'io.reactivex.rxjava3:rxjava:3.0.3'
 }

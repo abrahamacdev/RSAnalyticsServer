@@ -68,6 +68,10 @@ public class TipoInmueble {
 
     }
 
+    public boolean es(utilidades.inmuebles.TipoInmueble tipoInmueble){
+        return id == tipoInmueble.id;
+    }
+
     public int getId() {
         return id;
     }

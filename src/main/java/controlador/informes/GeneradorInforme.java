@@ -1,11 +1,16 @@
 package controlador.informes;
 
+import controlador.analiticas.AbstractAnalitica;
+import controlador.analiticas.AnaliticaVivienda;
 import controlador.managers.ControladorNotificacion;
 import controlador.managers.informes.ControladorInforme;
+import io.reactivex.rxjava3.core.Observable;
 import kotlin.text.Charsets;
 import modelo.pojo.rest.Notificacion;
 import modelo.pojo.rest.Usuario;
 import modelo.pojo.scrapers.Informe;
+import modelo.pojo.scrapers.Inmueble;
+import modelo.pojo.scrapers.TipoInmueble;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.json.simple.JSONObject;
@@ -19,6 +24,7 @@ import org.tinylog.Logger;
 import utilidades.Constantes;
 import utilidades.Par;
 import utilidades.Utils;
+import utilidades.scrapers.TipoContrato;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
@@ -121,8 +127,12 @@ public class GeneradorInforme {
 
     private void generarInforme(Informe informe){
 
-        // TODO Crear los datos del informe
-        JSONObject jsonInforme = crearJsonInforme();
+        JSONObject jsonInforme = crearJsonInforme(informe);
+
+        if (jsonInforme == null){
+            Logger.error("No se ha podido generar los datos del informe");
+            return;
+        }
 
         if (!guardarJsonInformeTemporal(jsonInforme)){
             Logger.error("Ocurrio un error mientras se generaba un informe");
@@ -176,10 +186,20 @@ public class GeneradorInforme {
         finalizarCreacionInforme(informe);
     }
 
-    private JSONObject crearJsonInforme(){
+    private JSONObject crearJsonInforme(Informe informe){
 
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("prueba", "Ejemplo");
+        Par<Exception, List<Inmueble>> resBusInms = controladorInforme.obtenerTodosLosInmueblesDelInforme(informe);
+
+        if (resBusInms.primeroEsNulo()){
+            return null;
+        }
+
+        // Creamos un oobservable con la lista de inmuebles
+        Observable<Inmueble> inmuebleObservable = Observable.fromIterable(resBusInms.getSegundo());
+        AbstractAnalitica abstractAnalitica;
+
+        TipoInmueble tipoInmueble = resBusInms.getSegundo().get(0).getTipoInmueble();
+
 
         return jsonObject;
     }

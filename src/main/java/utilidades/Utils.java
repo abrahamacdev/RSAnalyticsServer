@@ -396,6 +396,24 @@ public class Utils {
         return "";
     }
 
+    private static List<Class> obtenerSuperclasesDe(Class clase, List<Class> acumuladas){
+
+        Class superClase = clase.getSuperclass();
+
+        if (superClase.getCanonicalName().equals(Object.class.getCanonicalName())){
+            return acumuladas;
+        }
+
+        else {
+            acumuladas.add(superClase);
+            return obtenerSuperclasesDe(clase, acumuladas);
+        }
+    }
+
+    public static List<Class> obtenerSuperclasesDe(Class clase){
+        return obtenerSuperclasesDe(clase, new ArrayList<>());
+    }
+
     // TODO Eliminar
     public static void convertirArchivoExtras(){
         File extras = new File("/home/abraham/Documentos/Todos_Campos");

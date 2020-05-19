@@ -90,7 +90,7 @@ public class GestorInforme {
         // Obtenemos la fecha de generacion de la solicitud
         long fechaCreacionSolicitud = ZonedDateTime.now(ZoneId.of( "Europe/Madrid" )).toInstant().toEpochMilli();
 
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy-HH_mm");
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy-HH_mm_ss");
         Date date = new Date(fechaCreacionSolicitud);
         String fechaCreacionTexto = simpleDateFormat.format(date);
 
