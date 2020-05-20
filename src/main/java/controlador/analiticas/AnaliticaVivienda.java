@@ -11,12 +11,15 @@ import modelo.pojo.scrapers.atributo_inmueble.AtributoInmueble;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import utilidades.Par;
+import utilidades.Tripleta;
 import utilidades.Utils;
 import utilidades.inmuebles.TipoInmueble;
 import utilidades.scrapers.TipoContrato;
 
 import java.lang.reflect.Method;
+import java.text.DecimalFormat;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class AnaliticaVivienda extends AnaliticaBasica {
@@ -58,12 +61,6 @@ public class AnaliticaVivienda extends AnaliticaBasica {
             Double numExtrasPromedio = 0.0;
             double numInmuebles = 0;
 
-            String nombreExtraMayor = null;
-            double valorExtraMayor = Double.MIN_VALUE;
-
-            String nombreExtraMenor = null;
-            double valorExtraMenor = Double.MAX_VALUE;
-
             @Override
             public void onSubscribe(@NonNull Disposable d) { }
 
@@ -81,6 +78,7 @@ public class AnaliticaVivienda extends AnaliticaBasica {
                 numInmuebles++;
 
                 extras.forEach(atributoInmueble -> {
+
                     ClaveAtributoInmueble claveAtributoInmueble = atributoInmueble.getClaveAtributoInmueble();
 
                     double recuento = 1.0;
@@ -90,16 +88,6 @@ public class AnaliticaVivienda extends AnaliticaBasica {
                     }
 
                     recuentoDeCadaExtra.put(claveAtributoInmueble.getNombre(), recuento);
-
-                    if (recuento < valorExtraMenor){
-                        nombreExtraMenor = claveAtributoInmueble.getNombre();
-                        valorExtraMenor = recuento;
-                    }
-
-                    else if (recuento > valorExtraMayor){
-                        nombreExtraMayor = claveAtributoInmueble.getNombre();
-                        valorExtraMayor = recuento;
-                    }
 
                 });
             }
@@ -115,11 +103,11 @@ public class AnaliticaVivienda extends AnaliticaBasica {
                 jsonAnaliticas.add(jsonPromedioExtras);
 
                 // Extra + y - común
-                JSONObject jsonExtraMasMenosComun = generarAnaliticaExtraMasMenosComun(nombreExtraMayor, valorExtraMayor, nombreExtraMenor, valorExtraMenor, recuentoDeCadaExtra.size());
-                jsonAnaliticas.add(jsonExtraMasMenosComun);
+                Tripleta<JSONObject,String,String> tripletaResp = generarAnaliticaExtraMasMenosComun(recuentoDeCadaExtra, recuentoDeCadaExtra.size());
+                jsonAnaliticas.add(tripletaResp.getPrimero());
 
                 // Viviendas con ciertos extras
-                JSONObject jsonViviendasConCiertosExtras = generarAnaliticaViviendasConCiertosExtras(recuentoDeCadaExtra, nombreExtraMayor, nombreExtraMenor);
+                JSONObject jsonViviendasConCiertosExtras = generarAnaliticaViviendasConCiertosExtras(recuentoDeCadaExtra, tripletaResp.getSegundo(), tripletaResp.getTercero());
                 if (jsonViviendasConCiertosExtras != null){
                     jsonAnaliticas.add(jsonViviendasConCiertosExtras);
                 }
@@ -164,13 +152,81 @@ public class AnaliticaVivienda extends AnaliticaBasica {
                 }
 
                 JSONObject analiticaAntiguedadesMasComunes = generarAnaliticaAntiguedadesMasComunes(inmueblesPorAntiguedad);
-                jsonAnaliticas.add(analiticaAntiguedadesMasComunes);
+                if (analiticaAntiguedadesMasComunes != null){
+                    jsonAnaliticas.add(analiticaAntiguedadesMasComunes);
+                }
+
+            }
+        };
+    }
+
+    private Observer<Par<Inmueble, Map<String,Object>>> obtenerAnaliticasBaniosHabsM2(){
+        return new Observer<Par<Inmueble, Map<String, Object>>>() {
+
+            HashMap<Integer, Double> recuentoNumBanios = new HashMap<>();
+            HashMap<Integer, Double> recuentoNumHabs = new HashMap<>();
+            HashMap<Integer, Double> recuentoM2 = new HashMap<>();
+
+            @Override
+            public void onSubscribe(@NonNull Disposable d) { }
+
+            @Override
+            public void onNext(@NonNull Par<Inmueble, Map<String, Object>> inmuebleMapPar) {
+
+                // Número de habitaciones
+                if (inmuebleMapPar.getSegundo().containsKey("Numero Habitaciones")){
+                    int numHabs = ((Double) inmuebleMapPar.getSegundo().get("Numero Habitaciones")).intValue();
+
+                    double recuento = 1.0;
+
+                    if (recuentoNumHabs.containsKey(numHabs)){
+                        recuento = recuentoNumHabs.get(numHabs) + 1.0;
+                    }
+
+                    recuentoNumHabs.put(numHabs, recuento);
+                }
+
+                // Número de banios
+                if (inmuebleMapPar.getSegundo().containsKey("Banos")){
+                    int numBanios = ((Double) inmuebleMapPar.getSegundo().get("Banos")).intValue();
+
+                    double recuento = 1.0;
+
+                    if (recuentoNumBanios.containsKey(numBanios)){
+                        recuento = recuentoNumBanios.get(numBanios) + 1.0;
+                    }
+
+                    recuentoNumBanios.put(numBanios, recuento);
+                }
+
+                // M2
+                if (inmuebleMapPar.getSegundo().containsKey("M2")){
+                    int m2 = ((Double) inmuebleMapPar.getSegundo().get("M2")).intValue();
+
+                    double recuento = 1.0;
+
+                    if (recuentoM2.containsKey(m2)){
+                        recuento = recuentoM2.get(m2) + 1.0;
+                    }
+
+                    recuentoM2.put(m2, recuento);
+                }
+            }
+
+            @Override
+            public void onError(@NonNull Throwable e) { }
+
+            @Override
+            public void onComplete() {
+
+                List<JSONObject> analiticasHabsBaniosM2 = generarAnaliticaHabsBaniosM2(recuentoNumBanios, recuentoNumHabs, recuentoM2);
+                jsonAnaliticas.addAll(analiticasHabsBaniosM2);
             }
         };
     }
 
 
-
+    // --- Extras ---
     private JSONObject generarAnaliticaExtrasPromedio(double numInmuebles, double numExtrasPromedio){
 
         double promedio = numExtrasPromedio / numInmuebles;
@@ -201,25 +257,44 @@ public class AnaliticaVivienda extends AnaliticaBasica {
         return res;
     }
 
-    private JSONObject generarAnaliticaExtraMasMenosComun(String nomMax, double valorMax, String nomMen, double valorMen, double total){
+    private Tripleta<JSONObject,String,String> generarAnaliticaExtraMasMenosComun(HashMap<String, Double> recuentoDeCadaExtra, double total){
 
-        String msgMayor = "El extra que poseen mayoritariamente las viviendas es $1";
-        String msgMenor = "El extra que menos viviendas suelen tener es $2";
+        String nomMax = null;
+        double valorMax = Double.MIN_VALUE;
+
+        String nomMen = null;
+        double valorMen = Double.MAX_VALUE;
+
+        for (Map.Entry<String, Double> entry : recuentoDeCadaExtra.entrySet()) {
+            if (entry.getValue() > valorMax){
+                valorMax = entry.getValue();
+                nomMax = entry.getKey();
+            }
+
+            else if (entry.getValue() < valorMen){
+                valorMen = entry.getValue();
+                nomMen = entry.getKey();
+            }
+        }
+
+
+        String msgMayor = "El extra que poseen mayoritariamente las viviendas es '$1'";
+        String msgMenor = "El extra que menos viviendas suelen tener es '$2'";
         String msgTotal = "En total se han contabilizado $3 extras diferentes";
 
         // Creamos el json con los datos de los textos
         JSONObject jsonTexto = new JSONObject();
 
         JSONArray msgs = new JSONArray();
-        msgs.add(msgTotal);
         msgs.add(msgMayor);
         msgs.add(msgMenor);
+        msgs.add( msgTotal);
 
 
         JSONArray valores = new JSONArray();
-        valores.add(total);
-        valores.add(nomMax);
-        valores.add(nomMen);
+        valores.add("\'" + nomMax + "\'");
+        valores.add("\'" + nomMen + "\'");
+        valores.add("\'" + total + "\'");
 
         JSONObject formato = new JSONObject();
         formato.put("posicion", 1);
@@ -238,9 +313,9 @@ public class AnaliticaVivienda extends AnaliticaBasica {
         labels.add("Total");
 
         JSONArray datos = new JSONArray();
-        datos.add(valorMax);
-        datos.add(valorMen);
-        datos.add(total);
+        datos.add((int) valorMax);
+        datos.add((int) valorMen);
+        datos.add((int) total);
 
         jsonGrafica.put("tipo", "bar");
         jsonGrafica.put("labels", labels);
@@ -254,7 +329,7 @@ public class AnaliticaVivienda extends AnaliticaBasica {
         res.put("texto", jsonTexto);
         res.put("grafica", jsonGrafica);
 
-        return res;
+        return new Tripleta<>(res, nomMax, nomMen);
     }
 
     private JSONObject generarAnaliticaViviendasConCiertosExtras(HashMap<String, Double> extras, String masComun, String menosComun){
@@ -306,12 +381,12 @@ public class AnaliticaVivienda extends AnaliticaBasica {
 
                 // Guardamos los datos del texto
                 msgs.add(par.getPrimero());
-                valores.add(par.getSegundo().getPrimero());
-                valores.add(par.getSegundo().getSegundo());
+                valores.add("\'" + par.getSegundo().getPrimero() + "\'");
+                valores.add(par.getSegundo().getSegundo().intValue());
 
                 // Guardamos los datos de la grafica
                 labels.add(par.getSegundo().getPrimero());
-                datos.add(par.getSegundo().getSegundo());
+                datos.add(par.getSegundo().getSegundo().intValue());
             });
 
 
@@ -342,7 +417,10 @@ public class AnaliticaVivienda extends AnaliticaBasica {
 
         return null;
     }
+    // --------------
 
+
+    // --- Antigüedad ---
     private JSONObject generarAnaliticaPromedioAntiguedad(HashMap<Integer,Double> inmueblesPorAntiguedad){
 
         int tipoMasComun = Integer.MIN_VALUE;
@@ -395,7 +473,440 @@ public class AnaliticaVivienda extends AnaliticaBasica {
 
     private JSONObject generarAnaliticaAntiguedadesMasComunes(HashMap<Integer,Double> inmueblesPorAntiguedad){
 
-            
+        // Comproobamos que halla suficientes datos
+        if(inmueblesPorAntiguedad.size() > 3){
+
+            double total = inmueblesPorAntiguedad.values().stream().reduce(new Double(0), Double::sum);
+
+            HashMap<Integer, Tripleta<Integer,Double,String>> masComunes = new HashMap();
+            for (int i=0; i<3; i++){
+                masComunes.put(i, new Tripleta(0, Double.MIN_VALUE, null));
+            }
+
+            Function<Par<Integer, Integer>, String> parseoAntiguedad = new Function<Par<Integer, Integer>, String>() {
+                @Override
+                public String apply(Par<Integer, Integer> integerIntegerPar) {
+
+                    if (integerIntegerPar == null){
+                        return null;
+                    }
+                    else if (integerIntegerPar.getPrimero() == 0 && integerIntegerPar.getSegundo() == 0){
+                        return "acaban de ser construidas (son nuevas)";
+                    }
+                    else if (integerIntegerPar.getPrimero() == 100 && integerIntegerPar.getSegundo() == Integer.MAX_VALUE){
+                        return "tienen más de 100 años";
+                    }
+                    else {
+                        return "tienen entre " + integerIntegerPar.getPrimero() + " y " + integerIntegerPar.getSegundo() + " años";
+                    }
+                }
+            };
+
+            // Nos quedamos con las tres antiguedades más comunes
+            for (Map.Entry<Integer,Double> entry : inmueblesPorAntiguedad.entrySet()){
+
+                Par edades = Utils.obtenerAniosAntiguedadInmueble(entry.getKey());
+
+                if (masComunes.size() < 3){
+                    masComunes.put(masComunes.size(), new Tripleta(entry.getKey(), entry.getValue().intValue(), parseoAntiguedad.apply(edades)));
+                }
+
+                else {
+
+                    for (int i=0; i<3; i++){
+
+                        if (masComunes.get(i).getSegundo() < entry.getValue()){
+                            masComunes.put(i, new Tripleta(entry.getKey(), entry.getValue(),parseoAntiguedad.apply(edades)));
+                            break;
+                        }
+                    }
+                }
+            }
+
+            // Creamos el json con los datos de los textos
+            JSONObject jsonTexto = new JSONObject();
+
+            // (Texto)
+            JSONArray msgs = new JSONArray();
+            JSONArray valores = new JSONArray();
+
+            // Grafica
+            JSONArray labels = new JSONArray();
+            JSONArray datos = new JSONArray();
+
+            Function<Par<Integer, Integer>, String> parseoTituloAntiguedad = new Function<Par<Integer, Integer>, String>() {
+                @Override
+                public String apply(Par<Integer, Integer> integerIntegerPar) {
+
+                    if (integerIntegerPar == null){
+                        return null;
+                    }
+                    else if (integerIntegerPar.getPrimero() == 0 && integerIntegerPar.getSegundo() == 0){
+                        return "Nuevas";
+                    }
+                    else if (integerIntegerPar.getPrimero() == 100 && integerIntegerPar.getSegundo() == Integer.MAX_VALUE){
+                        return "+100 años";
+                    }
+                    else {
+                        return integerIntegerPar.getPrimero() + " - " + integerIntegerPar.getSegundo() + " años";
+                    }
+                }
+            };
+
+            double sumaTresMayores = 0.0;
+            int variables = 1;
+            for (Map.Entry<Integer, Tripleta<Integer, Double, String>> entry : masComunes.entrySet()) {
+                msgs.add("Un $" + variables + "% de las viviendas " + entry.getValue().getTercero());
+
+                double porcentaje = entry.getValue().getSegundo() * 100.0 / total;
+                valores.add(porcentaje);
+
+                String label = parseoTituloAntiguedad.apply(Utils.obtenerAniosAntiguedadInmueble(entry.getValue().getPrimero()));
+                labels.add(label);
+                datos.add(porcentaje);
+
+                sumaTresMayores += porcentaje;
+                variables++;
+            }
+            labels.add("Otros");
+            datos.add(100 - sumaTresMayores);
+
+
+            JSONObject formato = new JSONObject();
+            formato.put("posicion", 1);
+            formato.put("mostrado", 2);
+
+            jsonTexto.put("msgs", msgs);
+            jsonTexto.put("valores", valores);
+            jsonTexto.put("formato", formato);
+
+            // Creamos el json con los datos de la grafica
+            JSONObject jsonGrafica = new JSONObject();
+
+            jsonGrafica.put("tipo", "pie");
+            jsonGrafica.put("labels", labels);
+            jsonGrafica.put("datos", datos);
+            jsonGrafica.put("porcentaje", true);
+            jsonGrafica.put("precision", 2);
+
+            // JSON Final
+            JSONObject res = new JSONObject();
+            res.put("texto", jsonTexto);
+            res.put("grafica", jsonGrafica);
+
+            return res;
+
+        }
+
+        return null;
+    }
+    // ------------------
+
+
+    // --- Habs, Baños, M2 ---
+    private List<JSONObject> generarAnaliticaHabsBaniosM2(HashMap<Integer,Double> recuentoNumBan, HashMap<Integer,Double> recuentoNumHabs, HashMap<Integer,Double> recuentoM2){
+
+        JSONObject analiticaHabs = generarAnaliticaHabs(recuentoNumHabs);
+        JSONObject analiticaBanios = generarAnaliticaBanios(recuentoNumBan);
+        JSONObject analiticaM2 = generarAnaliticaM2(recuentoM2);
+
+        ArrayList<JSONObject> analiticas = new ArrayList<>(3);
+
+        if (analiticaHabs != null){
+            analiticas.add(analiticaHabs);
+        }
+
+        if (analiticaBanios != null){
+            analiticas.add(analiticaBanios);
+        }
+
+        if (analiticaM2 != null){
+            analiticas.add(analiticaM2);
+        }
+
+        return analiticas;
+    }
+
+    private JSONObject generarAnaliticaHabs(HashMap<Integer,Double> recuentoHabs){
+
+        if (recuentoHabs.size() > 0){
+
+            double total = recuentoHabs.values().stream().reduce(new Double(0), Double::sum);
+
+            HashMap<Integer, Par<Integer,Double>> masComunes = new HashMap();
+            for (int i=0; i<3; i++){
+                masComunes.put(i, new Par<>(0, Double.MIN_VALUE));
+            }
+
+            // Nos quedamos con las tres antiguedades más comunes
+            for (Map.Entry<Integer,Double> entry : recuentoHabs.entrySet()){
+
+                if (masComunes.size() < 3){
+                    masComunes.put(masComunes.size(), new Par(entry.getKey(), entry.getValue()));
+                }
+
+                else {
+
+                    for (int i=0; i<3; i++){
+
+                        if (masComunes.get(i).getSegundo() < entry.getValue()){
+                            masComunes.put(i, new Par<>(entry.getKey(), entry.getValue()));
+                            break;
+                        }
+                    }
+                }
+            }
+
+            // Creamos el json con los datos de los textos
+            JSONObject jsonTexto = new JSONObject();
+
+            // (Texto)
+            JSONArray msgs = new JSONArray();
+            JSONArray valores = new JSONArray();
+
+            // Grafica
+            JSONArray labels = new JSONArray();
+            JSONArray datos = new JSONArray();
+
+            double sumaTresMayores = 0.0;
+            int variables = 1;
+            DecimalFormat formato2Decimales = new DecimalFormat("#.##");
+            for (Map.Entry<Integer, Par<Integer,Double>> entry : masComunes.entrySet()) {
+                msgs.add("Un $" + variables + "% de las viviendas tienen " + entry.getValue().getPrimero() + " habitaciones");
+
+                double porcentaje = entry.getValue().getSegundo() * 100.0 / total;
+                valores.add(Double.valueOf(formato2Decimales.format(porcentaje).replace(",", ".")));
+
+                String label = entry.getValue().getPrimero() + " habs";
+                labels.add(label);
+                datos.add(Double.valueOf(formato2Decimales.format(porcentaje).replace(",", ".")));
+
+                sumaTresMayores += porcentaje;
+                variables++;
+            }
+
+            double porcenOtros = 100.0 - sumaTresMayores;
+            if (porcenOtros > 0.0){
+                labels.add("Otros");
+                datos.add(100 - sumaTresMayores);
+            }
+
+
+            JSONObject formato = new JSONObject();
+            formato.put("posicion", 1);
+            formato.put("mostrado", 2);
+
+            jsonTexto.put("msgs", msgs);
+            jsonTexto.put("valores", valores);
+            jsonTexto.put("formato", formato);
+
+            // Creamos el json con los datos de la grafica
+            JSONObject jsonGrafica = new JSONObject();
+
+            jsonGrafica.put("tipo", "bar");
+            jsonGrafica.put("labels", labels);
+            jsonGrafica.put("datos", datos);
+            jsonGrafica.put("porcentaje", true);
+
+            // JSON Final
+            JSONObject res = new JSONObject();
+            res.put("texto", jsonTexto);
+            res.put("grafica", jsonGrafica);
+
+            return res;
+
+        }
+
+        return null;
+    }
+
+    private JSONObject generarAnaliticaBanios(HashMap<Integer,Double> recuentoBan){
+
+        if (recuentoBan.size() > 0){
+
+            double total = recuentoBan.values().stream().reduce(new Double(0), Double::sum);
+
+            HashMap<Integer, Par<Integer,Double>> masComunes = new HashMap();
+            for (int i=0; i<3; i++){
+                masComunes.put(i, new Par<>(0, Double.MIN_VALUE));
+            }
+
+            // Nos quedamos con las tres antiguedades más comunes
+            for (Map.Entry<Integer,Double> entry : recuentoBan.entrySet()){
+
+                if (masComunes.size() < 3){
+                    masComunes.put(masComunes.size(), new Par(entry.getKey(), entry.getValue()));
+                }
+
+                else {
+
+                    for (int i=0; i<3; i++){
+                        if (masComunes.get(i).getSegundo() < entry.getValue()){
+                            masComunes.put(i, new Par<>(entry.getKey(), entry.getValue()));
+                            break;
+                        }
+                    }
+                }
+            }
+
+            // Creamos el json con los datos de los textos
+            JSONObject jsonTexto = new JSONObject();
+
+            // (Texto)
+            JSONArray msgs = new JSONArray();
+            JSONArray valores = new JSONArray();
+
+            // Grafica
+            JSONArray labels = new JSONArray();
+            JSONArray datos = new JSONArray();
+
+            double sumaTresMayores = 0.0;
+            int variables = 1;
+            DecimalFormat formato2Decimales = new DecimalFormat("#.##");
+            for (Map.Entry<Integer, Par<Integer,Double>> entry : masComunes.entrySet()) {
+
+                if (entry.getValue().getSegundo() > Double.MIN_VALUE){
+
+                    msgs.add("Un $" + variables + "% de las viviendas tienen " + entry.getValue().getPrimero() + " baños");
+
+                    double porcentaje = entry.getValue().getSegundo() * 100.0 / total;
+                    valores.add(Double.valueOf(formato2Decimales.format(porcentaje).replace(",", ".")));
+
+                    String label = entry.getValue().getPrimero() + " baños";
+                    labels.add(label);
+                    datos.add(Double.valueOf(formato2Decimales.format(porcentaje).replace(",",".")));
+
+                    sumaTresMayores += porcentaje;
+                    variables++;
+                }
+
+            }
+            double porcenOtros = 100.0 - sumaTresMayores;
+            if (porcenOtros > 0.0){
+                labels.add("Otros");
+                datos.add(100 - sumaTresMayores);
+            }
+
+
+            JSONObject formato = new JSONObject();
+            formato.put("posicion", 1);
+            formato.put("mostrado", 2);
+
+            jsonTexto.put("msgs", msgs);
+            jsonTexto.put("valores", valores);
+            jsonTexto.put("formato", formato);
+
+            // Creamos el json con los datos de la grafica
+            JSONObject jsonGrafica = new JSONObject();
+
+            jsonGrafica.put("tipo", "bar");
+            jsonGrafica.put("labels", labels);
+            jsonGrafica.put("datos", datos);
+            jsonGrafica.put("porcentaje", true);
+            jsonGrafica.put("precision", 2);
+
+            // JSON Final
+            JSONObject res = new JSONObject();
+            res.put("texto", jsonTexto);
+            res.put("grafica", jsonGrafica);
+
+            return res;
+
+        }
+
+        return null;
+    }
+
+    private JSONObject generarAnaliticaM2(HashMap<Integer,Double> recuentoM2){
+
+        if (recuentoM2.size() > 0){
+
+            double total = recuentoM2.values().stream().reduce(new Double(0), Double::sum);
+
+            HashMap<Integer, Par<Integer,Double>> masComunes = new HashMap();
+            for (int i=0; i<3; i++){
+                masComunes.put(i, new Par<>(0, Double.MIN_VALUE));
+            }
+
+            // Nos quedamos con las tres antiguedades más comunes
+            for (Map.Entry<Integer,Double> entry : recuentoM2.entrySet()){
+
+                if (masComunes.size() < 3){
+                    masComunes.put(masComunes.size(), new Par(entry.getKey(), entry.getValue()));
+                }
+
+                else {
+
+                    for (int i=0; i<3; i++){
+                        if (masComunes.get(i).getSegundo() < entry.getValue()){
+                            masComunes.put(i, new Par<>(entry.getKey(), entry.getValue()));
+                            break;
+                        }
+                    }
+                }
+            }
+
+            // Creamos el json con los datos de los textos
+            JSONObject jsonTexto = new JSONObject();
+
+            // (Texto)
+            JSONArray msgs = new JSONArray();
+            JSONArray valores = new JSONArray();
+
+            // Grafica
+            JSONArray labels = new JSONArray();
+            JSONArray datos = new JSONArray();
+
+            double sumaTresMayores = 0.0;
+            int variables = 1;
+            DecimalFormat formato2Decimales = new DecimalFormat("#.##");
+            for (Map.Entry<Integer, Par<Integer,Double>> entry : masComunes.entrySet()) {
+                msgs.add("Un $" + variables + "% de las viviendas tienen " + entry.getValue().getPrimero() + " m2");
+
+                double porcentaje = entry.getValue().getSegundo() * 100.0 / total;
+                valores.add(Double.valueOf(formato2Decimales.format(porcentaje).replace(",", ".")));
+
+                String label = entry.getValue().getPrimero() + " m2";
+                labels.add(label);
+                datos.add(Double.valueOf(formato2Decimales.format(porcentaje).replace(",",".")));
+
+                sumaTresMayores += porcentaje;
+                variables++;
+            }
+            double porcenOtros = 100.0 - sumaTresMayores;
+            if (porcenOtros > 0.0){
+                labels.add("Otros");
+                datos.add(100.0 - sumaTresMayores);
+            }
+
+
+            JSONObject formato = new JSONObject();
+            formato.put("posicion", 1);
+            formato.put("mostrado", 2);
+
+            jsonTexto.put("msgs", msgs);
+            jsonTexto.put("valores", valores);
+            jsonTexto.put("formato", formato);
+
+            // Creamos el json con los datos de la grafica
+            JSONObject jsonGrafica = new JSONObject();
+
+            jsonGrafica.put("tipo", "bar");
+            jsonGrafica.put("labels", labels);
+            jsonGrafica.put("datos", datos);
+            jsonGrafica.put("porcentaje", true);
+            jsonGrafica.put("precision", 2);
+
+            // JSON Final
+            JSONObject res = new JSONObject();
+            res.put("texto", jsonTexto);
+            res.put("grafica", jsonGrafica);
+
+            return res;
+        }
+
+        return null;
 
     }
+    // -----------------------
 }

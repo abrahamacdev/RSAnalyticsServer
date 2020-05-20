@@ -11,6 +11,7 @@ import utilidades.Par;
 import utilidades.inmuebles.TipoInmueble;
 import utilidades.scrapers.TipoContrato;
 
+import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -103,7 +104,7 @@ public class AnaliticaBasica extends AbstractAnalitica{
                 valoresMsgs.add(media);
 
                 JSONObject formato = new JSONObject();
-                formato.put("posicion", 1);
+                formato.put("posicion", 2);
                 formato.put("mostrado", 2);
 
                 texto.put("msgs", msgs);
@@ -177,7 +178,9 @@ public class AnaliticaBasica extends AbstractAnalitica{
 
                 // Numero de inmuebles del mayor anunciante
                 JSONObject analiticaMayorAnunciante = generarAnaliticaMayorAnunciante(recuentoAnunciante, sumaMax, nombreMax, sumaTotal);
-                jsonAnaliticas.add(analiticaMayorAnunciante);
+                if (analiticaMayorAnunciante != null){
+                    jsonAnaliticas.add(analiticaMayorAnunciante);
+                }
 
                 // Nº total de anunciantes en la zona
                 JSONObject analiticaAnunciantesZona = generarAnaliticaAnunciantesZona(recuentoAnunciante);
@@ -255,9 +258,13 @@ public class AnaliticaBasica extends AbstractAnalitica{
             msgs.add(porcenSegundo);
             msgs.add(porcenTercero);
 
+            DecimalFormat formato2Decimales = new DecimalFormat("#.##");
             JSONArray valores = new JSONArray();
             valores.add(porcenMayores);
-            porcenDelAnunciante.entrySet().forEach(entry -> valores.addAll(Arrays.asList(entry.getKey(), entry.getValue())));
+            porcenDelAnunciante.entrySet().forEach(entry -> {
+                        valores.addAll(Arrays.asList(entry.getKey(),
+                                Double.valueOf(formato2Decimales.format(entry.getValue()).replace(",", "."))));
+                    });
 
             JSONObject formato = new JSONObject();
             formato.put("posicion", 1);
@@ -272,11 +279,16 @@ public class AnaliticaBasica extends AbstractAnalitica{
 
             JSONArray labels = new JSONArray();
             porcenDelAnunciante.entrySet().forEach(entry -> labels.add(entry.getKey()));
-            labels.add("Otros");
 
             JSONArray datos = new JSONArray();
             porcenDelAnunciante.entrySet().forEach(entry -> datos.add(entry.getValue()));
-            datos.add(100 - porcenMayores);
+
+            double porcenOtros = 100 - porcenMayores;
+            if (porcenOtros > 0.0){
+                labels.add("Otros");
+                datos.add(100 - porcenMayores);
+            }
+
 
             jsonGrafica.put("tipo", "pie");
             jsonGrafica.put("labels", labels);
@@ -298,50 +310,55 @@ public class AnaliticaBasica extends AbstractAnalitica{
 
     private JSONObject generarAnaliticaMayorAnunciante(HashMap<String,Double> anunciantes, double max, String nombreMax, double sumTotal){
 
-        String msgMayorAnunciante = "$1 posee un total de $2 inmuebles en la zona";
+        if (max > 1){
 
-        // Creamos el json con los datos de los textos
-        JSONObject jsonTexto = new JSONObject();
+            String msgMayorAnunciante = "$1 posee un total de $2 inmuebles en la zona";
 
-        JSONArray msgs = new JSONArray();
-        msgs.add(msgMayorAnunciante);
+            // Creamos el json con los datos de los textos
+            JSONObject jsonTexto = new JSONObject();
 
-        JSONArray valores = new JSONArray();
-        valores.add(nombreMax);
-        valores.add(max);
+            JSONArray msgs = new JSONArray();
+            msgs.add(msgMayorAnunciante);
 
-        JSONObject formato = new JSONObject();
-        formato.put("posicion", 1);
-        formato.put("mostrado", 1);
+            JSONArray valores = new JSONArray();
+            valores.add(nombreMax);
+            valores.add(max);
 
-        jsonTexto.put("msgs", msgs);
-        jsonTexto.put("valores", valores);
-        jsonTexto.put("formato", formato);
+            JSONObject formato = new JSONObject();
+            formato.put("posicion", 1);
+            formato.put("mostrado", 2);
 
-        // Creamos el json con los datos de la grafica
-        JSONObject jsonGrafica = new JSONObject();
+            jsonTexto.put("msgs", msgs);
+            jsonTexto.put("valores", valores);
+            jsonTexto.put("formato", formato);
 
-        JSONArray labels = new JSONArray();
-        labels.add(nombreMax);
-        labels.add("Otros");
+            // Creamos el json con los datos de la grafica
+            JSONObject jsonGrafica = new JSONObject();
 
-        JSONArray datos = new JSONArray();
-        datos.add(max);
-        datos.add(sumTotal - max);
+            JSONArray labels = new JSONArray();
+            labels.add(nombreMax);
+            labels.add("Otros");
 
-        jsonGrafica.put("tipo", "pie");
-        jsonGrafica.put("labels", labels);
-        jsonGrafica.put("datos", datos);
-        jsonGrafica.put("porcentaje", false);
-        jsonGrafica.put("precision", 2);
+            JSONArray datos = new JSONArray();
+            datos.add(max);
+            datos.add(sumTotal - max);
+
+            jsonGrafica.put("tipo", "pie");
+            jsonGrafica.put("labels", labels);
+            jsonGrafica.put("datos", datos);
+            jsonGrafica.put("porcentaje", false);
+            jsonGrafica.put("precision", 2);
 
 
-        // JSON Final
-        JSONObject res = new JSONObject();
-        res.put("texto", jsonTexto);
-        res.put("grafica", jsonGrafica);
+            // JSON Final
+            JSONObject res = new JSONObject();
+            res.put("texto", jsonTexto);
+            res.put("grafica", jsonGrafica);
 
-        return res;
+            return res;
+        }
+
+        return null;
     }
 
     private JSONObject generarAnaliticaAnunciantesZona(HashMap<String,Double> anunciantes){
@@ -358,8 +375,8 @@ public class AnaliticaBasica extends AbstractAnalitica{
         valores.add(anunciantes.size());
 
         JSONObject formato = new JSONObject();
-        formato.put("posicion", 1);
-        formato.put("mostrado", 1);
+        formato.put("posicion", 2);
+        formato.put("mostrado", 2);
 
         jsonTexto.put("msgs", msgs);
         jsonTexto.put("valores", valores);
@@ -369,6 +386,8 @@ public class AnaliticaBasica extends AbstractAnalitica{
         // JSON Final
         JSONObject res = new JSONObject();
         res.put("texto", jsonTexto);
+
+
 
         return res;
 

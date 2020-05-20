@@ -224,8 +224,6 @@ public class GeneradorInforme {
 
         // Generamos las analiticas
         abstractAnalitica.generarAnalitica();
-        System.out.println(abstractAnalitica.getJsonFinal());
-        System.exit(1);
 
         return abstractAnalitica.getJsonFinal();
     }

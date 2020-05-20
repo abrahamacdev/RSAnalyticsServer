@@ -20,37 +20,116 @@ html, body {
     width: 0;
 }
 
-/*.A4 {
-    background: white;
+.A4 {
+    /*background: white;*/
     width: 21cm;
-    height: 29.7cm;
     display: block;
     margin: 0 auto;
     padding: 10px 25px;
     margin-bottom: 0.5cm;
-    box-shadow: 0 0 0.5cm rgba(0, 0, 0, 0.5);
+    /*box-shadow: 0 0 0.5cm rgba(0, 0, 0, 0.5);*/
     box-sizing: border-box;
-}*/
-
-.A4>div {
-    width: 100%;
-    height: calc(100vh / 4);
-    /*height: 450px;*/
 }
 
-.contenedorGrafica {
+.tarjeta {
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1), 0 10px 30px rgba(0,0,0,0.22);
+}
+
+.contenedor-titulo {
     position: relative;
-    width: 50%;
-    height: 90%;
-    top: 5%;
+    top: 0;
+    padding: 10px 10px;
+    background-color: #0BADEE;
 }
 
-.derecha {
+.titulo {
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    /*color: #171818;*/
+    color: white;
+    font-size: 1.6rem;
+    font-weight: bold;
+}
+
+.alineado-vertical {
+    position: relative;
+    top: 50%;
+    -webkit-transform: translateY(calc(-25% + 20px));
+    -ms-transform: translateY(calc(-25% + 20px));
+    transform: translateY(calc(-25% + 20px));
+}
+
+.analitica {
+    margin-top: 40px;
+}
+.lista {
+    list-style: none;
+}
+
+.lista>li {
+    position: relative;
+    margin: 0 0 10px 0;
+    font-size: 1.2rem;
+}
+
+.lista>li:before{
+    content: '';
+    background-image: url("../img/menos.svg");
+    width: 16px;
+    height: 16px;
+    position: absolute;
+    left: -32px;
+    top: 2px;
+}
+
+.un-tercio-altura {
+    height: calc(100vh / 3);
+}
+
+.un-sexto-altura {
+    height: calc(100vh / 6);
+}
+
+.toda-altura {
+    height: 100%;
+}
+
+.toda-anchura {
+    width: 100%;
+}
+
+.media-anchura {
+    width: 50%;
+}
+
+.extra-anchura {
+    width: 75%;
+}
+
+.relativo {
+    position: relative;
+}
+
+.a-la-derecha {
     float: right;
 }
 
-.izquierda {
+.a-la-izquierda {
     float: left;
+}
+
+.en-el-medio {
+    margin: auto;
+}
+
+.contenedor-texto {
+    vertical-align: middle;
+}
+
+.contenedor-grafica {
+    height: 100%;
 }
 
 #completo {
