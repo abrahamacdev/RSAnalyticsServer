@@ -129,6 +129,33 @@ public class ControladorMunicipio {
             return new Par<>(e, null);
         }
     }
+
+    public Par<Exception, List<Municipio>> buscarMunicipiosConNombreParecidoA(String nombre){
+
+        EntityManager entityManager = Utils.crearEntityManager();
+
+        Par<Exception, List<Municipio>> res = buscarMunicipiosConNombreParecidoA(nombre, entityManager);
+
+        entityManager.close();
+
+        return res;
+    }
+
+    public Par<Exception, List<Municipio>> buscarMunicipiosConNombreParecidoA(String nombre, EntityManager entityManager){
+
+        try {
+
+            Query query = entityManager.createQuery("FROM Municipio AS mun WHERE mun.nombre LIKE :nombre");
+            query.setParameter("nombre", "%" + nombre + "%");
+            query.setMaxResults(5);
+
+            return new Par<>(null, query.getResultList());
+
+        }catch (Exception e){
+            return new Par<>(e, null);
+        }
+
+    }
     // ----------------
 
 }

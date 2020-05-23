@@ -102,8 +102,11 @@ public class Notificaciones extends AbstractHandler {
                     notificacionParseada.put("id", notificacion.getId());
                     notificacionParseada.put("fecha", notificacion.fechaEnvio2Millis());
                     notificacionParseada.put("mensaje", notificacion.getMensaje());
-                    notificacionParseada.put("emisor", notificacion.getEmisor().getNombre());
                     notificacionParseada.put("leida", notificacion.isLeida());
+
+                    if (notificacion.getEmisor() != null){
+                        notificacionParseada.put("emisor", notificacion.getEmisor().getNombre());
+                    }
 
                     // Si la notificacion tiene una accion la añadiremos
                     if (notificacion.getAccion() != null){

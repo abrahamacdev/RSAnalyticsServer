@@ -55,9 +55,9 @@ public class Server {
 
         //Utils.descargarJsonDeUrlsAnuncioDetalle("/home/abraham/Documentos/Prueba_Politica.txt");
         //lanzarScrapers();
-        crearServidor();
         //lanzarRefinador();
-        lanzarGeneradorInformes();
+        //lanzarGeneradorInformes();
+        crearServidor();
     }
 
     private void lanzarScrapers(){

@@ -2,6 +2,7 @@ package controlador.managers.informes;
 
 import controlador.managers.ControladorUsuario;
 import controlador.managers.inmuebles.ControladorTipoContrato;
+import modelo.pojo.rest.Usuario;
 import modelo.pojo.scrapers.Informe;
 import modelo.pojo.scrapers.Inmueble;
 import modelo.pojo.scrapers.TipoContrato;
@@ -80,6 +81,58 @@ public class ControladorInforme {
             query.setParameter("ids", idsInmueblesInforme);
 
             return new Par<>(null, query.getResultList());
+
+        }catch (Exception e){
+            return new Par<>(e, null);
+        }
+
+    }
+
+    public Par<Exception, List<Informe>> obtenerInformesDelUsuario(Usuario usuario){
+
+        EntityManager entityManager = Utils.crearEntityManager();
+
+        Par<Exception, List<Informe>> res = obtenerInformesDelUsuario(usuario, entityManager);
+
+        entityManager.close();
+
+        return res;
+    }
+
+    public Par<Exception, List<Informe>> obtenerInformesDelUsuario(Usuario usuario, EntityManager entityManager){
+
+        try {
+
+            Query query = entityManager.createQuery("FROM Informe AS inf WHERE inf.usuario.id = :idUsuario ORDER BY inf.fechaCreacionSolicitud DESC");
+            query.setParameter("idUsuario", usuario.getId());
+
+            return new Par<>(null, (List<Informe>) query.getResultList());
+
+        }catch (Exception e){
+            return new Par<>(e, null);
+        }
+    }
+
+    public Par<Exception, Informe> obtenerInformeConId(int idInforme){
+
+        EntityManager entityManager = Utils.crearEntityManager();
+
+        Par<Exception, Informe> res = obtenerInformeConId(idInforme, entityManager);
+
+        entityManager.close();
+
+        return res;
+    }
+
+    public Par<Exception, Informe> obtenerInformeConId(int idInforme, EntityManager entityManager){
+
+        try {
+
+            Query query = entityManager.createQuery("FROM Informe AS inf WHERE inf.id = :idInforme");
+            query.setParameter("idInforme", idInforme);
+            query.setMaxResults(1);
+
+            return new Par(null, query.getSingleResult());
 
         }catch (Exception e){
             return new Par<>(e, null);

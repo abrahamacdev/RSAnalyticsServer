@@ -44,7 +44,7 @@ public class GestorInforme {
             return new Par<>(resBusMunicipio.getPrimero(), null);
         }
 
-        int idTipoContrato = ((Long) datos.get("tipoContrato")).intValue();
+        int idTipoContrato = ((Long) datos.get("idTipoContrato")).intValue();
         Par<Exception, TipoContrato> resBusTipCon = controladorTipoContrato.buscarTipoContratoConId(idTipoContrato);
         if (resBusTipCon.getPrimero() != null){
             return new Par<>(resBusTipCon.getPrimero(), null);

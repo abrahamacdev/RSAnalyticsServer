@@ -270,7 +270,7 @@ public class GeneradorInforme {
 
         // Establecemos la ruta en la que está almacenado el informe
         informe.setRutaArchivo(Constantes.RUTA_DIRECTORIO_RSANALYTICS + Constantes.RUTA_DIRECTORIO_INFORMES + "/" + informe.getUsuario().getId() +
-                "/" + informe.getNombre() + ".pdf");
+                Constantes.RUTA_DIRECTORIO_INFORMES_GENERADOS + "/" + informe.getNombre() + ".pdf");
 
         int res = controladorInforme.actualizarInforme(informe, entityManager);
 

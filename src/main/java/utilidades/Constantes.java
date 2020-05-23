@@ -59,10 +59,25 @@ public class Constantes {
 
             INFORME_PATH("/informe"),
 
-            SOLICITAR_ENDPOINT("/solicitar");
+            SOLICITAR_ENDPOINT("/solicitar"),
+            DESCARGAR_ENDPOINT("/descargar"),
+            LISTAR_ENDPOINT("/listar");
 
             public final String value;
             private INFORME(String v){
+                this.value = v;
+            }
+        }
+
+        // Recursos relacionados con los municipios
+        public enum MUNICIPIO {
+
+            MUNICIPIOS_PATH("/municipios"),
+
+            BUSCAR_PARECIDO_ENDPOINT("/buscarParecido");
+
+            public final String value;
+            private MUNICIPIO(String v){
                 this.value = v;
             }
         }
