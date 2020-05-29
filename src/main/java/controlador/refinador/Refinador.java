@@ -83,6 +83,8 @@ public class Refinador {
                             }
                         }
 
+
+
                         // Obtenemos el listado de inmuebles que guardaremos en la base de datos
                         List<Par<Inmueble, List<AnuncioInmuebleTipoContrato>>> inmueblesParaGuardar = convertirTodosAnunciosEnInmueble(anunciosParaFormarInmueble);
 
@@ -226,8 +228,22 @@ public class Refinador {
                 .map(atributoAnuncio -> atributoAnuncio.getClaveAtributoAnuncio().getNombre())
                 .collect(Collectors.toList());
 
-        Par<Integer,Integer> tipoInmueble1 = new Par(((Double) clavesAnuncio1.get("Id Tipo Inmueble")).intValue(), ((Double) clavesAnuncio1.get("Id Subtipo Inmueble")).intValue());
-        Par<Integer,Integer> tipoInmueble2 = new Par(((Double) clavesAnuncio2.get("Id Tipo Inmueble")).intValue(), ((Double) clavesAnuncio2.get("Id Subtipo Inmueble")).intValue());
+        Par<Integer,Integer> tipoInmueble1 = null;
+        if (clavesAnuncio1.containsKey("Id Tipo Inmueble") && clavesAnuncio1.containsKey("Id Subtipo Inmueble")){
+            tipoInmueble1 =  new Par(((Double) clavesAnuncio1.get("Id Tipo Inmueble")).intValue(), ((Double) clavesAnuncio1.get("Id Subtipo Inmueble")).intValue());
+        }
+
+        Par<Integer,Integer> tipoInmueble2 = null;
+        if (clavesAnuncio2.containsKey("Id Tipo Inmueble") && clavesAnuncio2.containsKey("Id Subtipo Inmueble")){
+            tipoInmueble2 = new Par(((Double) clavesAnuncio2.get("Id Tipo Inmueble")).intValue(), ((Double) clavesAnuncio2.get("Id Subtipo Inmueble")).intValue());
+        }
+
+        // No hemos podido comprobar si son el mismo tipo de inmuebles
+        if (tipoInmueble1 == null || tipoInmueble2 == null){
+            System.out.println("No hemos podido comprobar el tipo de inmuebles que son");
+            return false;
+        }
+
 
         // Comprobamos si los dos inmuebles son del mismo tipo
         if (!ScrapersUtils.mismoTipoInmueble(tipoInmueble1.getPrimero(), tipoInmueble2.getPrimero())){

@@ -6,7 +6,10 @@ import controlador.refinador.Refinador;
 import controlador.rest.ManejadoresManager;
 import controlador.scrapers.ManejadorScrapers;
 import io.javalin.Javalin;
+import io.javalin.http.Context;
+import io.javalin.http.Handler;
 import modelo.pojo.rest.Usuario;
+import org.jetbrains.annotations.NotNull;
 import org.json.simple.JSONObject;
 import org.tinylog.Logger;
 import utilidades.Constantes;
@@ -56,7 +59,7 @@ public class Server {
         //Utils.descargarJsonDeUrlsAnuncioDetalle("/home/abraham/Documentos/Prueba_Politica.txt");
         //lanzarScrapers();
         //lanzarRefinador();
-        //lanzarGeneradorInformes();
+        lanzarGeneradorInformes();
         crearServidor();
     }
 

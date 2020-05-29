@@ -74,7 +74,8 @@ public class ControladorInforme {
 
             Query query = entityManager.createNativeQuery("SELECT inmInf.inmueble_id\n" +
                     "FROM inmueble_informe inmInf\n" +
-                    "WHERE inmInf.informe_id = 1");
+                    "WHERE inmInf.informe_id = :id");
+            query.setParameter("id", informe.getId());
             List<Integer> idsInmueblesInforme = query.getResultList();
 
             query = entityManager.createQuery("FROM Inmueble AS inm WHERE inm.id IN :ids");

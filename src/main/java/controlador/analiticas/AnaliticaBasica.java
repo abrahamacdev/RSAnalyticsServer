@@ -91,6 +91,8 @@ public class AnaliticaBasica extends AbstractAnalitica{
 
                 media = media / numPrecios;
 
+                DecimalFormat formato2Decimales = new DecimalFormat("#.##");
+
                 JSONObject texto = new JSONObject();
 
                 JSONArray msgs = new JSONArray();
@@ -99,9 +101,9 @@ public class AnaliticaBasica extends AbstractAnalitica{
                 msgs.add("El precio medio de los inmuebles analizados fué de $3€");
 
                 JSONArray valoresMsgs = new JSONArray();
-                valoresMsgs.add(precioMax);
-                valoresMsgs.add(precioMin);
-                valoresMsgs.add(media);
+                valoresMsgs.add(formato2Decimales.format(precioMax).replace(",", "."));
+                valoresMsgs.add(formato2Decimales.format(precioMin).replace(",", "."));
+                valoresMsgs.add(formato2Decimales.format(media).replace(",", "."));
 
                 JSONObject formato = new JSONObject();
                 formato.put("posicion", 2);
@@ -242,7 +244,9 @@ public class AnaliticaBasica extends AbstractAnalitica{
                                         })
                                         .reduce(new Double(0), Double::sum);
 
-            double porcenMayores = sumaDeLosAnunciantes * 100 / sumaTotal;
+            DecimalFormat formato2Decimales = new DecimalFormat("#.##");
+
+            double porcenMayores = sumaDeLosAnunciantes * 100.0 / sumaTotal;
             String porcenMayoresAnun = "Los 3 anunciantes con mayor cantidad de inmuebles publicados ocupan un $1% del total:";
             String porcenPrimero = "$2 ocupa un $3% del total";
             String porcenSegundo = "$4 ocupa un $5% del total";
@@ -258,9 +262,8 @@ public class AnaliticaBasica extends AbstractAnalitica{
             msgs.add(porcenSegundo);
             msgs.add(porcenTercero);
 
-            DecimalFormat formato2Decimales = new DecimalFormat("#.##");
             JSONArray valores = new JSONArray();
-            valores.add(porcenMayores);
+            valores.add(Double.valueOf(formato2Decimales.format(porcenMayores).replace(",", ".")));
             porcenDelAnunciante.entrySet().forEach(entry -> {
                         valores.addAll(Arrays.asList(entry.getKey(),
                                 Double.valueOf(formato2Decimales.format(entry.getValue()).replace(",", "."))));

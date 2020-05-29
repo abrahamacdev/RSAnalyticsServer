@@ -91,17 +91,25 @@ public class Informes extends AbstractHandler{
         }
 
         // Creamos la solicitud y la gguardamos en la base de datos
-        Par<Exception, String> resCreacionSolicitud = gestorInforme.crearSolicitud(cuerpo, resBusUs.getSegundo());
-        if (resCreacionSolicitud.getPrimero() != null){
+        int resCreacionSolicitud = gestorInforme.crearSolicitud(cuerpo, resBusUs.getSegundo());
+        if (resCreacionSolicitud == 1){
             ctx.status(HTTPCodes._500.getCodigo());
             respuesta.put(Constantes.REST.RESPUESTAS_KEYS.MSG.value, "Ocurrio un error");
             ctx.result(respuesta.toJSONString());
             return;
         }
 
+        else if (resCreacionSolicitud == 2){
+            ctx.status(HTTPCodes._400.getCodigo());
+            respuesta.put(Constantes.REST.RESPUESTAS_KEYS.MSG.value, "No hay suficientes datos disponibles");
+            ctx.result(respuesta.toJSONString());
+            return;
+        }
+
+
         // Toodo salio bien
         ctx.status(HTTPCodes._200.getCodigo());
-        respuesta.put(Constantes.REST.RESPUESTAS_KEYS.MSG.value, resCreacionSolicitud.getSegundo());
+        respuesta.put(Constantes.REST.RESPUESTAS_KEYS.MSG.value, "Se ha creado la solicitud exitosamente");
         ctx.result(respuesta.toJSONString());
     }
 

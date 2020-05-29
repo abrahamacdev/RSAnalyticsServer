@@ -101,6 +101,9 @@ public class GeneradorInforme {
 
                     // No hay informes pendientes
                     if (resBusInf.ambosSonNulos()){
+                        Logger.info("No hay ningun informe que generar, dormiremos " + Constantes.ESPERA_SI_NO_HAY_INFORMES.getPrimero()
+                                + " " + Constantes.ESPERA_SI_NO_HAY_INFORMES.getSegundo().name().toLowerCase());
+
                         Utils.esperar(Constantes.ESPERA_SI_NO_HAY_INFORMES.getPrimero(), Constantes.ESPERA_SI_NO_HAY_INFORMES.getSegundo());
                     }
 

@@ -688,7 +688,8 @@ public class AnaliticaVivienda extends AnaliticaBasica {
             double porcenOtros = 100.0 - sumaTresMayores;
             if (porcenOtros > 0.0){
                 labels.add("Otros");
-                datos.add(100 - sumaTresMayores);
+                double porcentaje = 100.0 - sumaTresMayores;
+                datos.add(Double.valueOf(formato2Decimales.format(porcentaje).replace(",", ".")));
             }
 
 
@@ -784,7 +785,8 @@ public class AnaliticaVivienda extends AnaliticaBasica {
             double porcenOtros = 100.0 - sumaTresMayores;
             if (porcenOtros > 0.0){
                 labels.add("Otros");
-                datos.add(100 - sumaTresMayores);
+                double porcentaje = 100.0 - sumaTresMayores;
+                datos.add(Double.valueOf(formato2Decimales.format(porcentaje).replace(",",".")));
             }
 
 
@@ -876,7 +878,8 @@ public class AnaliticaVivienda extends AnaliticaBasica {
             double porcenOtros = 100.0 - sumaTresMayores;
             if (porcenOtros > 0.0){
                 labels.add("Otros");
-                datos.add(100.0 - sumaTresMayores);
+                double porcentaje = 100.0 - sumaTresMayores;
+                datos.add(Double.valueOf(formato2Decimales.format(porcentaje).replace(",",".")));
             }
 
 

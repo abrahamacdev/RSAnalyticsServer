@@ -24,7 +24,8 @@ public class Constantes {
             LOGIN_ENDPOINT("/login"),
             REGISTRO_ENDPOINT("/registro"),
             NOTIFICACIONES_PENDIENTES_ENDPOINT("/hayPendientes"),
-            MARCAR_NOTIFICACIONES_LEIDAS("/marcarNotificaciones");
+            MARCAR_NOTIFICACIONES_LEIDAS("/marcarNotificaciones"),
+            INFORMACION_GENERAL_ENDPOINT("/informacionGeneral");
 
 
             public final String value;

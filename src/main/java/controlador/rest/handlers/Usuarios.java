@@ -4,7 +4,10 @@ import controlador.managers.ControladorUsuario;
 import controlador.seguridad.Securata;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwt;
 import modelo.pojo.rest.Usuario;
+import org.apache.http.protocol.HTTP;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -26,14 +29,61 @@ public class Usuarios extends AbstractHandler{
     @Override
     protected void registrarHandlers(){
 
-        // Registro de un nuevo usuario
+        // Login de un usuario
         app.post(Constantes.REST.USUARIO.USUARIO_PATH.value + Constantes.REST.USUARIO.LOGIN_ENDPOINT.value,
                 (ctx) -> super.ejecutar(this::login, ctx));
 
-        // Login de un usuario
+        // Registro de un nuevo usuario
         app.post(Constantes.REST.USUARIO.USUARIO_PATH.value + Constantes.REST.USUARIO.REGISTRO_ENDPOINT.value,
                 (ctx) -> super.ejecutar(this::registrar, ctx));
+
+        // Información general de un usuario
+        app.get(Constantes.REST.USUARIO.USUARIO_PATH.value + Constantes.REST.USUARIO.INFORMACION_GENERAL_ENDPOINT.value,
+                (ctx) -> super.ejecutar(this::informacionGeneral, ctx));
     }
+
+
+    // ----- Información General -----
+    private void obtenerInformacionGeneral(Context ctx, Claims body) {
+
+        JSONObject respuesta = new JSONObject();
+
+        ControladorUsuario controladorUsuario = new ControladorUsuario();
+        Par<Integer, Usuario> resBusUs = controladorUsuario.buscarUsuarioPorCorreo(body.getSubject());
+        int codResBusUs = resBusUs.getPrimero();
+        if (codResBusUs != 0){
+            ctx.status(HTTPCodes._500.getCodigo());
+            respuesta.put(Constantes.REST.RESPUESTAS_KEYS.MSG.value, "Ocurrio un error");
+            ctx.result(respuesta.toJSONString());
+            return;
+        }
+
+        Usuario usuario = resBusUs.getSegundo();
+
+        respuesta.put("nombre", usuario.getNombre());
+        respuesta.put("primerApellido", usuario.getPrimerApellido());
+        respuesta.put("correo", usuario.getCorreo());
+        respuesta.put("genero", usuario.getGenero());
+
+        ctx.status(HTTPCodes._200.getCodigo());
+        ctx.result(respuesta.toJSONString());
+
+    }
+
+    private Runnable informacionGeneral(Context ctx){
+        return new Runnable() {
+            @Override
+            public void run() {
+
+                Jwt token = (Jwt) new Securata(ctx).validarYRetornarToken();
+
+                if (token != null){
+                    obtenerInformacionGeneral(ctx, (Claims) token.getBody());
+                }
+            }
+        };
+    }
+    // -------------------------------
 
 
     // ----- Login -----

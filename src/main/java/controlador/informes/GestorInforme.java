@@ -32,7 +32,15 @@ public class GestorInforme {
 
     public GestorInforme(){}
 
-    public Par<Exception, String>  crearSolicitud(JSONObject datos, Usuario usuario){
+    /**
+     * CReamos la solicitud de generación de un informe para un usuario
+     * @param datos
+     * @param usuario
+     * @return  0 -> Se ha generado la solicitud exitósamente
+     *          1 -> Ocurrio un error desconocido al generar la solicitud
+     *          2 -> No hay suficientes datos disponibles
+     */
+    public int  crearSolicitud(JSONObject datos, Usuario usuario){
 
         ControladorMunicipio controladorMunicipio = new ControladorMunicipio();
         ControladorInmueble controladorInmueble = new ControladorInmueble();
@@ -41,13 +49,13 @@ public class GestorInforme {
         String municipio = (String) datos.get("municipio");
         Par<Exception, Municipio> resBusMunicipio = controladorMunicipio.buscarMunicipioPorNombre(municipio);
         if (resBusMunicipio.getPrimero() != null){
-            return new Par<>(resBusMunicipio.getPrimero(), null);
+            return 1;
         }
 
         int idTipoContrato = ((Long) datos.get("idTipoContrato")).intValue();
         Par<Exception, TipoContrato> resBusTipCon = controladorTipoContrato.buscarTipoContratoConId(idTipoContrato);
         if (resBusTipCon.getPrimero() != null){
-            return new Par<>(resBusTipCon.getPrimero(), null);
+            return 1;
         }
 
         Integer idTipoInmueble = datos.containsKey("idTipoInmueble") ? ((Long) datos.get("idTipoInmueble")).intValue() : null;
@@ -70,15 +78,25 @@ public class GestorInforme {
 
         // Ocurrio un error al obtener los datos de los inmuebles
         if (resBusInm.getPrimero() != null){
-            return new Par<>(resBusInm.getPrimero(), null);
+            return 1;
         }
 
         // No tenemos datos con los criterios solicitados
         if (resBusInm.getSegundo().size() == 0){
-            return new Par<>(new Exception("No hay datos disponibles"), null);
+            return 2;
         }
 
-        return guardarSolicitud(resBusTipCon.getSegundo(), usuario, resBusInm.getSegundo(), entityManager);
+        if (resBusInm.getSegundo().size() < 3){
+            return 2;
+        }
+
+        Par<Exception, String> resGuardSol = guardarSolicitud(resBusTipCon.getSegundo(), usuario, resBusInm.getSegundo(), entityManager);
+        if (!resGuardSol.primeroEsNulo()){
+            return 1;
+        }
+
+        // Se genero la solicitud exitosamente
+        return 0;
     }
 
     private Par<Exception, String> guardarSolicitud(TipoContrato tipoContrato, Usuario usuario, List<Inmueble> inmuebles, EntityManager entityManager){

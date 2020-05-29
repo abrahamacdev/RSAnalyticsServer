@@ -145,7 +145,13 @@ public class ControladorMunicipio {
 
         try {
 
-            Query query = entityManager.createQuery("FROM Municipio AS mun WHERE mun.nombre LIKE :nombre");
+            String sentencia = "SELECT DISTINCT mun.*\n" +
+                    "FROM municipio mun\n" +
+                    "INNER JOIN inmueble inm ON mun.id = inm.municipio_id\n" +
+                    "WHERE mun.nombre LIKE :nombre\n" +
+                    "HAVING COUNT(inm.id) > 2";
+
+            Query query = entityManager.createNativeQuery(sentencia, Municipio.class);
             query.setParameter("nombre", "%" + nombre + "%");
             query.setMaxResults(5);
 

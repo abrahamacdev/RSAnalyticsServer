@@ -219,7 +219,6 @@ public class ControladorAnuncio {
         }
 
         entityManager.close();
-        entityManager.close();
 
         return res;
     }
