@@ -240,7 +240,6 @@ public class Refinador {
 
         // No hemos podido comprobar si son el mismo tipo de inmuebles
         if (tipoInmueble1 == null || tipoInmueble2 == null){
-            System.out.println("No hemos podido comprobar el tipo de inmuebles que son");
             return false;
         }
 

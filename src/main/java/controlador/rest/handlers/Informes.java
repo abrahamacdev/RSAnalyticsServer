@@ -211,6 +211,7 @@ public class Informes extends AbstractHandler{
                 temp.put("id", informe.getId());
                 temp.put("municipio", municipio.getNombre());
                 temp.put("fechaSolicitud", dia + " de " + mesEnEspaniol + " de " + anio + " a las " + hora + ":" + minutos);
+                temp.put("fechaSolicitudRaw", informe.getFechaCreacionSolicitud());
                 temp.put("pendiente", informe.getFechaRealizacion() > 0 ? false : true);
 
                 if (informe.getRutaArchivo() != null){

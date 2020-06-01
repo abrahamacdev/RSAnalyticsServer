@@ -87,7 +87,7 @@ public class ControladorNotificacion {
 
         try {
 
-            Query query = entityManager.createQuery("FROM Notificacion AS noti WHERE noti.receptor.correo = :correo ORDER BY noti.fechaEnvio", Notificacion.class);
+            Query query = entityManager.createQuery("FROM Notificacion AS noti WHERE noti.receptor.correo = :correo ORDER BY noti.fechaEnvio DESC, noti.id DESC", Notificacion.class);
             query.setParameter("correo", correo);
 
             List<Notificacion> notificaciones = query.getResultList();

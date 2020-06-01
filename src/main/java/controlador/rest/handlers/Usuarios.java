@@ -1,5 +1,6 @@
 package controlador.rest.handlers;
 
+import controlador.managers.ControladorGrupo;
 import controlador.managers.ControladorUsuario;
 import controlador.seguridad.Securata;
 import io.javalin.Javalin;
@@ -58,12 +59,16 @@ public class Usuarios extends AbstractHandler{
             return;
         }
 
+        ControladorGrupo controladorGrupo = new ControladorGrupo();
+        int resEsResponsable = controladorGrupo.elUsuarioEsResponsableDeGrupo(body.getSubject());
+
         Usuario usuario = resBusUs.getSegundo();
 
         respuesta.put("nombre", usuario.getNombre());
         respuesta.put("primerApellido", usuario.getPrimerApellido());
         respuesta.put("correo", usuario.getCorreo());
         respuesta.put("genero", usuario.getGenero());
+        respuesta.put("esResponsable", resEsResponsable == 0 || resEsResponsable == 2);
 
         ctx.status(HTTPCodes._200.getCodigo());
         ctx.result(respuesta.toJSONString());

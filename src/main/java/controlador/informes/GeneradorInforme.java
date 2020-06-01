@@ -95,32 +95,37 @@ public class GeneradorInforme {
             @Override
             public void run() {
 
-                while (true){
+                try {
 
-                    Par<Exception, Informe> resBusInf = controladorInforme.obtenerInformeMasViejoPorRealizar();
+                    while (true){
 
-                    // No hay informes pendientes
-                    if (resBusInf.ambosSonNulos()){
-                        Logger.info("No hay ningun informe que generar, dormiremos " + Constantes.ESPERA_SI_NO_HAY_INFORMES.getPrimero()
-                                + " " + Constantes.ESPERA_SI_NO_HAY_INFORMES.getSegundo().name().toLowerCase());
+                        Par<Exception, Informe> resBusInf = controladorInforme.obtenerInformeMasViejoPorRealizar();
 
-                        Utils.esperar(Constantes.ESPERA_SI_NO_HAY_INFORMES.getPrimero(), Constantes.ESPERA_SI_NO_HAY_INFORMES.getSegundo());
-                    }
+                        // No hay informes pendientes
+                        if (resBusInf.ambosSonNulos()){
+                            Logger.info("No hay ningun informe que generar, dormiremos " + Constantes.ESPERA_SI_NO_HAY_INFORMES.getPrimero() + " " + Constantes.ESPERA_SI_NO_HAY_INFORMES.getSegundo().name().toLowerCase());
 
-                    // Obtenemos el informe y lo procesaremos
-                    else if (!resBusInf.segundoEsNulo()){
+                            Utils.esperar(Constantes.ESPERA_SI_NO_HAY_INFORMES.getPrimero(), Constantes.ESPERA_SI_NO_HAY_INFORMES.getSegundo());
+                        }
 
-                        Informe informe = resBusInf.getSegundo();
-                        Usuario usuario = informe.getUsuario();
+                        // Obtenemos el informe y lo procesaremos
+                        else if (!resBusInf.segundoEsNulo()){
 
-                        // Cromprobamoos que existe un directorio de informes del usuarioo que solicito el infoorme
-                        if (existeDirInformesDelUsuario(usuario)){
-                            generarInforme(informe);
+                            Informe informe = resBusInf.getSegundo();
+                            Usuario usuario = informe.getUsuario();
 
-                            // Limpiamos el directorio temporal
-                            limpiarDirTemporal();
+                            // Cromprobamoos que existe un directorio de informes del usuarioo que solicito el infoorme
+                            if (existeDirInformesDelUsuario(usuario)){
+                                generarInforme(informe);
+
+                                // Limpiamos el directorio temporal
+                                limpiarDirTemporal();
+                            }
                         }
                     }
+
+                }catch (Exception e){
+                    Logger.error("No se ha podido lanzar el generador de informes", e);
                 }
             }
         };

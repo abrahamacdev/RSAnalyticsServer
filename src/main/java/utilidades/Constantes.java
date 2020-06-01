@@ -191,10 +191,10 @@ public class Constantes {
     }};
 
     // Generador informes
-    public final static Par<Long, TimeUnit> ESPERA_SI_NO_HAY_INFORMES = new Par(5, TimeUnit.MINUTES);
+    public final static Par<Long, TimeUnit> ESPERA_SI_NO_HAY_INFORMES = new Par(5l, TimeUnit.MINUTES);
 
     // Refinador
-    public final static Par<Long, TimeUnit> ESPERA_ENTRE_REFINAMIENTOS = new Par(2, TimeUnit.HOURS);
+    public final static Par<Long, TimeUnit> ESPERA_ENTRE_REFINAMIENTOS = new Par(2l, TimeUnit.HOURS);
 
     // Scrapers
     public final static boolean MODO_PRUEBA = true;

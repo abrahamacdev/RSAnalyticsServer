@@ -145,11 +145,12 @@ public class ControladorMunicipio {
 
         try {
 
-            String sentencia = "SELECT DISTINCT mun.*\n" +
+            String sentencia = "SELECT DISTINCT mun.*, COUNT(inm.id)\n" +
                     "FROM municipio mun\n" +
                     "INNER JOIN inmueble inm ON mun.id = inm.municipio_id\n" +
                     "WHERE mun.nombre LIKE :nombre\n" +
-                    "HAVING COUNT(inm.id) > 2";
+                    "GROUP BY mun.id\n" +
+                    "HAVING COUNT(inm.id) > 3\n";
 
             Query query = entityManager.createNativeQuery(sentencia, Municipio.class);
             query.setParameter("nombre", "%" + nombre + "%");
