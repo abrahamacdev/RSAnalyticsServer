@@ -400,6 +400,7 @@ public class GeneradorInforme {
                         Constantes.RUTA_DIRECTORIO_INFORMES + "/" + informe.getUsuario().getId() + Constantes.RUTA_DIRECTORIO_INFORMES_GENERADOS +
                         "/" + informe.getNombre() + ".pdf");
 
+
                 FileUtils.moveFile(opcionalInformeGenerado.get(), dst);
                 return true;
             }

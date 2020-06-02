@@ -30,6 +30,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 
 public class Informes extends AbstractHandler{
@@ -50,7 +51,7 @@ public class Informes extends AbstractHandler{
                 (ctx) -> ejecutar(this::listarInformes, ctx));
 
         // Descargar informe
-        app.post(Constantes.REST.INFORME.INFORME_PATH.value + Constantes.REST.INFORME.DESCARGAR_ENDPOINT.value,
+        app.get(Constantes.REST.INFORME.INFORME_PATH.value + Constantes.REST.INFORME.DESCARGAR_ENDPOINT.value,
                 (ctx) -> ejecutar(this::descargarInforme, ctx));
 
 
@@ -247,17 +248,18 @@ public class Informes extends AbstractHandler{
 
 
     // ----- Descargar informe solicitado -----
-    private boolean comprobarCamposDescargaInforme(JSONObject cuerpo){
-        return cuerpo.containsKey("idInforme");
+    private boolean comprobarCamposDescargaInforme(Map<String, List<String>> form){
+        return form.containsKey("id");
     }
 
-    private void comenzarDescargaInforme(Context ctx, Claims token, JSONObject cuerpo){
+    private void comenzarDescargaInforme(Context ctx, Claims token){
 
-        int idInforme = ((Long) cuerpo.get("idInforme")).intValue();
+        int idInforme = Integer.valueOf((String) ctx.queryParam("id"));
 
         // Buuscamos el usuario en la base de datos
         ControladorUsuario controladorUsuario = new ControladorUsuario();
         Par<Integer, Usuario> resBusUsu = controladorUsuario.buscarUsuarioPorCorreo(token.getSubject());
+
         if (resBusUsu.getPrimero() > 0){
             ctx.status(HTTPCodes._500.getCodigo());
             return;
@@ -266,6 +268,7 @@ public class Informes extends AbstractHandler{
         // Buscamos el informe en la base de datos
         ControladorInforme controladorInforme = new ControladorInforme();
         Par<Exception, Informe> resBusInf = controladorInforme.obtenerInformeConId(idInforme);
+
         if (!resBusInf.primeroEsNulo()){
             ctx.status(HTTPCodes._500.getCodigo());
             return;
@@ -288,39 +291,27 @@ public class Informes extends AbstractHandler{
     }
 
     private Runnable descargarInforme(Context ctx){
-        return new Runnable() {
-            @Override
-            public void run() {
+        return () -> {
 
-                Jwt token = new Securata(ctx).validarYRetornarToken();
+            Jwt token = new Securata(ctx).validarYRetornarToken();
 
-                if (token != null){
+            if (token != null){
 
-                    JSONObject respuesta = new JSONObject();
+                JSONObject respuesta = new JSONObject();
 
-                    try {
-                        JSONObject cuerpo = (JSONObject) new JSONParser().parse(ctx.body());
-
-                        // Comprobamos que la peticion contenga los campos necesarios
-                        if (!comprobarCamposDescargaInforme(cuerpo)){
-                            respuesta.put(Constantes.REST.RESPUESTAS_KEYS.MSG.value, "Faltan campos por rellenar");
-                            ctx.status(HTTPCodes._400.getCodigo());
-                            ctx.result(respuesta.toJSONString());
-                            return;
-                        }
-
-                        // Comenzamos la descarga del informe
-                        comenzarDescargaInforme(ctx, (Claims) token.getBody(),cuerpo);
-
-                    } catch (ParseException e) {
-                        respuesta.put(Constantes.REST.RESPUESTAS_KEYS.MSG.value, "Ocurrio un error");
-                        ctx.status(HTTPCodes._500.getCodigo());
-                        ctx.result(respuesta.toJSONString());
-                        return;
-                    }
+                // Comprobamos que la peticion contenga los campos necesarios
+                if (!comprobarCamposDescargaInforme(ctx.queryParamMap())){
+                    respuesta.put(Constantes.REST.RESPUESTAS_KEYS.MSG.value, "Faltan campos por rellenar");
+                    ctx.status(HTTPCodes._400.getCodigo());
+                    ctx.result(respuesta.toJSONString());
+                    return;
                 }
 
+                // Comenzamos la descarga del informe
+                comenzarDescargaInforme(ctx, (Claims) token.getBody());
+
             }
+
         };
     }
     // ----------------------------------------

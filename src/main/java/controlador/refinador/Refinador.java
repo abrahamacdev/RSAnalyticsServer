@@ -99,6 +99,8 @@ public class Refinador {
 
 
 
+                    Logger.info("Hemos terminado de refinar los anuncios disponibles, dormiremos " + Constantes.ESPERA_ENTRE_REFINAMIENTOS.getPrimero() + " " + Constantes.ESPERA_ENTRE_REFINAMIENTOS.getSegundo().name().toLowerCase());
+
                     // Esperamos dos horas antes de volver a refinar
                     Utils.esperar(Constantes.ESPERA_ENTRE_REFINAMIENTOS.getPrimero(), Constantes.ESPERA_ENTRE_REFINAMIENTOS.getSegundo());
                 }
