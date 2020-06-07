@@ -195,8 +195,6 @@ public class Notificaciones extends AbstractHandler {
         JSONObject respuesta = new JSONObject();
         String correo = token.getSubject();
 
-        System.out.println(cuerpo.get("idsNotificaciones"));
-
         // Obtenemos cada id del JSONArray y lo metemos a la lista de ids
         List<Integer> idsNotificaciones = ((JSONArray) cuerpo.get("idsNotificaciones")).stream()
                 .mapToInt(new ToIntFunction(){

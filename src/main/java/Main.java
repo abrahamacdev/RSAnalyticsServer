@@ -6,17 +6,12 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
 /**
- * Para que la aplicacion funcione correctamente hay que:
+ * Para que la aplicacion funcione correctamente hay que iniciar una primera vez la aplicación,
+ * esta automáticamente creará el directorio de trabajo bajo el directorio "/opt". Una vez ejecutada por primera
+ * vez, tenemos que:
  *
- * 1. Crear el directorio {@link utilidades.Constantes#RUTA_DIRECTORIO_RSANALYTICS}
+ * 1. Ir al directorio "/opt/RSAnalytics/conf/" y dar permisos de ejecución a "chromedriver"
  *
- * 2. Incluir los archivos "server.properties" y "keystore.jks" que se encuentran en la raiz del proyecto dentro del
- *    directorio recién creado
- *
- * 3. Copiar el "chromedriver" que se encuentra en la carpeta "chromeDriver" en el directorio "resources" de este proyecto
- *    a "/opt/chromedriver"
- *
- * 4. Añadir una variable de entorno a la VM tal que '-Dwebdriver.chrome.driver="/opt/chromedriver"'
  */
 public class Main {
 
