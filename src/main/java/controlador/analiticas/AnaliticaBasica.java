@@ -67,18 +67,22 @@ public class AnaliticaBasica extends AbstractAnalitica{
             @Override
             public void onNext(@NonNull Par<Inmueble, Map<String, Object>> inmuebleHashMapPar) {
 
-                double precio = (double) inmuebleHashMapPar.getSegundo().get("Precio");
+                double precio = (double) inmuebleHashMapPar.getSegundo().getOrDefault("Precio",-1.0);
 
-                if (precio > precioMax){
-                    precioMax = precio;
+                if (precio !=  -1){
+
+                    if (precio > precioMax){
+                        precioMax = precio;
+                    }
+
+                    if (precio < precioMin){
+                        precioMin = precio;
+                    }
+
+                    numPrecios += 1.0;
+                    media += precio;
                 }
 
-                if (precio < precioMin){
-                    precioMin = precio;
-                }
-
-                numPrecios += 1.0;
-                media += precio;
             }
 
             @Override

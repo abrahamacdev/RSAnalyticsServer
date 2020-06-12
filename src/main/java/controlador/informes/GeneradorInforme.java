@@ -290,11 +290,14 @@ public class GeneradorInforme {
         Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("Europe/Madrid"));
         calendar.setTimeInMillis(informe.getFechaCreacionSolicitud());
 
+        String horas = String.format("%02d", calendar.get(Calendar.HOUR_OF_DAY));
+        String minutos = String.format("%02d", calendar.get(Calendar.MINUTE));
+
         Notificacion notificacion = new Notificacion();
         notificacion.setReceptor(informe.getUsuario());
         notificacion.setMensaje("Ya está disponible el informe que solicitaste el día " +  calendar.get(Calendar.DAY_OF_MONTH) + " de " +
-                Utils.mes2Texto(calendar.get(Calendar.MONTH)) + " de " + calendar.get(Calendar.YEAR) + " a las " + calendar.get(Calendar.HOUR_OF_DAY) +
-                ":" + calendar.get(Calendar.MINUTE));
+                Utils.mes2Texto(calendar.get(Calendar.MONTH)) + " de " + calendar.get(Calendar.YEAR) + " a las " + horas +
+                ":" + minutos);
 
         int resGuardado = controladorNotificacion.guardarNuevaNotificacion(notificacion);
 

@@ -126,14 +126,14 @@ public class AnaliticaVivienda extends AnaliticaBasica {
             @Override
             public void onNext(@NonNull Par<Inmueble, Map<String, Object>> inmuebleMapPar) {
 
-                double antiguedad = (double) inmuebleMapPar.getSegundo().get("Antiguedad");
+                double antiguedad = (double) inmuebleMapPar.getSegundo().getOrDefault("Antiguedad",-1.0);
 
-                if (antiguedad != 0.0){
+                if (antiguedad > 0.0){
 
-                    double recuento = 0.0;
+                    double recuento = 1.0;
 
-                    if (inmueblesPorAntiguedad.containsKey(antiguedad)){
-                        recuento = inmueblesPorAntiguedad.get(antiguedad) + 1.0;
+                    if (inmueblesPorAntiguedad.containsKey((int) antiguedad)){
+                        recuento = inmueblesPorAntiguedad.get((int) antiguedad) + 1.0;
                     }
 
                     inmueblesPorAntiguedad.put((int) antiguedad, recuento);
@@ -478,50 +478,48 @@ public class AnaliticaVivienda extends AnaliticaBasica {
 
             double total = inmueblesPorAntiguedad.values().stream().reduce(new Double(0), Double::sum);
 
-            HashMap<Integer, Tripleta<Integer,Double,String>> masComunes = new HashMap();
+            // Inicializamos el map
+            Map<Integer, Tripleta<Integer,Double,String>> masComunes = new HashMap();
             for (int i=0; i<3; i++){
                 masComunes.put(i, new Tripleta(0, Double.MIN_VALUE, null));
             }
 
-            Function<Par<Integer, Integer>, String> parseoAntiguedad = new Function<Par<Integer, Integer>, String>() {
-                @Override
-                public String apply(Par<Integer, Integer> integerIntegerPar) {
+            Function<Par<Integer, Integer>, String> parseoAntiguedad = integerIntegerPar -> {
 
-                    if (integerIntegerPar == null){
-                        return null;
-                    }
-                    else if (integerIntegerPar.getPrimero() == 0 && integerIntegerPar.getSegundo() == 0){
-                        return "acaban de ser construidas (son nuevas)";
-                    }
-                    else if (integerIntegerPar.getPrimero() == 100 && integerIntegerPar.getSegundo() == Integer.MAX_VALUE){
-                        return "tienen más de 100 años";
-                    }
-                    else {
-                        return "tienen entre " + integerIntegerPar.getPrimero() + " y " + integerIntegerPar.getSegundo() + " años";
-                    }
+                if (integerIntegerPar == null){
+                    return null;
+                }
+                else if (integerIntegerPar.getPrimero() == 0 && integerIntegerPar.getSegundo() == 0){
+                    return "acaban de ser construidas (son nuevas)";
+                }
+                else if (integerIntegerPar.getPrimero() == 100 && integerIntegerPar.getSegundo() == Integer.MAX_VALUE){
+                    return "tienen más de 100 años";
+                }
+                else {
+                    return "tienen entre " + integerIntegerPar.getPrimero() + " y " + integerIntegerPar.getSegundo() + " años";
                 }
             };
+
 
             // Nos quedamos con las tres antiguedades más comunes
             for (Map.Entry<Integer,Double> entry : inmueblesPorAntiguedad.entrySet()){
 
                 Par edades = Utils.obtenerAniosAntiguedadInmueble(entry.getKey());
 
-                if (masComunes.size() < 3){
-                    masComunes.put(masComunes.size(), new Tripleta(entry.getKey(), entry.getValue().intValue(), parseoAntiguedad.apply(edades)));
-                }
+                for (int i=0; i<3; i++){
 
-                else {
-
-                    for (int i=0; i<3; i++){
-
-                        if (masComunes.get(i).getSegundo() < entry.getValue()){
-                            masComunes.put(i, new Tripleta(entry.getKey(), entry.getValue(),parseoAntiguedad.apply(edades)));
-                            break;
-                        }
+                    if (masComunes.get(i).getSegundo() < entry.getValue()){
+                        masComunes.put(i, new Tripleta(entry.getKey(), entry.getValue(),parseoAntiguedad.apply(edades)));
+                        break;
                     }
                 }
+
             }
+
+            masComunes = masComunes.entrySet()
+                    .stream()
+                    .filter(entry -> entry.getValue().getSegundo() != Double.MIN_VALUE)
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
             // Creamos el json con los datos de los textos
             JSONObject jsonTexto = new JSONObject();
@@ -534,32 +532,31 @@ public class AnaliticaVivienda extends AnaliticaBasica {
             JSONArray labels = new JSONArray();
             JSONArray datos = new JSONArray();
 
-            Function<Par<Integer, Integer>, String> parseoTituloAntiguedad = new Function<Par<Integer, Integer>, String>() {
-                @Override
-                public String apply(Par<Integer, Integer> integerIntegerPar) {
+            Function<Par<Integer, Integer>, String> parseoTituloAntiguedad = integerIntegerPar -> {
 
-                    if (integerIntegerPar == null){
-                        return null;
-                    }
-                    else if (integerIntegerPar.getPrimero() == 0 && integerIntegerPar.getSegundo() == 0){
-                        return "Nuevas";
-                    }
-                    else if (integerIntegerPar.getPrimero() == 100 && integerIntegerPar.getSegundo() == Integer.MAX_VALUE){
-                        return "+100 años";
-                    }
-                    else {
-                        return integerIntegerPar.getPrimero() + " - " + integerIntegerPar.getSegundo() + " años";
-                    }
+                if (integerIntegerPar == null){
+                    return null;
+                }
+                else if (integerIntegerPar.getPrimero() == 0 && integerIntegerPar.getSegundo() == 0){
+                    return "Nuevas";
+                }
+                else if (integerIntegerPar.getPrimero() == 100 && integerIntegerPar.getSegundo() == Integer.MAX_VALUE){
+                    return "+100 años";
+                }
+                else {
+                    return integerIntegerPar.getPrimero() + " - " + integerIntegerPar.getSegundo() + " años";
                 }
             };
 
             double sumaTresMayores = 0.0;
             int variables = 1;
+            DecimalFormat formato2Decimales = new DecimalFormat("#.##");
             for (Map.Entry<Integer, Tripleta<Integer, Double, String>> entry : masComunes.entrySet()) {
+
                 msgs.add("Un $" + variables + "% de las viviendas " + entry.getValue().getTercero());
 
                 double porcentaje = entry.getValue().getSegundo() * 100.0 / total;
-                valores.add(porcentaje);
+                valores.add(formato2Decimales.format(porcentaje).replace(",", "."));
 
                 String label = parseoTituloAntiguedad.apply(Utils.obtenerAniosAntiguedadInmueble(entry.getValue().getPrimero()));
                 labels.add(label);
@@ -570,7 +567,6 @@ public class AnaliticaVivienda extends AnaliticaBasica {
             }
             labels.add("Otros");
             datos.add(100 - sumaTresMayores);
-
 
             JSONObject formato = new JSONObject();
             formato.put("posicion", 1);

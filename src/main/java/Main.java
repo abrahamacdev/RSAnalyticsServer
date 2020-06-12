@@ -2,8 +2,6 @@ import controlador.Server;
 import controlador.seguridad.TokensManejador;
 import utilidades.PrimeraVez;
 
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 
 /**
  * Para que la aplicacion funcione correctamente hay que iniciar una primera vez la aplicación,
