@@ -1,0 +1,38 @@
+Manifest-Version: 1.0
+Main-Class: com.rsanalytics.Main
+Class-Path: jaxb-api-2.3.1.jar mysql-connector-java-8.0.18.jar reactive-
+ streams-1.0.3.jar bcprov-jdk15on-1.58.jar bcrypt-0.9.0.jar FastInfoset-
+ 1.2.15.jar selenium-java-3.141.59.jar hibernate-commons-annotations-5.1
+ .0.Final.jar selenium-api-3.141.59.jar jetty-util-9.4.25.v20191220.jar 
+ jetty-security-9.4.25.v20191220.jar jetty-client-9.4.25.v20191220.jar b
+ ytes-1.3.0.jar selenium-remote-driver-3.141.59.jar websocket-server-9.4
+ .25.v20191220.jar selenium-support-3.141.59.jar jetty-xml-9.4.25.v20191
+ 220.jar jsr305-1.3.9.jar jaxb-runtime-2.3.1.jar slf4j-api-1.7.28.jar ne
+ tty-all-4.0.51.Final.jar bcpkix-jdk15on-1.58.jar websocket-servlet-9.4.
+ 25.v20191220.jar json-simple-1.1.1.jar slf4j-simple-1.7.28.jar guava-25
+ .0-jre.jar javassist-3.24.0-GA.jar istack-commons-runtime-3.0.7.jar ant
+ lr-2.7.7.jar jetty-webapp-9.4.25.v20191220.jar websocket-common-9.4.25.
+ v20191220.jar selenium-opera-driver-3.141.59.jar commons-io-2.6.jar dom
+ 4j-2.1.1.jar javax.servlet-api-3.1.0.jar javax.persistence-api-2.2.jar 
+ classmate-1.5.1.jar junit-4.10.jar animal-sniffer-annotations-1.14.jar 
+ jackson-core-2.10.1.jar jboss-logging-3.3.2.Final.jar tinylog-impl-2.1.
+ 1.jar commons-logging-1.2.jar javalin-3.8.0.jar commons-codec-1.11.jar 
+ jetty-servlet-9.4.25.v20191220.jar checker-compat-qual-2.0.0.jar mitm-2
+ .1.5.jar websocket-client-9.4.25.v20191220.jar selenium-safari-driver-3
+ .141.59.jar commons-exec-1.3.jar kotlin-stdlib-1.3.61.jar kotlin-stdlib
+ -common-1.3.61.jar jetty-io-9.4.25.v20191220.jar jackson-annotations-2.
+ 10.1.jar browsermob-core-2.1.5.jar protobuf-java-3.6.1.jar annotations-
+ 13.0.jar selenium-firefox-driver-3.141.59.jar jetty-server-9.4.25.v2019
+ 1220.jar dnsjava-2.1.8.jar kotlin-stdlib-jdk7-1.3.61.jar txw2-2.3.1.jar
+  stax-ex-1.8.jar jetty-http-9.4.25.v20191220.jar jackson-databind-2.10.
+ 1.jar selenium-edge-driver-3.141.59.jar okio-1.14.0.jar httpclient-4.5.
+ 12.jar httpcore-4.4.13.jar rxjava-3.0.3.jar error_prone_annotations-2.1
+ .3.jar littleproxy-1.1.0-beta-bmp-17.jar kotlin-stdlib-jdk8-1.3.61.jar 
+ hamcrest-core-1.1.jar jjwt-jackson-0.11.1.jar jjwt-impl-0.11.1.jar byte
+ -buddy-1.10.7.jar jzlib-1.1.3.jar commons-lang3-3.5.jar javax.activatio
+ n-api-1.2.0.jar websocket-api-9.4.25.v20191220.jar jboss-transaction-ap
+ i_1.2_spec-1.1.1.Final.jar hibernate-core-5.4.14.Final.jar selenium-ie-
+ driver-3.141.59.jar selenium-chrome-driver-3.141.59.jar j2objc-annotati
+ ons-1.1.jar okhttp-3.11.0.jar tinylog-api-2.1.1.jar jandex-2.1.1.Final.
+ jar jjwt-api-0.11.1.jar
+

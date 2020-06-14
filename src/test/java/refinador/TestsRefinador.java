@@ -1,22 +1,21 @@
 package refinador;
 
-import controlador.managers.anuncios.ControladorAnuncio;
-import controlador.managers.anuncios.ControladorAtributoAnuncio;
-import controlador.refinador.Refinador;
-import controlador.scrapers.ManejadorScrapers;
-import controlador.scrapers.OnScraperListener;
-import controlador.scrapers.TipoScraper;
-import modelo.pojo.scrapers.Anuncio;
-import modelo.pojo.scrapers.ClaveAtributoAnuncio;
+import com.rsanalytics.controlador.managers.anuncios.ControladorAnuncio;
+import com.rsanalytics.controlador.managers.anuncios.ControladorAtributoAnuncio;
+import com.rsanalytics.controlador.refinador.Refinador;
+import com.rsanalytics.controlador.scrapers.ManejadorScrapers;
+import com.rsanalytics.controlador.scrapers.OnScraperListener;
+import com.rsanalytics.controlador.scrapers.TipoScraper;
+import com.rsanalytics.modelo.pojo.scrapers.Anuncio;
+import com.rsanalytics.modelo.pojo.scrapers.ClaveAtributoAnuncio;
 import org.apache.commons.io.FileUtils;
 import org.hibernate.Session;
 import org.hibernate.jdbc.Work;
 import org.junit.Assert;
 import org.junit.Test;
 import org.tinylog.Logger;
-import utilidades.Par;
-import SqlScriptRunner;
-import utilidades.Utils;
+import com.rsanalytics.utilidades.Par;
+import com.rsanalytics.utilidades.Utils;
 
 import javax.persistence.EntityManager;
 import java.io.File;

@@ -7,37 +7,37 @@
 
         <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
 
-        <class>modelo.pojo.Municipio</class>
-        <class>modelo.pojo.Provincia</class>
+        <class>com.rsanalytics.modelo.pojo.Municipio</class>
+        <class>com.rsanalytics.modelo.pojo.Provincia</class>
 
-        <class>modelo.pojo.rest.Usuario</class>
-        <class>modelo.pojo.rest.Rol</class>
-        <class>modelo.pojo.rest.Token</class>
-        <class>modelo.pojo.rest.Grupo</class>
+        <class>com.rsanalytics.modelo.pojo.rest.Usuario</class>
+        <class>com.rsanalytics.modelo.pojo.rest.Rol</class>
+        <class>com.rsanalytics.modelo.pojo.rest.Token</class>
+        <class>com.rsanalytics.modelo.pojo.rest.Grupo</class>
 
-        <class>modelo.pojo.rest.usuario_grupo.UsuarioGrupo</class>
-        <class>modelo.pojo.rest.usuario_grupo.UsuarioGrupoId</class>
+        <class>com.rsanalytics.modelo.pojo.rest.usuario_grupo.UsuarioGrupo</class>
+        <class>com.rsanalytics.modelo.pojo.rest.usuario_grupo.UsuarioGrupoId</class>
 
-        <class>modelo.pojo.rest.Notificacion</class>
-        <class>modelo.pojo.rest.Accion</class>
-        <class>modelo.pojo.rest.Tipo</class>
+        <class>com.rsanalytics.modelo.pojo.rest.Notificacion</class>
+        <class>com.rsanalytics.modelo.pojo.rest.Accion</class>
+        <class>com.rsanalytics.modelo.pojo.rest.Tipo</class>
 
-        <class>modelo.pojo.scrapers.Anuncio</class>
-        <class>modelo.pojo.scrapers.Procedencia</class>
-        <class>modelo.pojo.scrapers.ClaveAtributoAnuncio</class>
-        <class>modelo.pojo.scrapers.atributo_anuncio.AtributoAnuncio</class>
-        <class>modelo.pojo.scrapers.atributo_anuncio.AtributoAnuncioId</class>
-        <class>modelo.pojo.scrapers.Inmueble</class>
-        <class>modelo.pojo.scrapers.ClaveAtributoInmueble</class>
-        <class>modelo.pojo.scrapers.TipoContrato</class>
-        <class>modelo.pojo.scrapers.TipoInmueble</class>
-        <class>modelo.pojo.scrapers.atributo_inmueble.AtributoInmueble</class>
-        <class>modelo.pojo.scrapers.atributo_inmueble.AtributoInmuebleId</class>
-        <class>modelo.pojo.scrapers.anuncio_inmueble_tipoContrato.AnuncioInmuebleTipoContrato</class>
-        <class>modelo.pojo.scrapers.anuncio_inmueble_tipoContrato.AnuncioInmuebleTipoContratoId</class>
-        <class>modelo.pojo.scrapers.Informe</class>
-        <class>modelo.pojo.scrapers.informe_inmueble.InformeInmueble</class>
-        <class>modelo.pojo.scrapers.informe_inmueble.InformeInmuebleId</class>
+        <class>com.rsanalytics.modelo.pojo.scrapers.Anuncio</class>
+        <class>com.rsanalytics.modelo.pojo.scrapers.Procedencia</class>
+        <class>com.rsanalytics.modelo.pojo.scrapers.ClaveAtributoAnuncio</class>
+        <class>com.rsanalytics.modelo.pojo.scrapers.atributo_anuncio.AtributoAnuncio</class>
+        <class>com.rsanalytics.modelo.pojo.scrapers.atributo_anuncio.AtributoAnuncioId</class>
+        <class>com.rsanalytics.modelo.pojo.scrapers.Inmueble</class>
+        <class>com.rsanalytics.modelo.pojo.scrapers.ClaveAtributoInmueble</class>
+        <class>com.rsanalytics.modelo.pojo.scrapers.TipoContrato</class>
+        <class>com.rsanalytics.modelo.pojo.scrapers.TipoInmueble</class>
+        <class>com.rsanalytics.modelo.pojo.scrapers.atributo_inmueble.AtributoInmueble</class>
+        <class>com.rsanalytics.modelo.pojo.scrapers.atributo_inmueble.AtributoInmuebleId</class>
+        <class>com.rsanalytics.modelo.pojo.scrapers.anuncio_inmueble_tipoContrato.AnuncioInmuebleTipoContrato</class>
+        <class>com.rsanalytics.modelo.pojo.scrapers.anuncio_inmueble_tipoContrato.AnuncioInmuebleTipoContratoId</class>
+        <class>com.rsanalytics.modelo.pojo.scrapers.Informe</class>
+        <class>com.rsanalytics.modelo.pojo.scrapers.informe_inmueble.InformeInmueble</class>
+        <class>com.rsanalytics.modelo.pojo.scrapers.informe_inmueble.InformeInmuebleId</class>
 
         <properties>
             <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/RSAnalytics?serverTimezone=UTC" />
