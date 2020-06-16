@@ -1,6 +1,10 @@
 DROP DATABASE IF EXISTS RSAnalytics;
 
+SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='TRADITIONAL,ALLOW_INVALID_DATES';
+
 CREATE DATABASE IF NOT EXISTS RSAnalytics;
+
+ALTER DATABASE RSAnalytics CHARACTER SET utf8 COLLATE utf8_general_ci;
 
 USE RSAnalytics;
 
@@ -41,14 +45,14 @@ CREATE TABLE IF NOT EXISTS grupo(
 CREATE TABLE IF NOT EXISTS usuario_grupo(
     usuario_id INT,
     grupo_id INT,
-    fecha_ingreso DATE DEFAULT NOW(),
+    fecha_ingreso DATETIME DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT usGrup_idUsIdGrup_pk PRIMARY KEY (usuario_id, grupo_id)
 );
 
 CREATE TABLE IF NOT EXISTS notificacion(
     id INT PRIMARY KEY AUTO_INCREMENT,
     mensaje VARCHAR(255),
-    fecha_envio DATE NOT NULL DEFAULT NOW(),
+    fecha_envio DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     leida BOOLEAN NOT NULL DEFAULT FALSE,
     emisor_id INT,
     receptor_id INT NOT NULL,
@@ -76,7 +80,7 @@ CREATE TABLE IF NOT EXISTS procedencia (
 
 CREATE TABLE IF NOT EXISTS anuncio (
     id INT PRIMARY KEY AUTO_INCREMENT,
-    fecha_obtencion DATE NOT NULL DEFAULT NOW(),
+    fecha_obtencion DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     municipio_id INT NOT NULL,
     procedencia_id INT NOT NULL
 );
@@ -113,7 +117,7 @@ CREATE TABLE IF NOT EXISTS inmueble (
     id INT PRIMARY KEY AUTO_INCREMENT,
     tipoInmueble_id INT NOT NULL,
     municipio_id INT NOT NULL,
-    fecha_creacion DATE DEFAULT NOW()
+    fecha_creacion DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS tipoContrato (
