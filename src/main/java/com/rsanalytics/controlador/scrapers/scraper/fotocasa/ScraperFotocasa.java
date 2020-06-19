@@ -447,17 +447,16 @@ public class ScraperFotocasa extends AbstractScraper {
 
         HarLog log = har.getLog();
         List<JSONObject> listadoAnuncios = log.getEntries().stream()
-                .filter((harEntry) -> {
-                    return Utils.dominioCoincideCon(harEntry.getRequest().getUrl(), "api.fotocasa.es");
-                })
+                .filter((harEntry) -> Utils.dominioCoincideCon(harEntry.getRequest().getUrl(), "api.fotocasa.es"))
                 .map((harEntry) -> {
+
                     try {
                         return ((JSONObject) new JSONParser().parse(harEntry.getResponse().getContent().getText()));
                     } catch (Exception e) {
                         return new JSONObject();
                     }
                 })
-                .filter(jsonObject -> jsonObject.containsKey("breadcrumb"))
+                .filter(jsonObject -> jsonObject != null && jsonObject.containsKey("breadcrumb"))
                 .collect(Collectors.toList());
 
         // Limpiamos el log
